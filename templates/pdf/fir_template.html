@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>FIR #{{ fir.fir_number }}</title>
+    <style>
+        /* Reset and base styles */
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            font-size: 12pt;
+            line-height: 1.5;
+        }
+        
+        /* Page layout */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header styles */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #000;
+        }
+        
+        .header-emblem {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px;
+        }
+        
+        .header h1 {
+            font-size: 24pt;
+            font-weight: bold;
+            margin: 5px 0;
+            text-transform: uppercase;
+        }
+        
+        .header h2 {
+            font-size: 18pt;
+            margin: 5px 0 15px;
+        }
+        
+        .header p {
+            font-size: 11pt;
+            margin: 5px 0;
+        }
+        
+        .confidential-stamp {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            border: 2px solid #cc0000;
+            color: #cc0000;
+            padding: 5px 10px;
+            font-weight: bold;
+            transform: rotate(15deg);
+            font-size: 14pt;
+            opacity: 0.8;
+        }
+        
+        /* Section styles */
+        .section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            font-size: 14pt;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #666;
+        }
+        
+        .section-content {
+            padding: 0 10px;
+        }
+        
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        table, th, td {
+            border: 1px solid #000;
+        }
+        
+        th, td {
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        /* Field styles */
+        .field {
+            margin-bottom: 10px;
+        }
+        
+        .field-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 150px;
+        }
+        
+        .field-value {
+            display: inline-block;
+        }
+        
+        /* Status indicators */
+        .status-indicator {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 10pt;
+        }
+        
+        .status-draft {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #6c757d;
+        }
+        
+        .status-filed {
+            background-color: #e8f4ff;
+            color: #0d6efd;
+            border: 1px solid #0d6efd;
+        }
+        
+        .status-under_investigation {
+            background-color: #fff3cd;
+            color: #664d03;
+            border: 1px solid #664d03;
+        }
+        
+        .status-closed {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #0f5132;
+        }
+        
+        /* Urgency indicators */
+        .urgency-indicator {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 10pt;
+        }
+        
+        .urgency-low {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #0f5132;
+        }
+        
+        .urgency-normal {
+            background-color: #cfe2ff;
+            color: #084298;
+            border: 1px solid #084298;
+        }
+        
+        .urgency-high {
+            background-color: #fff3cd;
+            color: #664d03;
+            border: 1px solid #664d03;
+        }
+        
+        .urgency-critical {
+            background-color: #f8d7da;
+            color: #842029;
+            border: 1px solid #842029;
+        }
+        
+        /* Footer styles */
+        .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #000;
+            font-size: 10pt;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+        
+        .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .signature-box {
+            width: 45%;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 50px;
+            padding-top: 5px;
+            text-align: center;
+        }
+        
+        /* QR code */
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 100pt;
+            color: rgba(200, 200, 200, 0.1);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* Evidence section */
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .evidence-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .evidence-item img {
+            max-width: 100%;
+            max-height: 150px;
+            object-fit: contain;
+        }
+        
+        .evidence-caption {
+            margin-top: 5px;
+            font-size: 10pt;
+        }
+        
+        /* Page break utilities */
+        .page-break {
+            page-break-after: always;
+        }
+        
+        /* Print-specific styles */
+        @media print {
+            body {
+                font-size: 12pt;
+            }
+            
+            .page-break {
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% if fir.status == "draft" %}
+    <div class="watermark">DRAFT</div>
+    {% endif %}
+    
+    <div class="container">
+        <div class="header">
+            <div class="header-emblem">
+                <img src="{{ emblem_path }}" alt="National Emblem" width="80">
+            </div>
+            <h1>First Information Report</h1>
+            <h2>{{ police_station_name }}</h2>
+            <p>District: {{ district_name }} | State: {{ state_name }}</p>
+            <p>FIR Number: <strong>{{ fir.fir_number }}</strong> | Date: {{ fir.filed_at.strftime('%d-%m-%Y') if fir.filed_at else 'Not submitted' }}</p>
+            
+            {% if fir.status != "draft" %}
+            <div class="confidential-stamp">CONFIDENTIAL</div>
+            {% endif %}
+        </div>
+        
+        <div class="section">
+            <div class="section-title">1. Complainant Information</div>
+            <div class="section-content">
+                <div class="field">
+                    <span class="field-label">Name:</span>
+                    <span class="field-value">{{ user.full_name }}</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Contact Number:</span>
+                    <span class="field-value">{{ user.phone or 'Not provided' }}</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Address:</span>
+                    <span class="field-value">{{ user.address or 'Not provided' }}</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Email:</span>
+                    <span class="field-value">{{ user.email }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">2. Incident Details</div>
+            <div class="section-content">
+                <div class="field">
+                    <span class="field-label">Date & Time:</span>
+                    <span class="field-value">{{ fir.incident_date.strftime('%d-%m-%Y %H:%M') if fir.incident_date else 'Not specified' }}</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Location:</span>
+                    <span class="field-value">{{ fir.incident_location or 'Not specified' }}</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Status:</span>
+                    <span class="field-value">
+                        <span class="status-indicator status-{{ fir.status }}">{{ fir.get_status_label() }}</span>
+                    </span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Urgency Level:</span>
+                    <span class="field-value">
+                        <span class="urgency-indicator urgency-{{ fir.urgency_level }}">{{ fir.get_urgency_label() }}</span>
+                    </span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Filed On:</span>
+                    <span class="field-value">{{ fir.filed_at.strftime('%d-%m-%Y %H:%M') if fir.filed_at else 'Not submitted yet' }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">3. Complaint Description</div>
+            <div class="section-content">
+                <p>{{ fir.incident_description }}</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">4. Applicable Legal Sections</div>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="15%">Section Code</th>
+                            <th width="30%">Section Name</th>
+                            <th width="55%">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if legal_sections %}
+                            {% for section in legal_sections %}
+                                <tr>
+                                    <td>{{ section.code }}</td>
+                                    <td>{{ section.name }}</td>
+                                    <td>{{ section.description }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" style="text-align: center;">No legal sections have been identified yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        {% if evidence %}
+        <div class="section">
+            <div class="section-title">5. Evidence</div>
+            <div class="section-content">
+                <div class="evidence-grid">
+                    {% for item in evidence %}
+                        <div class="evidence-item">
+                            {% if item.type == 'image' %}
+                                <img src="{{ item.file_path }}" alt="Evidence">
+                                <div class="evidence-caption">
+                                    {{ item.description or 'No description provided' }}
+                                </div>
+                            {% else %}
+                                <div>{{ item.type|upper }} Evidence</div>
+                                <div class="evidence-caption">
+                                    {{ item.description or 'No description provided' }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line">
+                    Complainant's Signature
+                </div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line">
+                    Officer's Signature & Stamp
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>This is an officially generated document from the Intelligent FIR Filing System.</p>
+            <p>Document ID: {{ document_id }} | Generated on: {{ generation_date }}</p>
+            
+            {% if verification_qr %}
+            <div class="qr-code">
+                <img src="{{ verification_qr }}" alt="Verification QR Code" width="100">
+                <p>Scan to verify authenticity</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

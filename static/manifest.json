@@ -1,0 +1,16 @@
+{
+  "name": "Intelligent FIR Filing System",
+  "short_name": "FIR System",
+  "description": "AI-powered police complaint management system",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#212529",
+  "theme_color": "#212529",
+  "icons": [
+    {
+      "src": "/static/favicon.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    }
+  ]
+}

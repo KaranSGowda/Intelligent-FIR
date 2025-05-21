@@ -1,0 +1,64 @@
+{% extends 'layout.html' %}
+
+{% block title %}Select Your Role - Intelligent FIR Filing System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center mb-4">
+            <h2>Welcome, {{ current_user.full_name }}</h2>
+            <p class="lead">Please select how you would like to proceed:</p>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        {% if current_user.is_admin() %}
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="display-1 mb-3 text-danger">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3 class="card-title">Administrator</h3>
+                    <p class="card-text">Manage users, oversee all cases, and configure system settings</p>
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-danger btn-lg w-100">
+                        Continue as Administrator
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if current_user.is_police() %}
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="display-1 mb-3 text-primary">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3 class="card-title">Police Officer</h3>
+                    <p class="card-text">Manage assigned cases, investigate complaints, and update case status</p>
+                    <a href="{{ url_for('admin.cases') }}" class="btn btn-primary btn-lg w-100">
+                        Continue as Police Officer
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="display-1 mb-3 text-info">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3 class="card-title">Public User</h3>
+                    <p class="card-text">File complaints, track your complaint status, and generate reports</p>
+                    <a href="{{ url_for('fir.dashboard') }}" class="btn btn-info btn-lg w-100">
+                        Continue as Public User
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

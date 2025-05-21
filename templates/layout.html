@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Intelligent FIR Filing System - AI-powered police complaint management">
+    <meta name="theme-color" content="#212529">
+    <!-- Favicon and app icons -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" sizes="16x16 32x32 64x64">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}" sizes="64x64">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <title>{% block title %}Intelligent FIR Filing System{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+    <style>
+        /* Enhanced Navigation Styles */
+        .navbar {
+            padding: 12px 0;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-dark {
+            background: linear-gradient(to right, #1a1e21, #212529) !important;
+        }
+
+        .navbar-brand {
+            position: relative;
+            padding: 8px 15px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .navbar-brand::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, #007bff, #00c6ff);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-brand:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .nav-item {
+            margin: 0 2px;
+            position: relative;
+        }
+
+        .nav-link {
+            position: relative;
+            z-index: 1;
+            font-size: 15px;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+        }
+
+        .nav-link i {
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover i {
+            transform: scale(1.2);
+        }
+
+        /* Active tab indicator */
+        .nav-item.active .nav-link {
+            background-color: rgba(0, 123, 255, 0.15);
+            border-bottom: 3px solid #007bff;
+        }
+
+        /* Dropdown enhancements */
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .dropdown-item {
+            border-radius: 5px;
+            padding: 8px 15px;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        /* Badge enhancements */
+        .badge {
+            padding: 5px 8px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Voice Transcription Tab Special Styling */
+        .voice-transcription-tab {
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+
+        .voice-transcription-tab::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 5px;
+            z-index: -1;
+            background: linear-gradient(45deg, #007bff, #00c6ff);
+            opacity: 0.3;
+        }
+
+        .voice-transcription-tab .nav-link:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3) !important;
+            background-color: rgba(0, 123, 255, 0.3) !important;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.03);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Make sure the voice transcription tab is always visible */
+        @media (max-width: 991.98px) {
+            .navbar-collapse.show .voice-transcription-tab {
+                background-color: rgba(0, 123, 255, 0.1);
+                margin: 10px 0;
+                border-radius: 5px;
+            }
+        }
+    </style>
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4" style="box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); border-bottom: 3px solid #007bff;">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('fir.index') }}" style="font-size: 1.4rem; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);">
+                <i class="fas fa-shield-alt me-2" style="color: #007bff;"></i>
+                Intelligent FIR System
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto" style="font-weight: 600;">
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin() %}
+                        <!-- Admin Navigation -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+                                <i class="fas fa-chart-line me-1"></i> Admin Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.cases') }}">
+                                <i class="fas fa-folder-open me-1"></i> Manage Cases
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.users') }}">
+                                <i class="fas fa-users-cog me-1"></i> Manage Users
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('legal_sections.index') }}">
+                                <i class="fas fa-gavel me-1"></i> Legal Sections
+                            </a>
+                        </li>
+
+                        {% elif current_user.is_police() %}
+                        <!-- Police Officer Navigation -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+                                <i class="fas fa-chart-line me-1"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.cases') }}">
+                                <i class="fas fa-clipboard-list me-1"></i> Assigned Cases
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('legal_sections.index') }}">
+                                <i class="fas fa-gavel me-1"></i> Legal Sections
+                            </a>
+                        </li>
+
+                        {% else %}
+                        <!-- Public User Navigation -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('fir.dashboard') }}" style="padding: 10px 15px; margin: 0 5px; border-radius: 5px; transition: all 0.3s ease;">
+                                <i class="fas fa-clipboard-list me-1" style="color: #17a2b8;"></i> <span style="font-weight: 600;">My Complaints</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('fir.new_fir') }}" style="padding: 10px 15px; margin: 0 5px; border-radius: 5px; transition: all 0.3s ease;">
+                                <i class="fas fa-plus-circle me-1" style="color: #28a745;"></i> <span style="font-weight: 600;">File New Complaint</span>
+                            </a>
+                        </li>
+                        <li class="nav-item voice-transcription-tab">
+                            <a class="nav-link" href="{{ url_for('fir.voice_transcription') }}" style="padding: 10px 15px; margin: 0 5px; border-radius: 5px; transition: all 0.3s ease; background-color: rgba(0, 123, 255, 0.2); border: 2px solid #007bff; box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);">
+                                <i class="fas fa-microphone me-1" style="color: #007bff; font-size: 18px;"></i>
+                                <span style="font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);">Voice Transcription</span>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: -15px; margin-top: -5px;">
+                                    <i class="fas fa-star fa-xs"></i>
+                                </span>
+                            </a>
+                        </li>
+
+                        {% endif %}
+
+                        <!-- Role Switcher (if user has multiple roles) -->
+                        {% if (current_user.is_admin() or current_user.is_police()) and current_user.is_public() %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.role_select') }}">
+                                <i class="fas fa-exchange-alt me-1"></i> Switch Role
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        <!-- User Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i>
+                                {{ current_user.username }}
+                                {% if current_user.is_admin() %}
+                                <span class="badge bg-danger ms-1">Admin</span>
+                                {% elif current_user.is_police() %}
+                                <span class="badge bg-primary ms-1">Police</span>
+                                {% else %}
+                                <span class="badge bg-info ms-1">Public</span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
+                                    <i class="fas fa-id-card me-2"></i> Profile
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.register') }}">
+                                <i class="fas fa-user-plus me-1"></i> Register
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <!-- Language Selector -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-language me-1"></i> <span id="currentLanguage">Language</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown" id="languageMenu">
+                            <li><div class="dropdown-item text-center"><div class="spinner-border spinner-border-sm" role="status"></div> Loading...</div></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer bg-dark text-light mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-2 mb-md-0">
+                    <p class="mb-1 mb-md-0">&copy; 2025 Intelligent FIR Filing System</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="mb-1 mb-md-0">AI-Powered Police Complaint Management</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Language Selector -->
+    <script src="{{ url_for('static', filename='js/language_selector.js') }}"></script>
+
+    <!-- Navigation Enhancement Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to nav links
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+
+            // Special handling for voice transcription tab
+            const voiceTranscriptionTab = document.querySelector('.voice-transcription-tab');
+            if (voiceTranscriptionTab) {
+                // Add a subtle glow effect
+                setInterval(function() {
+                    voiceTranscriptionTab.style.boxShadow = '0 0 15px rgba(0, 123, 255, 0.5)';
+                    setTimeout(function() {
+                        voiceTranscriptionTab.style.boxShadow = 'none';
+                    }, 1000);
+                }, 2000);
+            }
+
+            navLinks.forEach(link => {
+                // Add hover effect
+                link.addEventListener('mouseenter', function() {
+                    // Skip special styling for voice transcription tab (it has its own)
+                    if (!this.closest('.voice-transcription-tab')) {
+                        this.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                        this.style.transform = 'translateY(-2px)';
+                        this.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+                    }
+                });
+
+                // Remove hover effect
+                link.addEventListener('mouseleave', function() {
+                    // Skip special styling for voice transcription tab (it has its own)
+                    if (!this.closest('.voice-transcription-tab')) {
+                        this.style.backgroundColor = '';
+                        this.style.transform = '';
+                        this.style.boxShadow = '';
+                    }
+                });
+
+                // Highlight active link
+                if (link.getAttribute('href') === window.location.pathname) {
+                    link.style.backgroundColor = 'rgba(0, 123, 255, 0.2)';
+                    link.style.borderBottom = '2px solid #007bff';
+                    link.parentElement.classList.add('active');
+
+                    // If this is the voice transcription page, add extra highlighting
+                    if (window.location.pathname.includes('voice-transcription')) {
+                        document.title = "🎤 Voice Transcription - Intelligent FIR System";
+
+                        // Add a notification in the navbar
+                        const navbar = document.querySelector('.navbar');
+                        if (navbar) {
+                            const notification = document.createElement('div');
+                            notification.className = 'voice-transcription-notification';
+                            notification.innerHTML = '<i class="fas fa-info-circle"></i> You are in Voice Transcription mode';
+                            notification.style.position = 'absolute';
+                            notification.style.bottom = '-20px';
+                            notification.style.left = '50%';
+                            notification.style.transform = 'translateX(-50%)';
+                            notification.style.backgroundColor = '#007bff';
+                            notification.style.color = 'white';
+                            notification.style.padding = '5px 15px';
+                            notification.style.borderRadius = '0 0 10px 10px';
+                            notification.style.fontWeight = 'bold';
+                            notification.style.zIndex = '1000';
+                            notification.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+                            navbar.appendChild(notification);
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+    {% block scripts %}{% endblock %}
+
+    <!-- Chatbot Widget -->
+    {% if current_user.is_authenticated %}
+        {% include 'chatbot/widget.html' %}
+    {% endif %}
+</body>
+</html>

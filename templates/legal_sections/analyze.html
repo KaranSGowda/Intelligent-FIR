@@ -1,0 +1,283 @@
+{% extends 'layout.html' %}
+
+{% block title %}Analyze Complaint Text - Intelligent FIR Filing System{% endblock %}
+
+{% block styles %}
+<style>
+    .analysis-container {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .section-card {
+        transition: transform 0.2s;
+        margin-bottom: 15px;
+    }
+    
+    .section-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .section-code {
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: #007bff;
+    }
+    
+    .section-name {
+        font-weight: 500;
+    }
+    
+    .confidence-indicator {
+        width: 100%;
+        height: 5px;
+        background-color: #e9ecef;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 5px;
+    }
+    
+    .confidence-bar {
+        height: 100%;
+        border-radius: 3px;
+    }
+    
+    .relevance-text {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-top: 10px;
+    }
+    
+    .keywords-container {
+        margin-top: 10px;
+    }
+    
+    .keyword-badge {
+        margin-right: 5px;
+        margin-bottom: 5px;
+        font-size: 0.8rem;
+    }
+    
+    .complaint-text-container {
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .analysis-summary {
+        background-color: #e9f7ef;
+        border-left: 4px solid #28a745;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+    
+    .section-description {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-search me-2"></i> Analyze Complaint Text</h2>
+            <p class="lead">Identify applicable IPC sections for a complaint</p>
+        </div>
+        
+        <a href="{{ url_for('legal_sections.index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to Sections
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-5">
+            <!-- Analysis Form -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i> Complaint Text</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('legal_sections.analyze') }}" method="post">
+                        <div class="mb-3">
+                            <label for="complaintText" class="form-label">Enter the complaint text to analyze:</label>
+                            <textarea class="form-control" id="complaintText" name="complaint_text" rows="10" placeholder="Describe the incident in detail..." required>{{ complaint_text or '' }}</textarea>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i> Analyze Complaint
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4">
+                        <h6>Sample Complaints</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-sm btn-outline-secondary sample-text" data-text="The accused broke into my house last night and stole my laptop, mobile phone, and cash worth Rs. 20,000.">
+                                Theft
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary sample-text" data-text="The accused assaulted me with a knife during an argument, causing injuries to my arm that required 10 stitches.">
+                                Assault
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary sample-text" data-text="My husband and in-laws have been harassing me for dowry since our marriage. They physically abuse me and threaten to throw me out of the house.">
+                                Domestic Violence
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary sample-text" data-text="The accused cheated me by selling a fake gold necklace claiming it was real gold. I paid Rs. 50,000 for it.">
+                                Fraud
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analysis Tips -->
+            <div class="card">
+                <div class="card-header bg-info text-dark">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i> Analysis Tips</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li>Provide detailed information about the incident</li>
+                        <li>Include specific actions taken by the accused</li>
+                        <li>Mention any injuries, damages, or losses</li>
+                        <li>Include information about weapons or tools used (if applicable)</li>
+                        <li>Describe the location and time of the incident</li>
+                        <li>Include information about witnesses (if any)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-7">
+            {% if analyzed %}
+                <!-- Analysis Results -->
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i> Analysis Results</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="complaint-text-container">
+                            <h6>Complaint Text:</h6>
+                            <p>{{ complaint_text }}</p>
+                        </div>
+                        
+                        {% if sections %}
+                            <div class="analysis-summary">
+                                <h5>Analysis Summary</h5>
+                                <p>Based on the complaint text, the following {{ sections|length }} IPC section(s) may apply:</p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% for section in sections %}
+                                        <span class="badge bg-{{ 'success' if section.confidence > 0.8 else 'info' if section.confidence > 0.5 else 'warning' if section.confidence > 0.3 else 'danger' }}">
+                                            Section {{ section.section_code }} ({{ (section.confidence * 100)|int }}%)
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <h5>Applicable Sections</h5>
+                            {% for section in sections %}
+                                <div class="card section-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="section-code">Section {{ section.section_code }}</div>
+                                            <span class="badge bg-{{ 'success' if section.confidence > 0.8 else 'info' if section.confidence > 0.5 else 'warning' if section.confidence > 0.3 else 'danger' }}">
+                                                {{ (section.confidence * 100)|int }}% match
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="section-name">{{ section.section_name }}</div>
+                                        <div class="section-description">{{ section.section_description }}</div>
+                                        
+                                        <div class="confidence-indicator mt-2">
+                                            <div class="confidence-bar bg-{{ 'success' if section.confidence > 0.8 else 'info' if section.confidence > 0.5 else 'warning' if section.confidence > 0.3 else 'danger' }}" 
+                                                 style="width: {{ (section.confidence * 100)|int }}%"></div>
+                                        </div>
+                                        
+                                        <div class="relevance-text">
+                                            {{ section.relevance }}
+                                        </div>
+                                        
+                                        {% if section.keywords_matched %}
+                                            <div class="keywords-container">
+                                                <strong>Matched Keywords:</strong>
+                                                <div class="mt-1">
+                                                    {% for keyword in section.keywords_matched %}
+                                                        <span class="badge bg-light text-dark keyword-badge">{{ keyword }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle me-2"></i> This analysis is based on AI and should be reviewed by legal professionals. The final determination of applicable sections will be made by the investigating officer.
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i> No applicable IPC sections were identified for this complaint. Please provide more detailed information or consult with a legal professional.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> About Legal Section Mapping</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>The Automatic Legal Section Mapping feature uses advanced machine learning and natural language processing to analyze complaint texts and identify applicable Indian Penal Code (IPC) sections.</p>
+                        
+                        <h5 class="mt-4">How It Works</h5>
+                        <ol>
+                            <li>Enter your complaint text in the form on the left</li>
+                            <li>Our AI analyzes the text to identify key elements of the complaint</li>
+                            <li>The system matches these elements to relevant IPC sections</li>
+                            <li>Results are displayed with confidence scores and explanations</li>
+                        </ol>
+                        
+                        <h5 class="mt-4">Benefits</h5>
+                        <ul>
+                            <li>Quickly identify applicable legal sections</li>
+                            <li>Understand why each section applies to your case</li>
+                            <li>Save time in the FIR filing process</li>
+                            <li>Ensure all relevant legal aspects are considered</li>
+                        </ul>
+                        
+                        <div class="alert alert-info mt-4">
+                            <i class="fas fa-lightbulb me-2"></i> <strong>Tip:</strong> For best results, provide detailed information about the incident, including specific actions, injuries, damages, weapons used, and other relevant details.
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sample text buttons
+        const sampleButtons = document.querySelectorAll('.sample-text');
+        const complaintTextarea = document.getElementById('complaintText');
+        
+        sampleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                complaintTextarea.value = this.dataset.text;
+                complaintTextarea.focus();
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,505 @@
+{% extends 'layout.html' %}
+
+{% block title %}Evidence Details - FIR #{{ fir.fir_number }}{% endblock %}
+
+{% block styles %}
+<style>
+    .evidence-container {
+        max-height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .evidence-container img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    .evidence-icon {
+        font-size: 128px;
+        color: #6c757d;
+        padding: 50px;
+    }
+
+    .tag-badge {
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+
+    .metadata-table {
+        font-size: 0.9rem;
+    }
+
+    .metadata-table th {
+        width: 30%;
+        background-color: #f8f9fa;
+    }
+
+    .timeline-container {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline-container::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: #dee2e6;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -30px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #007bff;
+    }
+
+    .timeline-date {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    .timeline-content {
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .analysis-container {
+        background-color: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 15px;
+        margin-top: 15px;
+        border-radius: 4px;
+    }
+
+    .audio-player, .video-player {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .document-preview {
+        width: 100%;
+        height: 500px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+        <h1 class="mb-3 mb-md-0">Evidence Details</h1>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('evidence.manage_evidence', fir_id=fir.id) }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Back to Evidence
+            </a>
+            <a href="{{ url_for('fir.view_fir', fir_id=fir.id) }}" class="btn btn-outline-primary">
+                <i class="fas fa-file-alt me-2"></i> View FIR
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-info mb-4">
+        <div class="d-flex">
+            <div class="me-3">
+                <i class="fas fa-info-circle fa-2x"></i>
+            </div>
+            <div>
+                <h5 class="alert-heading">FIR #{{ fir.fir_number }}</h5>
+                <p class="mb-0">{{ fir.incident_description|truncate(150) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Evidence Display -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        {% if evidence.type == 'image' %}
+                            <i class="fas fa-image me-2"></i>
+                        {% elif evidence.type == 'document' %}
+                            <i class="fas fa-file-alt me-2"></i>
+                        {% elif evidence.type == 'video' %}
+                            <i class="fas fa-video me-2"></i>
+                        {% elif evidence.type == 'audio' %}
+                            <i class="fas fa-microphone me-2"></i>
+                        {% else %}
+                            <i class="fas fa-file me-2"></i>
+                        {% endif %}
+                        {{ evidence.description or 'Evidence #' + evidence.id|string }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Evidence Content -->
+                    {% if evidence.type == 'image' %}
+                        <div class="evidence-container">
+                            <img src="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" alt="Evidence" class="img-fluid">
+                        </div>
+                        <div class="text-center mb-3">
+                            <a href="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                <i class="fas fa-external-link-alt me-1"></i> View Full Size
+                            </a>
+                            <a href="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" class="btn btn-sm btn-outline-secondary" download>
+                                <i class="fas fa-download me-1"></i> Download
+                            </a>
+                        </div>
+                    {% elif evidence.type == 'video' %}
+                        <video controls class="video-player">
+                            <source src="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="text-center mb-3">
+                            <a href="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" class="btn btn-sm btn-outline-secondary" download>
+                                <i class="fas fa-download me-1"></i> Download
+                            </a>
+                        </div>
+                    {% elif evidence.type == 'audio' %}
+                        <audio controls class="audio-player">
+                            <source src="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" type="audio/mpeg">
+                            Your browser does not support the audio tag.
+                        </audio>
+                        <div class="text-center mb-3">
+                            <a href="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" class="btn btn-sm btn-outline-secondary" download>
+                                <i class="fas fa-download me-1"></i> Download
+                            </a>
+                        </div>
+                    {% elif evidence.type == 'document' %}
+                        {% if evidence.file_path.endswith('.pdf') %}
+                            <iframe src="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" class="document-preview"></iframe>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-file-alt evidence-icon"></i>
+                                <h4>Document Preview Not Available</h4>
+                                <p>Download the document to view its contents.</p>
+                            </div>
+                        {% endif %}
+                        <div class="text-center mb-3">
+                            <a href="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" class="btn btn-sm btn-outline-secondary" download>
+                                <i class="fas fa-download me-1"></i> Download
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-file evidence-icon"></i>
+                            <h4>File Preview Not Available</h4>
+                            <p>Download the file to view its contents.</p>
+                        </div>
+                        <div class="text-center mb-3">
+                            <a href="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" class="btn btn-sm btn-outline-secondary" download>
+                                <i class="fas fa-download me-1"></i> Download
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <!-- Evidence Description -->
+                    <div class="mt-4">
+                        <h5>Description</h5>
+                        <p>{{ evidence.description or 'No description provided.' }}</p>
+                    </div>
+
+                    <!-- Tags -->
+                    {% if evidence.tags %}
+                        <div class="mt-4">
+                            <h5>Tags</h5>
+                            <div>
+                                {% for tag in evidence.get_tags() %}
+                                    <span class="badge bg-secondary tag-badge">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Analysis Results -->
+                    {% if evidence.analysis_result %}
+                        <div class="mt-4">
+                            <h5>Analysis Results</h5>
+                            <div class="analysis-container">
+                                {{ evidence.get_analysis().analysis_text|replace('\n', '<br>')|safe }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Chain of Custody -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i> Chain of Custody</h5>
+                </div>
+                <div class="card-body">
+                    {% if evidence.chain_of_custody %}
+                        <div class="timeline-container">
+                            {% for event in evidence.get_chain_of_custody() %}
+                                <div class="timeline-item">
+                                    <div class="timeline-date">
+                                        {{ event.timestamp|replace('T', ' ')|replace('Z', '')|truncate(19, True, '') }}
+                                    </div>
+                                    <div class="timeline-content">
+                                        <strong>{{ event.action }}</strong>
+                                        {% if event.notes %}
+                                            <p class="mb-0">{{ event.notes }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-history fa-3x mb-3 text-muted"></i>
+                            <h5>No Custody Events</h5>
+                            <p class="text-muted">The chain of custody for this evidence has not been recorded.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Evidence Metadata -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Evidence Metadata</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered metadata-table">
+                        <tbody>
+                            <tr>
+                                <th>Evidence ID</th>
+                                <td>{{ evidence.id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Type</th>
+                                <td>
+                                    {% if evidence.type == 'image' %}
+                                        <i class="fas fa-image me-1"></i> Image
+                                    {% elif evidence.type == 'document' %}
+                                        <i class="fas fa-file-alt me-1"></i> Document
+                                    {% elif evidence.type == 'video' %}
+                                        <i class="fas fa-video me-1"></i> Video
+                                    {% elif evidence.type == 'audio' %}
+                                        <i class="fas fa-microphone me-1"></i> Audio
+                                    {% else %}
+                                        <i class="fas fa-file me-1"></i> {{ evidence.type|capitalize }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Category</th>
+                                <td>{{ evidence.category or 'Not categorized' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Uploaded</th>
+                                <td>{{ evidence.uploaded_at.strftime('%d-%m-%Y %H:%M') }}</td>
+                            </tr>
+                            {% if evidence.collected_at %}
+                                <tr>
+                                    <th>Collected</th>
+                                    <td>{{ evidence.collected_at.strftime('%d-%m-%Y %H:%M') }}</td>
+                                </tr>
+                            {% endif %}
+                            {% if evidence.location %}
+                                <tr>
+                                    <th>Location</th>
+                                    <td>{{ evidence.location }}</td>
+                                </tr>
+                            {% endif %}
+                            <tr>
+                                <th>Verification Status</th>
+                                <td>
+                                    {% if evidence.is_verified %}
+                                        <span class="badge bg-success">Verified</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Unverified</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- File Metadata -->
+                    {% if evidence.file_metadata %}
+                        <h6 class="mt-4">File Details</h6>
+                        <table class="table table-bordered metadata-table">
+                            <tbody>
+                                {% set metadata = evidence.get_metadata() %}
+
+                                {% if metadata.file_name %}
+                                    <tr>
+                                        <th>Filename</th>
+                                        <td>{{ metadata.file_name }}</td>
+                                    </tr>
+                                {% endif %}
+
+                                {% if metadata.file_size %}
+                                    <tr>
+                                        <th>File Size</th>
+                                        <td>{{ (metadata.file_size / 1024)|round(1) }} KB</td>
+                                    </tr>
+                                {% endif %}
+
+                                {% if metadata.file_extension %}
+                                    <tr>
+                                        <th>File Extension</th>
+                                        <td>{{ metadata.file_extension }}</td>
+                                    </tr>
+                                {% endif %}
+
+                                {% if metadata.last_modified %}
+                                    <tr>
+                                        <th>Last Modified</th>
+                                        <td>{{ metadata.last_modified|replace('T', ' ')|replace('Z', '')|truncate(19, True, '') }}</td>
+                                    </tr>
+                                {% endif %}
+
+                                {% if metadata.dimensions %}
+                                    <tr>
+                                        <th>Dimensions</th>
+                                        <td>{{ metadata.dimensions.width }} × {{ metadata.dimensions.height }}</td>
+                                    </tr>
+                                {% endif %}
+
+                                {% if metadata.hash %}
+                                    <tr>
+                                        <th>File Hash (SHA-256)</th>
+                                        <td class="text-break">{{ metadata.hash }}</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+
+                        <!-- EXIF Data for Images -->
+                        {% if metadata.exif and metadata.exif|length > 0 %}
+                            <div class="mt-4">
+                                <h6>EXIF Data</h6>
+                                <div class="accordion" id="exifAccordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="exifHeading">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#exifCollapse" aria-expanded="false" aria-controls="exifCollapse">
+                                                Show EXIF Data
+                                            </button>
+                                        </h2>
+                                        <div id="exifCollapse" class="accordion-collapse collapse" aria-labelledby="exifHeading">
+                                            <div class="accordion-body">
+                                                <table class="table table-sm table-bordered metadata-table">
+                                                    <tbody>
+                                                        {% for key, value in metadata.exif.items() %}
+                                                            {% if key not in ['MakerNote', 'UserComment'] and value %}
+                                                                <tr>
+                                                                    <th>{{ key }}</th>
+                                                                    <td>{{ value }}</td>
+                                                                </tr>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- GPS Data if available -->
+                        {% if metadata.gps %}
+                            <div class="mt-4">
+                                <h6>GPS Location</h6>
+                                <div class="card">
+                                    <div class="card-body p-2">
+                                        <p class="mb-1">Latitude: {{ metadata.gps.latitude }}</p>
+                                        <p class="mb-1">Longitude: {{ metadata.gps.longitude }}</p>
+                                        <a href="https://www.google.com/maps?q={{ metadata.gps.latitude }},{{ metadata.gps.longitude }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                                            <i class="fas fa-map-marker-alt me-1"></i> View on Map
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-cogs me-2"></i> Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('evidence.edit_evidence', evidence_id=evidence.id) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-2"></i> Edit Evidence
+                        </a>
+
+                        <a href="{{ url_for('evidence.analyze_evidence', evidence_id=evidence.id) }}" class="btn btn-outline-info">
+                            <i class="fas fa-search me-2"></i> Analyze Evidence
+                        </a>
+
+                        <a href="{{ url_for('evidence.verify_evidence', evidence_id=evidence.id) }}" class="btn btn-outline-success">
+                            <i class="fas fa-check-circle me-2"></i> Verify Evidence
+                        </a>
+
+                        <button class="btn btn-outline-danger" onclick="confirmDelete({{ evidence.id }}, '{{ evidence.description|default('this evidence', true) }}')">
+                            <i class="fas fa-trash me-2"></i> Delete Evidence
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <span id="deleteItemName"></span>?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" action="{{ url_for('evidence.delete_evidence', evidence_id=evidence.id) }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Delete confirmation
+    function confirmDelete(evidenceId, evidenceName) {
+        document.getElementById('deleteItemName').textContent = evidenceName;
+
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,340 @@
+# Comprehensive List of Training Cases
+
+Total Cases: 685
+Short Descriptions: 670
+Long Descriptions: 15
+Unique IPC Sections: 275
+Major IPC Sections Coverage: 209/293 (71.33%)
+
+## IPC Sections Covered
+
+- Section 1
+- Section 100
+- Section 101
+- Section 102
+- Section 103
+- Section 104
+- Section 105
+- Section 106
+- Section 107
+- Section 108
+- Section 109
+- Section 110
+- Section 111
+- Section 112
+- Section 113
+- Section 114
+- Section 115
+- Section 116
+- Section 117
+- Section 118
+- Section 119
+- Section 120
+- Section 120A
+- Section 120B
+- Section 121
+- Section 121A
+- Section 122
+- Section 123
+- Section 124
+- Section 124A
+- Section 125
+- Section 126
+- Section 127
+- Section 128
+- Section 129
+- Section 130
+- Section 141
+- Section 142
+- Section 143
+- Section 144
+- Section 145
+- Section 146
+- Section 147
+- Section 148
+- Section 149
+- Section 150
+- Section 151
+- Section 152
+- Section 153
+- Section 153A
+- Section 153B
+- Section 154
+- Section 155
+- Section 156
+- Section 157
+- Section 158
+- Section 159
+- Section 160
+- Section 166
+- Section 166A
+- Section 166B
+- Section 167
+- Section 168
+- Section 169
+- Section 170
+- Section 171
+- Section 171B
+- Section 191
+- Section 192
+- Section 193
+- Section 2
+- Section 201
+- Section 211
+- Section 212
+- Section 214
+- Section 217
+- Section 279
+- Section 295A
+- Section 299
+- Section 3
+- Section 300
+- Section 302
+- Section 304
+- Section 304A
+- Section 304B
+- Section 305
+- Section 306
+- Section 307
+- Section 308
+- Section 309
+- Section 312
+- Section 319
+- Section 320
+- Section 321
+- Section 322
+- Section 323
+- Section 324
+- Section 325
+- Section 326
+- Section 326A
+- Section 326B
+- Section 327
+- Section 328
+- Section 329
+- Section 334
+- Section 335
+- Section 336
+- Section 337
+- Section 338
+- Section 339
+- Section 340
+- Section 341
+- Section 342
+- Section 343
+- Section 344
+- Section 346
+- Section 350
+- Section 351
+- Section 352
+- Section 353
+- Section 354
+- Section 354A
+- Section 354B
+- Section 354C
+- Section 354D
+- Section 359
+- Section 363
+- Section 363A
+- Section 364
+- Section 364A
+- Section 365
+- Section 366
+- Section 366A
+- Section 366B
+- Section 367
+- Section 370
+- Section 370A
+- Section 375
+- Section 376
+- Section 376A
+- Section 376B
+- Section 376C
+- Section 376D
+- Section 376E
+- Section 377
+- Section 378
+- Section 379
+- Section 380
+- Section 381
+- Section 382
+- Section 383
+- Section 384
+- Section 385
+- Section 386
+- Section 387
+- Section 388
+- Section 389
+- Section 390
+- Section 391
+- Section 392
+- Section 393
+- Section 394
+- Section 395
+- Section 396
+- Section 397
+- Section 398
+- Section 399
+- Section 4
+- Section 401
+- Section 402
+- Section 403
+- Section 404
+- Section 405
+- Section 406
+- Section 407
+- Section 408
+- Section 409
+- Section 410
+- Section 411
+- Section 412
+- Section 413
+- Section 414
+- Section 415
+- Section 416
+- Section 417
+- Section 418
+- Section 419
+- Section 420
+- Section 421
+- Section 422
+- Section 423
+- Section 424
+- Section 425
+- Section 426
+- Section 427
+- Section 428
+- Section 429
+- Section 430
+- Section 431
+- Section 434
+- Section 435
+- Section 436
+- Section 437
+- Section 438
+- Section 439
+- Section 440
+- Section 441
+- Section 445
+- Section 447
+- Section 448
+- Section 449
+- Section 450
+- Section 451
+- Section 452
+- Section 453
+- Section 454
+- Section 455
+- Section 456
+- Section 457
+- Section 458
+- Section 459
+- Section 460
+- Section 465
+- Section 467
+- Section 468
+- Section 469
+- Section 471
+- Section 498A
+- Section 499
+- Section 5
+- Section 500
+- Section 501
+- Section 502
+- Section 503
+- Section 504
+- Section 505
+- Section 506
+- Section 507
+- Section 508
+- Section 509
+- Section 510
+- Section 66
+- Section 66A
+- Section 66B
+- Section 66C
+- Section 66D
+- Section 66E
+- Section 66F
+- Section 67
+- Section 67A
+- Section 67B
+- Section 76
+- Section 77
+- Section 78
+- Section 79
+- Section 80
+- Section 81
+- Section 82
+- Section 83
+- Section 84
+- Section 85
+- Section 86
+- Section 87
+- Section 88
+- Section 89
+- Section 90
+- Section 91
+- Section 92
+- Section 93
+- Section 94
+- Section 95
+- Section 96
+- Section 97
+- Section 98
+- Section 99
+
+## Sample Training Cases
+
+1. "The accused murdered the victim by stabbing him multiple times." - Sections: 302
+2. "The victim was killed by the accused with a knife." - Sections: 302
+3. "The accused shot and killed the victim during an argument." - Sections: 302
+4. "The accused strangled the victim to death." - Sections: 302
+5. "The victim died due to poisoning administered by the accused." - Sections: 302
+6. "The accused hit the victim on the head with a heavy object causing death." - Sections: 302
+7. "The accused deliberately ran over the victim with a car, killing them instantly." - Sections: 302
+8. "The accused attempted to kill the victim by firing a gun." - Sections: 307
+9. "The accused tried to stab the victim but was stopped." - Sections: 307
+10. "The accused poisoned the food but the victim survived after hospital treatment." - Sections: 307
+11. "The accused pushed the victim from a height with intent to kill, but the victim survived." - Sections: 307
+12. "The accused attacked the victim with a deadly weapon but failed to kill them." - Sections: 307
+13. "The accused tried to strangle the victim but was interrupted." - Sections: 307
+14. "The accused assaulted the victim causing injuries." - Sections: 323
+15. "The accused slapped and punched the victim." - Sections: 323
+16. "The accused beat the victim with bare hands." - Sections: 323
+17. "The victim was physically assaulted by the accused." - Sections: 323
+18. "The accused pushed the victim causing them to fall and get injured." - Sections: 323
+19. "The accused sexually assaulted the victim." - Sections: 376
+20. "The accused raped the victim at his residence." - Sections: 376
+21. "The victim was sexually violated by the accused against her consent." - Sections: 376
+22. "The accused committed sexual intercourse with the victim without consent." - Sections: 376
+23. "The accused cheated the victim by selling fake property documents." - Sections: 420
+24. "The accused fraudulently took money promising a job that didn't exist." - Sections: 420
+25. "The victim was deceived into investing in a fake company by the accused." - Sections: 420
+26. "The accused sold counterfeit products claiming them to be genuine." - Sections: 420
+27. "The accused ran a Ponzi scheme defrauding multiple victims." - Sections: 420
+28. "The accused was charged with committing an offense against under section 1." - Sections: 1
+29. "The complainant reported that the accused committed an offense against, violating section 1." - Sections: 1
+30. "A case was filed against the accused for committing an offense against the victim under section 2." - Sections: 2
+31. "The victim alleged that the accused committed an offense against, which falls under section 2." - Sections: 2
+32. "The victim alleged that the accused committed an offense against, which falls under section 3." - Sections: 3
+33. "The accused committed an offense against the victim, which is an offense under section 3." - Sections: 3
+34. "The complainant reported that the accused committed an offense against, violating section 4." - Sections: 4
+35. "The accused was charged with committing an offense against under section 4." - Sections: 4
+36. "The victim alleged that the accused committed an offense against, which falls under section 5." - Sections: 5
+37. "A case was filed against the accused for committing an offense against the victim under section 5." - Sections: 5
+38. "The accused committed an offense against the victim, which is an offense under section 76." - Sections: 76
+39. "The victim alleged that the accused committed an offense against, which falls under section 76." - Sections: 76
+40. "The victim alleged that the accused committed an offense against, which falls under section 77." - Sections: 77
+41. "The accused was charged with committing an offense against under section 77." - Sections: 77
+42. "The accused committed an offense against the victim, which is an offense under section 78." - Sections: 78
+43. "The victim alleged that the accused committed an offense against, which falls under section 78." - Sections: 78
+44. "The accused was charged with committing an offense against under section 79." - Sections: 79
+45. "A case was filed against the accused for committing an offense against the victim under section 79." - Sections: 79
+46. "A case was filed against the accused for committing an offense against the victim under section 80." - Sections: 80
+47. "The complainant reported that the accused committed an offense against, violating section 80." - Sections: 80
+48. "A case was filed against the accused for committing an offense against the victim under section 81." - Sections: 81
+49. "The complainant reported that the accused committed an offense against, violating section 81." - Sections: 81
+50. "The victim alleged that the accused committed an offense against, which falls under section 82." - Sections: 82
+
+... and 635 more cases

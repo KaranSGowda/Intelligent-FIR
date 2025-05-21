@@ -1,0 +1,27 @@
+"""
+Additional training cases to cover all IPC sections.
+"""
+
+# Additional training cases for complete IPC coverage
+ADDITIONAL_TRAINING_CASES = [
+    ("The accused violated section IPC-307 by committing an offense related to Attempted Murder.", ["IPC-307"]),
+    ("On [DATE], the complainant reported that the accused committed an offense under section IPC-307          of the Indian Penal Code. The accused's actions constitute Attempted Murder, as defined in the IPC.          According to the complainant, the accused [SPECIFIC ACTION RELATED TO THE OFFENSE].          This is a clear violation of section IPC-307 which states: "Attempt to murder".", ["IPC-307"]),
+    ("The accused violated section IPC-379 by committing an offense related to Theft.", ["IPC-379"]),
+    ("On [DATE], the complainant reported that the accused committed an offense under section IPC-379          of the Indian Penal Code. The accused's actions constitute Theft, as defined in the IPC.          According to the complainant, the accused [SPECIFIC ACTION RELATED TO THE OFFENSE].          This is a clear violation of section IPC-379 which states: "Punishment for theft".", ["IPC-379"]),
+    ("The accused violated section IPC-323 by committing an offense related to Voluntarily Causing Hurt.", ["IPC-323"]),
+    ("On [DATE], the complainant reported that the accused committed an offense under section IPC-323          of the Indian Penal Code. The accused's actions constitute Voluntarily Causing Hurt, as defined in the IPC.          According to the complainant, the accused [SPECIFIC ACTION RELATED TO THE OFFENSE].          This is a clear violation of section IPC-323 which states: "Punishment for voluntarily causing hurt".", ["IPC-323"]),
+    ("The accused violated section IPC-376 by committing an offense related to Rape.", ["IPC-376"]),
+    ("On [DATE], the complainant reported that the accused committed an offense under section IPC-376          of the Indian Penal Code. The accused's actions constitute Rape, as defined in the IPC.          According to the complainant, the accused [SPECIFIC ACTION RELATED TO THE OFFENSE].          This is a clear violation of section IPC-376 which states: "Punishment for rape".", ["IPC-376"]),
+    ("The accused violated section IPC-420 by committing an offense related to Cheating.", ["IPC-420"]),
+    ("On [DATE], the complainant reported that the accused committed an offense under section IPC-420          of the Indian Penal Code. The accused's actions constitute Cheating, as defined in the IPC.          According to the complainant, the accused [SPECIFIC ACTION RELATED TO THE OFFENSE].          This is a clear violation of section IPC-420 which states: "Cheating and dishonestly inducing delivery of property".", ["IPC-420"]),
+    ("The accused violated section IPC-354 by committing an offense related to Assault on Woman.", ["IPC-354"]),
+    ("On [DATE], the complainant reported that the accused committed an offense under section IPC-354          of the Indian Penal Code. The accused's actions constitute Assault on Woman, as defined in the IPC.          According to the complainant, the accused [SPECIFIC ACTION RELATED TO THE OFFENSE].          This is a clear violation of section IPC-354 which states: "Assault or criminal force to woman with intent to outrage her modesty".", ["IPC-354"]),
+    ("The accused violated section IPC-406 by committing an offense related to Criminal Breach of Trust.", ["IPC-406"]),
+    ("On [DATE], the complainant reported that the accused committed an offense under section IPC-406          of the Indian Penal Code. The accused's actions constitute Criminal Breach of Trust, as defined in the IPC.          According to the complainant, the accused [SPECIFIC ACTION RELATED TO THE OFFENSE].          This is a clear violation of section IPC-406 which states: "Punishment for criminal breach of trust".", ["IPC-406"]),
+    ("The accused violated section IPC-499 by committing an offense related to Defamation.", ["IPC-499"]),
+    ("On [DATE], the complainant reported that the accused committed an offense under section IPC-499          of the Indian Penal Code. The accused's actions constitute Defamation, as defined in the IPC.          According to the complainant, the accused [SPECIFIC ACTION RELATED TO THE OFFENSE].          This is a clear violation of section IPC-499 which states: "Defamation".", ["IPC-499"]),
+    ("The accused violated section IPC-392 by committing an offense related to Robbery.", ["IPC-392"]),
+    ("On [DATE], the complainant reported that the accused committed an offense under section IPC-392          of the Indian Penal Code. The accused's actions constitute Robbery, as defined in the IPC.          According to the complainant, the accused [SPECIFIC ACTION RELATED TO THE OFFENSE].          This is a clear violation of section IPC-392 which states: "Punishment for robbery".", ["IPC-392"]),
+    ("The accused violated section IPC-302 by committing an offense related to Murder.", ["IPC-302"]),
+    ("On [DATE], the complainant reported that the accused committed an offense under section IPC-302          of the Indian Penal Code. The accused's actions constitute Murder, as defined in the IPC.          According to the complainant, the accused [SPECIFIC ACTION RELATED TO THE OFFENSE].          This is a clear violation of section IPC-302 which states: "Punishment for murder".", ["IPC-302"]),
+]

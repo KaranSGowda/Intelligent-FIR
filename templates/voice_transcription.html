@@ -1,0 +1,1031 @@
+{% extends 'layout.html' %}
+
+{% block title %}Voice Transcription - Intelligent FIR System{% endblock %}
+
+{% block styles %}
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    /* Main container styles */
+    .container {
+        background-color: #212529;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        color: #e9ecef;
+    }
+
+    /* Page title */
+    h1 {
+        color: #ffffff;
+        font-weight: 700;
+        border-bottom: 3px solid #007bff;
+        padding: 15px;
+        background-color: #343a40;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        font-size: 28px;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Recording container */
+    .recording-container {
+        border: 1px solid #495057;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        background-color: #2c3034;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Language selector section */
+    .mb-3 {
+        background-color: #343a40;
+        padding: 18px;
+        border-radius: 8px;
+        margin-bottom: 20px !important;
+        border: 1px solid #495057;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-label {
+        font-weight: 700;
+        color: #8bb9fe;
+        font-size: 17px;
+        margin-bottom: 10px;
+        display: block;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-select {
+        border: 2px solid #495057;
+        padding: 12px;
+        border-radius: 6px;
+        font-size: 16px;
+        background-color: #212529;
+        color: #e9ecef;
+        font-weight: 500;
+    }
+
+    .form-text {
+        color: #adb5bd;
+        font-style: italic;
+        margin-top: 10px;
+        font-weight: 500;
+        font-size: 15px;
+        padding: 5px 0;
+        border-top: 1px dashed #495057;
+    }
+
+    /* Recording controls */
+    .recording-controls {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        justify-content: center;
+        background-color: #343a40;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #495057;
+    }
+
+    .record-button {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    }
+
+    .record-button:hover {
+        background-color: #c82333;
+        transform: scale(1.08);
+        box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4);
+    }
+
+    .record-button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .stop-button {
+        background-color: #343a40;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 8px rgba(52, 58, 64, 0.3);
+    }
+
+    .stop-button:hover {
+        background-color: #23272b;
+        transform: scale(1.08);
+        box-shadow: 0 6px 12px rgba(52, 58, 64, 0.4);
+    }
+
+    .stop-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Status container */
+    .status-container {
+        margin-top: 25px;
+        background-color: #343a40;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 6px solid #17a2b8;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        position: relative;
+    }
+
+    .status-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(23, 162, 184, 0.2);
+    }
+
+    .status-icon {
+        color: #17a2b8;
+        font-size: 24px;
+        margin-right: 12px;
+        filter: drop-shadow(0 2px 3px rgba(23, 162, 184, 0.2));
+    }
+
+    #recordingStatus {
+        font-weight: 700;
+        color: #5cced9;
+        margin: 0;
+        font-size: 18px;
+        flex-grow: 1;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        letter-spacing: 0.2px;
+    }
+
+    .progress-container {
+        height: 16px;
+        background-color: #212529;
+        border-radius: 8px;
+        margin: 15px 0;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        position: relative;
+        border: 1px solid rgba(23, 162, 184, 0.3);
+    }
+
+    .progress-bar {
+        height: 100%;
+        background-color: #17a2b8;
+        background-image: linear-gradient(45deg, rgba(255,255,255,.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.2) 50%, rgba(255,255,255,.2) 75%, transparent 75%, transparent);
+        background-size: 1rem 1rem;
+        transition: width 0.4s ease;
+        animation: progress-bar-stripes 1s linear infinite;
+    }
+
+    @keyframes progress-bar-stripes {
+        from { background-position: 1rem 0; }
+        to { background-position: 0 0; }
+    }
+
+    .status-percentage {
+        text-align: right;
+        font-size: 16px;
+        font-weight: 700;
+        color: #5cced9;
+        margin-top: 8px;
+        padding: 5px 10px;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 4px;
+        display: inline-block;
+        float: right;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(23, 162, 184, 0.3);
+    }
+
+    /* Status colors for different states */
+    .status-recording {
+        background-color: #3d2e1b;
+        border-left-color: #fd7e14;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .status-recording .status-header {
+        border-bottom: 1px solid rgba(253, 126, 20, 0.3);
+    }
+
+    .status-recording .status-icon,
+    .status-recording #recordingStatus {
+        color: #fd9a47;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .status-recording .status-percentage {
+        color: #fd9a47;
+        background-color: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(253, 126, 20, 0.3);
+    }
+
+    .status-recording .progress-container {
+        background-color: #2c2217;
+        border: 1px solid rgba(253, 126, 20, 0.3);
+    }
+
+    .status-recording .progress-bar {
+        background-color: #fd7e14;
+    }
+
+    .status-transcribing {
+        background-color: #1e2c42;
+        border-left-color: #0062cc;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .status-transcribing .status-header {
+        border-bottom: 1px solid rgba(0, 123, 255, 0.3);
+    }
+
+    .status-transcribing .status-icon,
+    .status-transcribing #recordingStatus {
+        color: #5a9cff;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .status-transcribing .status-percentage {
+        color: #5a9cff;
+        background-color: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(0, 123, 255, 0.3);
+    }
+
+    .status-transcribing .progress-container {
+        background-color: #172334;
+        border: 1px solid rgba(0, 123, 255, 0.3);
+    }
+
+    .status-transcribing .progress-bar {
+        background-color: #007bff;
+    }
+
+    .status-complete {
+        background-color: #1e3323;
+        border-left-color: #28a745;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .status-complete .status-header {
+        border-bottom: 1px solid rgba(40, 167, 69, 0.3);
+    }
+
+    .status-complete .status-icon,
+    .status-complete #recordingStatus {
+        color: #5dd879;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .status-complete .status-percentage {
+        color: #5dd879;
+        background-color: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+
+    .status-complete .progress-container {
+        background-color: #17241b;
+        border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+
+    .status-complete .progress-bar {
+        background-color: #28a745;
+    }
+
+    .status-error {
+        background-color: #3d1f23;
+        border-left-color: #dc3545;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .status-error .status-header {
+        border-bottom: 1px solid rgba(220, 53, 69, 0.3);
+    }
+
+    .status-error .status-icon,
+    .status-error #recordingStatus {
+        color: #f27784;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .status-error .status-percentage {
+        color: #f27784;
+        background-color: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+    }
+
+    .status-error .progress-container {
+        background-color: #2c1619;
+        border: 1px solid rgba(220, 53, 69, 0.3);
+    }
+
+    .status-error .progress-bar {
+        background-color: #dc3545;
+    }
+
+    /* Audio player */
+    .audio-player {
+        width: 100%;
+        margin-top: 20px;
+        display: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Transcription container */
+    .transcription-container {
+        margin-top: 25px;
+        background-color: #2c3034;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        border: 1px solid #495057;
+    }
+
+    .transcription-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #495057;
+        padding-bottom: 8px;
+    }
+
+    .transcription-header h4 {
+        color: #e9ecef;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .transcription-header h4 i {
+        margin-right: 10px;
+        color: #5a9cff;
+    }
+
+    .transcription-actions {
+        display: flex;
+        gap: 5px;
+    }
+
+    .transcription-field-container {
+        position: relative;
+        margin-bottom: 15px;
+    }
+
+    .transcription-field {
+        width: 100%;
+        min-height: 200px;
+        padding: 18px;
+        border: 2px solid #495057;
+        border-radius: 10px;
+        font-size: 17px;
+        line-height: 1.7;
+        background-color: #212529;
+        transition: border-color 0.3s, box-shadow 0.3s;
+        resize: vertical;
+        z-index: 1;
+        position: relative;
+        color: #e9ecef;
+        font-weight: 500;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        letter-spacing: 0.3px;
+    }
+
+    .transcription-field:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        outline: none;
+    }
+
+    .transcription-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(33, 37, 41, 0.9);
+        border-radius: 8px;
+        display: none; /* Hidden by default, will be shown via JavaScript */
+        justify-content: center;
+        align-items: center;
+        z-index: 2;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        border: 1px solid #495057;
+    }
+
+    .overlay-content {
+        text-align: center;
+        color: #adb5bd;
+    }
+
+    .overlay-content i {
+        color: #5a9cff;
+        margin-bottom: 15px;
+        opacity: 0.9;
+        font-size: 3.5rem;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+
+    .overlay-content p {
+        font-size: 17px;
+        margin: 0;
+        font-weight: 500;
+        color: #e9ecef;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        padding: 10px 20px;
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+    }
+
+    .btn-primary:hover {
+        background-color: #0069d9;
+        border-color: #0062cc;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
+    }
+
+    .btn-outline-secondary {
+        color: #6c757d;
+        border-color: #6c757d;
+        padding: 10px 20px;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    /* Instructions */
+    .instructions {
+        margin-bottom: 30px;
+        padding: 25px;
+        background-color: #1e2c42;
+        border-left: 6px solid #007bff;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        position: relative;
+        color: #e9ecef;
+    }
+
+    .instructions::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, transparent 50%, rgba(0, 123, 255, 0.1) 50%);
+        border-top-right-radius: 10px;
+    }
+
+    .instructions h4 {
+        margin-top: 0;
+        color: #0056b3;
+        font-weight: 700;
+        margin-bottom: 18px;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        letter-spacing: 0.5px;
+        text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+    }
+
+    .instructions h4::before {
+        content: "\f05a";
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        margin-right: 10px;
+        color: #007bff;
+        font-size: 22px;
+    }
+
+    .instructions ul {
+        margin-bottom: 0;
+        padding-left: 10px;
+        list-style: none;
+    }
+
+    .instructions li {
+        margin-bottom: 12px;
+        color: #e9ecef;
+        position: relative;
+        padding: 8px 8px 8px 35px;
+        font-weight: 500;
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease;
+        border: 1px solid rgba(90, 156, 255, 0.2);
+    }
+
+    .instructions li:hover {
+        background-color: rgba(0, 123, 255, 0.2);
+        transform: translateX(3px);
+        border-color: rgba(90, 156, 255, 0.4);
+    }
+
+    .instructions li::before {
+        content: "\f00c";
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        color: #007bff;
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    /* Tips and languages cards */
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 25px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header {
+        padding: 18px 20px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        font-size: 18px;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-header.bg-primary {
+        background: linear-gradient(135deg, #0062cc, #007bff) !important;
+        border-bottom: 3px solid #004c9e;
+    }
+
+    .card-header.bg-info {
+        background: linear-gradient(135deg, #138496, #17a2b8) !important;
+        border-bottom: 3px solid #0f6674;
+    }
+
+    .card-body {
+        padding: 25px;
+        background-color: #2c3034;
+        border-top: 1px solid #495057;
+        color: #e9ecef;
+    }
+
+    .card-body p {
+        color: #e9ecef;
+        font-weight: 600;
+        margin-bottom: 18px;
+        font-size: 17px;
+        padding: 10px;
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 6px;
+        border-left: 3px solid #5a9cff;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .list-unstyled {
+        margin-bottom: 0;
+    }
+
+    .list-unstyled li {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        border-left: 4px solid #28a745;
+        transition: all 0.2s ease;
+        font-size: 16px;
+        font-weight: 600;
+        color: #e9ecef;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .list-unstyled li:hover {
+        background-color: rgba(40, 167, 69, 0.2);
+        transform: translateX(5px);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+        border-left-color: #5dd879;
+    }
+
+    .list-unstyled li i {
+        margin-right: 15px;
+        color: #5dd879;
+        font-size: 20px;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+        background-color: rgba(0, 0, 0, 0.3);
+        padding: 8px;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+
+    #languagesList {
+        padding-left: 0;
+        list-style: none;
+        margin-top: 15px;
+    }
+
+    #languagesList li {
+        margin-bottom: 12px;
+        padding: 10px 15px;
+        border-bottom: 1px dashed #495057;
+        color: #e9ecef;
+        font-weight: 600;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        background-color: rgba(0, 0, 0, 0.2);
+        position: relative;
+        padding-left: 30px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        font-size: 16px;
+        letter-spacing: 0.3px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    #languagesList li::before {
+        content: "\f0ac";
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        position: absolute;
+        left: 10px;
+        color: #5cced9;
+    }
+
+    #languagesList li:hover {
+        background-color: rgba(23, 162, 184, 0.2);
+        padding-left: 35px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+        border-bottom-color: #5cced9;
+    }
+
+    #languagesList li:last-child {
+        border-bottom: none;
+    }
+
+    /* Container styles for tips and languages */
+    .tips-container, .languages-container {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        padding: 5px;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+        border: 1px solid #495057;
+    }
+
+    /* Highlight for span text in tips */
+    .list-unstyled li span {
+        position: relative;
+        z-index: 1;
+    }
+
+    .list-unstyled li span::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 30%;
+        background-color: rgba(40, 167, 69, 0.2);
+        z-index: -1;
+        border-radius: 2px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .recording-controls {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            padding: 15px;
+        }
+
+        .recording-container,
+        .transcription-container {
+            padding: 15px;
+        }
+
+        .btn-primary,
+        .btn-outline-secondary {
+            width: 100%;
+            margin: 5px 0;
+        }
+
+        .btn-outline-secondary {
+            margin-left: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Voice-to-Text Transcription</h1>
+
+    <div class="instructions">
+        <h4>Instructions</h4>
+        <ul>
+            <li>Click the red record button to start recording your voice</li>
+            <li>Speak clearly and at a normal pace</li>
+            <li>Click the stop button when you're finished</li>
+            <li>Wait for the transcription to complete</li>
+            <li>Review and edit the transcription as needed</li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="recording-container">
+                <!-- Language Selection -->
+                <div class="mb-3">
+                    <label for="languageSelector" class="form-label">Select Language</label>
+                    <select id="languageSelector" class="form-select">
+                        <option value="" disabled selected>Loading languages...</option>
+                    </select>
+                    <div class="form-text">Choose the language you'll be speaking in</div>
+                </div>
+
+                <div class="recording-controls">
+                    <button id="recordButton" class="record-button" title="Start Recording">
+                        <i class="fas fa-microphone fa-2x"></i>
+                    </button>
+                    <button id="stopButton" class="stop-button" title="Stop Recording">
+                        <i class="fas fa-stop fa-2x"></i>
+                    </button>
+                </div>
+
+                <div class="status-container">
+                    <div class="status-header">
+                        <i class="fas fa-info-circle status-icon"></i>
+                        <p id="recordingStatus">Ready to record</p>
+                    </div>
+                    <div class="progress-container">
+                        <div id="transcriptionProgress" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div id="statusPercentage" class="status-percentage">0%</div>
+                </div>
+
+                <audio id="audioPlayer" class="audio-player" controls></audio>
+            </div>
+
+            <div class="transcription-container">
+                <div class="transcription-header">
+                    <h4><i class="fas fa-file-alt"></i> Transcription</h4>
+                    <div class="transcription-actions">
+                        <button id="copyTranscriptionButton" class="btn btn-sm btn-outline-primary" title="Copy to clipboard">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="transcription-field-container">
+                    <textarea id="transcriptionField" class="transcription-field" placeholder="Your transcription will appear here...">{{ transcription_text if transcription_text else '' }}</textarea>
+                    <!-- Overlay will be hidden by default if there's text -->
+                    <div class="transcription-overlay" id="transcriptionOverlay" style="display: none;">
+                        <div class="overlay-content">
+                            <i class="fas fa-microphone-alt fa-3x"></i>
+                            <p>Record your voice to see the transcription here</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-between">
+                    <button id="useTranscriptionButton" class="btn btn-primary">
+                        <i class="fas fa-check-circle"></i> Use This Transcription
+                    </button>
+                    <button id="clearTranscriptionButton" class="btn btn-outline-secondary">
+                        <i class="fas fa-times-circle"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb mr-2"></i> Tips for Better Transcription</h5>
+                </div>
+                <div class="card-body">
+                    <div class="tips-container">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check-circle"></i> <span>Speak clearly and at a moderate pace</span></li>
+                            <li><i class="fas fa-volume-down"></i> <span>Minimize background noise for better results</span></li>
+                            <li><i class="fas fa-comment-alt"></i> <span>Use proper pronunciation of words</span></li>
+                            <li><i class="fas fa-microphone"></i> <span>Keep microphone at a consistent distance</span></li>
+                            <li><i class="fas fa-paragraph"></i> <span>Speak in complete sentences</span></li>
+                            <li><i class="fas fa-tachometer-alt"></i> <span>Avoid speaking too quickly</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-globe mr-2"></i> Supported Languages</h5>
+                </div>
+                <div class="card-body">
+                    <p><i class="fas fa-info-circle mr-2"></i> The system supports the following languages:</p>
+                    <div class="languages-container">
+                        <ul id="languagesList">
+                            <li>English (US)</li>
+                            <li>English (UK)</li>
+                            <li>English (India)</li>
+                            <li>Hindi</li>
+                            <li>Bengali</li>
+                            <li>Tamil</li>
+                            <li>And more...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/voice-recorder.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if there's already text in the transcription field
+        const transcriptionField = document.getElementById('transcriptionField');
+        const transcriptionOverlay = document.getElementById('transcriptionOverlay');
+
+        if (transcriptionField && transcriptionField.value.trim() !== '') {
+            // If there's text, hide the overlay
+            if (transcriptionOverlay) {
+                transcriptionOverlay.style.display = 'none';
+            }
+        } else {
+            // If there's no text, show the overlay
+            if (transcriptionOverlay) {
+                transcriptionOverlay.style.display = 'flex';
+            }
+        }
+
+        // Initialize voice recorder
+        const voiceRecorder = new VoiceRecorder({
+            recordButtonId: 'recordButton',
+            stopButtonId: 'stopButton',
+            audioPlayerId: 'audioPlayer',
+            transcriptionFieldId: 'transcriptionField',
+            statusElementId: 'recordingStatus',
+            progressBarId: 'transcriptionProgress',
+            languageSelectorId: 'languageSelector',
+            uploadEndpoint: '{{ url_for("speech.upload_audio") }}',
+            statusEndpoint: '{{ url_for("speech.get_transcription_status", task_id="") }}',
+            languagesEndpoint: '{{ url_for("speech.get_supported_languages") }}',
+            onTranscriptionComplete: function(text) {
+                console.log('Transcription complete:', text);
+                // You can add additional actions here
+            },
+            onError: function(error) {
+                console.error('Transcription error:', error);
+                // You can add error handling here
+            }
+        });
+
+        // Clear transcription button
+        document.getElementById('clearTranscriptionButton').addEventListener('click', function() {
+            document.getElementById('transcriptionField').value = '';
+            // Show the overlay when clearing the field
+            document.getElementById('transcriptionOverlay').style.display = 'flex';
+        });
+
+        // Copy transcription button
+        document.getElementById('copyTranscriptionButton').addEventListener('click', function() {
+            const transcriptionField = document.getElementById('transcriptionField');
+            const text = transcriptionField.value;
+
+            if (text.trim() === '') {
+                // Show a tooltip or message that there's nothing to copy
+                alert('No text to copy');
+                return;
+            }
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(text).then(function() {
+                // Visual feedback for successful copy
+                const button = document.getElementById('copyTranscriptionButton');
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                button.classList.add('btn-success');
+                button.classList.remove('btn-outline-primary');
+
+                // Reset after 2 seconds
+                setTimeout(function() {
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('btn-success');
+                    button.classList.add('btn-outline-primary');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                alert('Failed to copy text to clipboard');
+            });
+        });
+
+        // Use transcription button
+        document.getElementById('useTranscriptionButton').addEventListener('click', function() {
+            const transcription = document.getElementById('transcriptionField').value;
+            if (transcription.trim() === '') {
+                alert('Please record and transcribe your voice first.');
+                return;
+            }
+
+            // Store in session storage for use in complaint form
+            sessionStorage.setItem('voiceTranscription', transcription);
+
+            // Also store in server-side session via AJAX
+            fetch('{{ url_for("fir.save_transcription") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() if csrf_token else "" }}'
+                },
+                body: JSON.stringify({ transcription: transcription })
+            }).catch(error => {
+                console.error('Error saving transcription to session:', error);
+            });
+
+            // Redirect to complaint form
+            window.location.href = '{{ url_for("fir.new_fir") }}';
+        });
+
+        // Hide overlay when text is entered manually
+        document.getElementById('transcriptionField').addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                document.getElementById('transcriptionOverlay').style.display = 'none';
+            } else {
+                document.getElementById('transcriptionOverlay').style.display = 'flex';
+            }
+        });
+
+        // Load supported languages
+        fetch('{{ url_for("speech.get_supported_languages") }}')
+            .then(response => response.json())
+            .then(data => {
+                const languagesList = document.getElementById('languagesList');
+                languagesList.innerHTML = '';
+
+                // Check if data.languages exists and is an array
+                if (data.languages && Array.isArray(data.languages)) {
+                    data.languages.forEach(lang => {
+                        const li = document.createElement('li');
+                        li.textContent = lang.name;
+                        languagesList.appendChild(li);
+                    });
+                } else {
+                    // Fallback if languages is not in the expected format
+                    languagesList.innerHTML = '<li>English (US)</li><li>English (UK)</li><li>English (India)</li><li>Hindi</li>';
+                    console.warn('Languages data not in expected format:', data);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading languages:', error);
+            });
+    });
+</script>
+{% endblock %}

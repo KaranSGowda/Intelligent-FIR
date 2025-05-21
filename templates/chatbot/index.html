@@ -1,0 +1,296 @@
+{% extends 'layout.html' %}
+
+{% block title %}FIR Assistant - Intelligent FIR Filing System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-robot me-2"></i> FIR Assistant</h4>
+                </div>
+                <div class="card-body p-0">
+                    <!-- Chat messages container -->
+                    <div id="chat-messages" class="p-3" style="height: 400px; overflow-y: auto;">
+                        <div class="chat-message bot-message mb-3">
+                            <div class="message-content p-3 rounded">
+                                <p class="mb-0">Hello! I'm your FIR Assistant. I can help you with information about your cases and IPC sections. How can I help you today?</p>
+                            </div>
+                            <div class="message-time small text-muted mt-1">
+                                <span id="current-time"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat input -->
+                    <div class="chat-input border-top p-3">
+                        <form id="chat-form" class="d-flex">
+                            <input type="text" id="user-input" class="form-control me-2" placeholder="Type your question here..." autocomplete="off">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Example Questions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <a href="#" class="example-question text-decoration-none">
+                                            <i class="fas fa-question-circle me-2 text-primary"></i>
+                                            What is the status of my case FIR20230101123456?
+                                        </a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <a href="#" class="example-question text-decoration-none">
+                                            <i class="fas fa-question-circle me-2 text-primary"></i>
+                                            Tell me about IPC section 302
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <a href="#" class="example-question text-decoration-none">
+                                            <i class="fas fa-question-circle me-2 text-primary"></i>
+                                            What legal sections apply to my case FIR20230101123456?
+                                        </a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <a href="#" class="example-question text-decoration-none">
+                                            <i class="fas fa-question-circle me-2 text-primary"></i>
+                                            Analyze this complaint: My phone was stolen yesterday from my bag
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .chat-message {
+        max-width: 80%;
+        margin-bottom: 15px;
+    }
+
+    .user-message {
+        margin-left: auto;
+    }
+
+    .bot-message {
+        margin-right: auto;
+    }
+
+    .user-message .message-content {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .bot-message .message-content {
+        background-color: #f1f3f5;
+        color: #212529;
+    }
+
+    .message-content {
+        border-radius: 15px;
+        padding: 10px 15px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-message .message-time {
+        text-align: right;
+    }
+
+    .typing-indicator {
+        display: inline-block;
+        padding: 10px 15px;
+        background-color: #f1f3f5;
+        border-radius: 15px;
+    }
+
+    .typing-indicator span {
+        height: 8px;
+        width: 8px;
+        background-color: #6c757d;
+        display: inline-block;
+        border-radius: 50%;
+        animation: typing 1s infinite ease-in-out;
+        margin: 0 1px;
+    }
+
+    .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+        0% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-5px);
+        }
+        100% {
+            transform: translateY(0px);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set current time for initial message
+        const now = new Date();
+        document.getElementById('current-time').textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+        const chatMessages = document.getElementById('chat-messages');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+
+        // Function to add a message to the chat
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${isUser ? 'user-message' : 'bot-message'} mb-3`;
+
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            messageDiv.innerHTML = `
+                <div class="message-content p-3 rounded">
+                    <p class="mb-0">${message}</p>
+                </div>
+                <div class="message-time small text-muted mt-1">
+                    ${timeString}
+                </div>
+            `;
+
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Function to show typing indicator
+        function showTypingIndicator() {
+            const indicatorDiv = document.createElement('div');
+            indicatorDiv.className = 'chat-message bot-message mb-3';
+            indicatorDiv.id = 'typing-indicator';
+
+            indicatorDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+
+            chatMessages.appendChild(indicatorDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Function to remove typing indicator
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // Function to send a message to the chatbot API
+        async function sendMessage(message) {
+            try {
+                showTypingIndicator();
+
+                console.log("Sending message to chatbot API:", message);
+
+                const response = await fetch('/chatbot/api/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: message }),
+                    credentials: 'same-origin'
+                });
+
+                removeTypingIndicator();
+
+                console.log("Response status:", response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("API error response:", errorText);
+                    throw new Error(`Network response was not ok: ${response.status} ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log("API response data:", data);
+
+                // Add bot response to chat
+                if (data.text) {
+                    // Replace newlines with <br> tags
+                    const formattedText = data.text.replace(/\n/g, '<br>');
+                    addMessage(formattedText, false);
+                } else {
+                    addMessage("I'm sorry, I couldn't process your request.", false);
+                }
+
+            } catch (error) {
+                removeTypingIndicator();
+                console.error('Error:', error);
+                addMessage(`I'm sorry, there was an error processing your request: ${error.message}`, false);
+            }
+        }
+
+        // Handle form submission
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const message = userInput.value.trim();
+            if (message) {
+                // Add user message to chat
+                addMessage(message, true);
+
+                // Clear input
+                userInput.value = '';
+
+                // Send message to chatbot
+                sendMessage(message);
+            }
+        });
+
+        // Handle example questions
+        document.querySelectorAll('.example-question').forEach(function(element) {
+            element.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const question = this.textContent.trim();
+
+                // Set the input value
+                userInput.value = question;
+
+                // Focus the input
+                userInput.focus();
+            });
+        });
+    });
+</script>
+{% endblock %}

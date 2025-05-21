@@ -1,0 +1,81 @@
+{% extends 'layout.html' %}
+
+{% block title %}Edit Section {{ section.code }} - Intelligent FIR Filing System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-edit me-2"></i> Edit Legal Section</h2>
+        
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('legal_sections.view', section_id=section.id) }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Back to Section
+            </a>
+            <a href="{{ url_for('legal_sections.index') }}" class="btn btn-outline-primary">
+                <i class="fas fa-list me-2"></i> All Sections
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Edit Section {{ section.code }}</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('legal_sections.edit', section_id=section.id) }}" method="post">
+                        <div class="mb-3">
+                            <label for="sectionCode" class="form-label">Section Code</label>
+                            <input type="text" class="form-control" id="sectionCode" value="{{ section.code }}" readonly>
+                            <div class="form-text">Section codes cannot be changed. Create a new section if needed.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="sectionName" class="form-label">Section Name</label>
+                            <input type="text" class="form-control" id="sectionName" name="name" value="{{ section.name }}" required>
+                            <div class="form-text">Enter a concise name for the section.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="sectionDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="sectionDescription" name="description" rows="5">{{ section.description }}</textarea>
+                            <div class="form-text">Provide a detailed description of what this section covers.</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('legal_sections.view', section_id=section.id) }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-trash me-2"></i> Delete Section</h5>
+                </div>
+                <div class="card-body">
+                    <p>If you need to delete this section, use the button below:</p>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i> <strong>Warning:</strong> Deleting a section may affect FIRs that reference this section. This action cannot be undone.
+                    </div>
+                    
+                    <form action="{{ url_for('legal_sections.delete', section_id=section.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete Section {{ section.code }}? This action cannot be undone.');">
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i> Delete Section
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,414 @@
+{% extends 'layout.html' %}
+
+{% block title %}Section {{ section.code }} - {{ section.name }} - Intelligent FIR Filing System{% endblock %}
+
+{% block styles %}
+<style>
+    .section-header {
+        background-color: #f8f9fa;
+        border-left: 5px solid #007bff;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .section-code {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .section-name {
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+
+    .section-description {
+        margin-top: 10px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+
+    .fir-card {
+        transition: transform 0.2s;
+        margin-bottom: 15px;
+    }
+
+    .fir-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .confidence-indicator {
+        width: 100%;
+        height: 5px;
+        background-color: #e9ecef;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 5px;
+    }
+
+    .confidence-bar {
+        height: 100%;
+        border-radius: 3px;
+    }
+
+    .relevance-text {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-top: 10px;
+    }
+
+    .keywords-container {
+        margin-top: 15px;
+    }
+
+    .keyword-badge {
+        margin-right: 5px;
+        margin-bottom: 5px;
+        font-size: 0.8rem;
+    }
+
+    .related-sections {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 15px;
+    }
+
+    .related-section-item {
+        padding: 8px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .related-section-item:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+        <h2 class="mb-3 mb-md-0"><i class="fas fa-gavel me-2"></i> Legal Section Details</h2>
+
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('legal_sections.index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Back to Sections
+            </a>
+
+            {% if current_user.is_admin() %}
+                <a href="{{ url_for('legal_sections.edit', section_id=section.id) }}" class="btn btn-primary">
+                    <i class="fas fa-edit me-2"></i> Edit Section
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Section Details -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="section-header">
+                        <div class="section-code">Section {{ section.code }}</div>
+                        <div class="section-name">{{ section.name }}</div>
+                    </div>
+
+                    <h5>Description</h5>
+                    <div class="section-description">
+                        {{ section.description }}
+                    </div>
+
+                    <!-- Legal References -->
+                    <div class="mt-4">
+                        <h5>Legal References</h5>
+                        <div class="alert alert-info">
+                            <i class="fas fa-book me-2"></i> This section is part of the Indian Penal Code (IPC), which is the main criminal code of India.
+                        </div>
+
+                        <div class="mt-3">
+                            <h6>Punishment</h6>
+                            <p>
+                                {% if section.code == '302' %}
+                                    Death, or imprisonment for life, and fine.
+                                {% elif section.code == '304A' %}
+                                    Imprisonment up to 2 years, or fine, or both.
+                                {% elif section.code == '307' %}
+                                    Imprisonment up to 10 years and fine.
+                                {% elif section.code == '323' %}
+                                    Imprisonment up to 1 year, or fine up to 1,000 rupees, or both.
+                                {% elif section.code == '324' %}
+                                    Imprisonment up to 3 years, or fine, or both.
+                                {% elif section.code == '354' %}
+                                    Imprisonment from 1 to 5 years, and fine.
+                                {% elif section.code == '376' %}
+                                    Rigorous imprisonment from 10 years to life, and fine.
+                                {% elif section.code == '379' %}
+                                    Imprisonment up to 3 years, or fine, or both.
+                                {% elif section.code == '380' %}
+                                    Imprisonment up to 7 years and fine.
+                                {% elif section.code == '392' %}
+                                    Rigorous imprisonment up to 10 years and fine.
+                                {% elif section.code == '420' %}
+                                    Imprisonment up to 7 years and fine.
+                                {% elif section.code == '498A' %}
+                                    Imprisonment up to 3 years and fine.
+                                {% else %}
+                                    As prescribed by law.
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FIRs using this section -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i> FIRs Referencing This Section</h5>
+                </div>
+                <div class="card-body">
+                    {% if firs %}
+                        <p>The following FIRs have been mapped to Section {{ section.code }}:</p>
+
+                        {% for item in firs %}
+                            <div class="card fir-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h5 class="mb-1">
+                                            <a href="{{ url_for('fir.view_fir', fir_id=item.fir.id) }}" class="text-decoration-none">
+                                                FIR #{{ item.fir.fir_number }}
+                                            </a>
+                                        </h5>
+                                        <span class="badge bg-{{ 'success' if item.confidence > 0.8 else 'info' if item.confidence > 0.5 else 'warning' if item.confidence > 0.3 else 'danger' }}">
+                                            {{ (item.confidence * 100)|int }}% match
+                                        </span>
+                                    </div>
+
+                                    <p class="mb-2">{{ item.fir.incident_description|truncate(150) }}</p>
+
+                                    <div class="confidence-indicator">
+                                        <div class="confidence-bar bg-{{ 'success' if item.confidence > 0.8 else 'info' if item.confidence > 0.5 else 'warning' if item.confidence > 0.3 else 'danger' }}"
+                                             style="width: {{ (item.confidence * 100)|int }}%"></div>
+                                    </div>
+
+                                    <div class="relevance-text">
+                                        {{ item.relevance }}
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <div>
+                                            <small class="text-muted">Filed: {{ item.fir.filed_at.strftime('%d-%m-%Y') if item.fir.filed_at else 'Draft' }}</small>
+                                        </div>
+                                        <a href="{{ url_for('fir.view_fir', fir_id=item.fir.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i> View FIR
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> No FIRs have been mapped to this section yet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Keywords -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-dark">
+                    <h5 class="mb-0"><i class="fas fa-key me-2"></i> Key Terms</h5>
+                </div>
+                <div class="card-body">
+                    <p>These keywords are used to identify this section in complaint texts:</p>
+
+                    <div class="keywords-container">
+                        {% set keywords = get_section_keywords(section.code) %}
+                        {% if keywords %}
+                            {% for keyword in keywords %}
+                                <span class="badge bg-light text-dark keyword-badge">{{ keyword }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">No keywords defined for this section.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Sections -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-link me-2"></i> Related Sections</h5>
+                </div>
+                <div class="card-body">
+                    <div class="related-sections">
+                        {% set related_sections = get_related_sections(section.code) %}
+                        {% if related_sections %}
+                            {% for related in related_sections %}
+                                <div class="related-section-item">
+                                    <a href="{{ url_for('legal_sections.view', section_id=related.id) }}" class="text-decoration-none">
+                                        <strong>Section {{ related.code }}</strong>
+                                    </a>
+                                    <div>{{ related.name }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">No related sections found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Tool -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-search me-2"></i> Test Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <p>Test if a complaint text matches this section:</p>
+
+                    <form action="{{ url_for('legal_sections.analyze') }}" method="post">
+                        <div class="mb-3">
+                            <label for="complaintText" class="form-label">Complaint Text</label>
+                            <textarea class="form-control" id="complaintText" name="complaint_text" rows="4" placeholder="Enter complaint text to analyze..."></textarea>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-search me-2"></i> Analyze Text
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% macro get_section_keywords(code) %}
+    {% if code == '302' %}
+        {{ ['murder', 'kill', 'death', 'homicide', 'fatal', 'deceased', 'died', 'dead'] }}
+    {% elif code == '304A' %}
+        {{ ['death by negligence', 'accidental death', 'rash act', 'negligent act', 'careless'] }}
+    {% elif code == '307' %}
+        {{ ['attempt to murder', 'attempted murder', 'try to kill', 'intent to kill', 'shot', 'stabbed'] }}
+    {% elif code == '323' %}
+        {{ ['hurt', 'injury', 'assault', 'beat', 'hit', 'slap', 'punch', 'wound', 'bruise'] }}
+    {% elif code == '324' %}
+        {{ ['hurt by dangerous weapon', 'knife', 'sharp weapon', 'dangerous weapon', 'cut', 'stab'] }}
+    {% elif code == '354' %}
+        {{ ['assault on woman', 'modesty', 'touch', 'outrage', 'female', 'inappropriate touching'] }}
+    {% elif code == '376' %}
+        {{ ['rape', 'sexual assault', 'forced intercourse', 'without consent', 'sexual violence'] }}
+    {% elif code == '379' %}
+        {{ ['theft', 'steal', 'stolen', 'took', 'property', 'belongings', 'missing', 'robbed'] }}
+    {% elif code == '380' %}
+        {{ ['theft in dwelling', 'house theft', 'home burglary', 'break-in', 'house', 'dwelling'] }}
+    {% elif code == '392' %}
+        {{ ['robbery', 'force', 'threat', 'weapon', 'steal', 'property', 'violence', 'forcibly took'] }}
+    {% elif code == '420' %}
+        {{ ['cheating', 'fraud', 'deceive', 'dishonest', 'scam', 'false', 'misrepresentation'] }}
+    {% elif code == '498A' %}
+        {{ ['cruelty by husband', 'domestic violence', 'dowry harassment', 'marital cruelty'] }}
+    {% elif code == '504' %}
+        {{ ['intentional insult', 'provocation', 'breach of peace', 'insulted', 'provoked'] }}
+    {% elif code == '506' %}
+        {{ ['criminal intimidation', 'threat', 'threatening', 'intimidation', 'threatened', 'fear'] }}
+    {% else %}
+        {{ [] }}
+    {% endif %}
+{% endmacro %}
+
+{% macro get_related_sections(code) %}
+    {% if code == '302' %}
+        {{ [
+            {'id': 1, 'code': '304', 'name': 'Culpable homicide not amounting to murder'},
+            {'id': 2, 'code': '307', 'name': 'Attempt to murder'},
+            {'id': 3, 'code': '304A', 'name': 'Causing death by negligence'}
+        ] }}
+    {% elif code == '304A' %}
+        {{ [
+            {'id': 1, 'code': '302', 'name': 'Murder'},
+            {'id': 2, 'code': '304', 'name': 'Culpable homicide not amounting to murder'},
+            {'id': 3, 'code': '279', 'name': 'Rash driving or riding on a public way'}
+        ] }}
+    {% elif code == '307' %}
+        {{ [
+            {'id': 1, 'code': '302', 'name': 'Murder'},
+            {'id': 2, 'code': '324', 'name': 'Voluntarily causing hurt by dangerous weapons'},
+            {'id': 3, 'code': '326', 'name': 'Voluntarily causing grievous hurt by dangerous weapons'}
+        ] }}
+    {% elif code == '323' %}
+        {{ [
+            {'id': 1, 'code': '324', 'name': 'Voluntarily causing hurt by dangerous weapons'},
+            {'id': 2, 'code': '325', 'name': 'Voluntarily causing grievous hurt'},
+            {'id': 3, 'code': '352', 'name': 'Assault or criminal force otherwise than on grave provocation'}
+        ] }}
+    {% elif code == '324' %}
+        {{ [
+            {'id': 1, 'code': '323', 'name': 'Voluntarily causing hurt'},
+            {'id': 2, 'code': '326', 'name': 'Voluntarily causing grievous hurt by dangerous weapons'},
+            {'id': 3, 'code': '307', 'name': 'Attempt to murder'}
+        ] }}
+    {% elif code == '354' %}
+        {{ [
+            {'id': 1, 'code': '354A', 'name': 'Sexual harassment'},
+            {'id': 2, 'code': '354B', 'name': 'Assault or use of criminal force with intent to disrobe'},
+            {'id': 3, 'code': '509', 'name': 'Word, gesture or act intended to insult the modesty of a woman'}
+        ] }}
+    {% elif code == '376' %}
+        {{ [
+            {'id': 1, 'code': '354', 'name': 'Assault or criminal force to woman with intent to outrage her modesty'},
+            {'id': 2, 'code': '376A', 'name': 'Punishment for causing death or resulting in persistent vegetative state of victim'},
+            {'id': 3, 'code': '376D', 'name': 'Gang rape'}
+        ] }}
+    {% elif code == '379' %}
+        {{ [
+            {'id': 1, 'code': '378', 'name': 'Theft'},
+            {'id': 2, 'code': '380', 'name': 'Theft in dwelling house'},
+            {'id': 3, 'code': '382', 'name': 'Theft after preparation made for causing death, hurt or restraint'}
+        ] }}
+    {% elif code == '380' %}
+        {{ [
+            {'id': 1, 'code': '379', 'name': 'Punishment for theft'},
+            {'id': 2, 'code': '454', 'name': 'Lurking house-trespass or house-breaking'},
+            {'id': 3, 'code': '457', 'name': 'Lurking house-trespass or house-breaking by night'}
+        ] }}
+    {% elif code == '392' %}
+        {{ [
+            {'id': 1, 'code': '390', 'name': 'Robbery'},
+            {'id': 2, 'code': '394', 'name': 'Voluntarily causing hurt in committing robbery'},
+            {'id': 3, 'code': '395', 'name': 'Dacoity'}
+        ] }}
+    {% elif code == '420' %}
+        {{ [
+            {'id': 1, 'code': '415', 'name': 'Cheating'},
+            {'id': 2, 'code': '417', 'name': 'Punishment for cheating'},
+            {'id': 3, 'code': '468', 'name': 'Forgery for purpose of cheating'}
+        ] }}
+    {% elif code == '498A' %}
+        {{ [
+            {'id': 1, 'code': '304B', 'name': 'Dowry death'},
+            {'id': 2, 'code': '323', 'name': 'Voluntarily causing hurt'},
+            {'id': 3, 'code': '506', 'name': 'Criminal intimidation'}
+        ] }}
+    {% elif code == '504' %}
+        {{ [
+            {'id': 1, 'code': '503', 'name': 'Criminal intimidation'},
+            {'id': 2, 'code': '506', 'name': 'Punishment for criminal intimidation'},
+            {'id': 3, 'code': '509', 'name': 'Word, gesture or act intended to insult the modesty of a woman'}
+        ] }}
+    {% elif code == '506' %}
+        {{ [
+            {'id': 1, 'code': '503', 'name': 'Criminal intimidation'},
+            {'id': 2, 'code': '504', 'name': 'Intentional insult with intent to provoke breach of the peace'},
+            {'id': 3, 'code': '507', 'name': 'Criminal intimidation by an anonymous communication'}
+        ] }}
+    {% else %}
+        {{ [] }}
+    {% endif %}
+{% endmacro %}

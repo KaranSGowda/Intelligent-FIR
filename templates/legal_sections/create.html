@@ -1,0 +1,74 @@
+{% extends 'layout.html' %}
+
+{% block title %}Create New Legal Section - Intelligent FIR Filing System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-plus-circle me-2"></i> Create New Legal Section</h2>
+        
+        <a href="{{ url_for('legal_sections.index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to Sections
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Section Details</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('legal_sections.create') }}" method="post">
+                        <div class="mb-3">
+                            <label for="sectionCode" class="form-label">Section Code</label>
+                            <input type="text" class="form-control" id="sectionCode" name="code" placeholder="e.g., 302, 376, 420" required>
+                            <div class="form-text">Enter the IPC section number. Use letters for subsections (e.g., 304A, 498B).</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="sectionName" class="form-label">Section Name</label>
+                            <input type="text" class="form-control" id="sectionName" name="name" placeholder="e.g., Murder, Theft, Criminal Breach of Trust" required>
+                            <div class="form-text">Enter a concise name for the section.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="sectionDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="sectionDescription" name="description" rows="5" placeholder="Detailed description of the section..."></textarea>
+                            <div class="form-text">Provide a detailed description of what this section covers.</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('legal_sections.index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Create Section
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header bg-info text-dark">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Adding a New Section</h5>
+                </div>
+                <div class="card-body">
+                    <p>When adding a new IPC section, consider the following:</p>
+                    
+                    <ul>
+                        <li><strong>Section Code:</strong> Use the official IPC section number. For subsections, append letters (e.g., 304A).</li>
+                        <li><strong>Section Name:</strong> Use the official name of the section as it appears in the IPC.</li>
+                        <li><strong>Description:</strong> Provide a clear and concise description of what the section covers, including key elements of the offense.</li>
+                    </ul>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Adding new sections will affect the AI's ability to map complaints to legal sections. After adding new sections, consider retraining the ML model.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

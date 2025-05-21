@@ -1,0 +1,336 @@
+{% extends 'layout.html' %}
+
+{% block title %}Legal Sections Management - Intelligent FIR Filing System{% endblock %}
+
+{% block styles %}
+<style>
+    .section-card {
+        transition: transform 0.2s;
+    }
+
+    .section-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .section-code {
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: #007bff;
+    }
+
+    .section-name {
+        font-weight: 500;
+    }
+
+    .section-description {
+        color: #6c757d;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .admin-actions {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: none;
+    }
+
+    .section-card:hover .admin-actions {
+        display: block;
+    }
+
+    .filter-container {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .category-badge {
+        cursor: pointer;
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+
+    .category-badge.active {
+        background-color: #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+        <div class="mb-3 mb-md-0">
+            <h2><i class="fas fa-gavel me-2"></i> Legal Sections Management</h2>
+            <p class="lead">Manage Indian Penal Code (IPC) sections for FIR classification</p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            {% if current_user.is_admin() %}
+                <a href="{{ url_for('legal_sections.create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i> Add New Section
+                </a>
+
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="adminActionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cog me-2"></i> Admin Actions
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminActionsDropdown">
+                        <li>
+                            <form action="{{ url_for('legal_sections.initialize') }}" method="POST" onsubmit="return confirm('This will initialize the database with common IPC sections. Continue?');">
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-database me-2"></i> Initialize Default Sections
+                                </button>
+                            </form>
+                        </li>
+                        <li>
+                            <form action="{{ url_for('legal_sections.train_ml_model') }}" method="POST" onsubmit="return confirm('This will train the ML model for legal section classification. This may take some time. Continue?');">
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-brain me-2"></i> Train ML Model
+                                </button>
+                            </form>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a href="{{ url_for('legal_sections.analyze') }}" class="dropdown-item">
+                                <i class="fas fa-search me-2"></i> Analyze Complaint Text
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            {% else %}
+                <a href="{{ url_for('legal_sections.analyze') }}" class="btn btn-primary">
+                    <i class="fas fa-search me-2"></i> Analyze Complaint Text
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-container mb-4">
+        <div class="row">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" id="sectionSearch" class="form-control" placeholder="Search sections...">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex flex-wrap">
+                    <span class="me-2 mb-2">Categories:</span>
+                    <div class="d-flex flex-wrap gap-1">
+                        <span class="badge bg-secondary category-badge active" data-category="all">All</span>
+                        <span class="badge bg-secondary category-badge" data-category="person">Against Person</span>
+                        <span class="badge bg-secondary category-badge" data-category="property">Against Property</span>
+                        <span class="badge bg-secondary category-badge" data-category="public">Public Tranquility</span>
+                        <span class="badge bg-secondary category-badge" data-category="marriage">Marriage</span>
+                        <span class="badge bg-secondary category-badge" data-category="defamation">Defamation</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sections Grid -->
+    <div class="row" id="sectionsContainer">
+        {% if sections %}
+            {% for section in sections %}
+                <div class="col-md-6 col-lg-4 mb-4 section-item"
+                     data-code="{{ section.code }}"
+                     data-name="{{ section.name }}"
+                     data-category="{{ get_section_category(section.code) }}">
+                    <div class="card h-100 section-card">
+                        {% if current_user.is_admin() %}
+                            <div class="admin-actions">
+                                <a href="{{ url_for('legal_sections.edit', section_id=section.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete({{ section.id }}, '{{ section.code }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        {% endif %}
+
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="section-code">Section {{ section.code }}</span>
+                                <span class="badge bg-{{ get_section_badge_color(section.code) }}">{{ get_section_category(section.code) }}</span>
+                            </div>
+                            <h5 class="section-name mb-3">{{ section.name }}</h5>
+                            <p class="section-description mb-3">{{ section.description }}</p>
+                            <a href="{{ url_for('legal_sections.view', section_id=section.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-info-circle me-1"></i> View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> No legal sections found.
+                    {% if current_user.is_admin() %}
+                        Use the "Initialize Default Sections" button to add common IPC sections.
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete Section <span id="deleteSectionCode"></span>?</p>
+                <p class="text-danger">This action cannot be undone and may affect FIRs that reference this section.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Helper function to get section category
+    function getSectionCategory(code) {
+        const code_num = parseInt(code.replace(/[A-Za-z]/g, ''));
+
+        if (code_num >= 299 && code_num <= 377) return 'person';
+        if (code_num >= 378 && code_num <= 462) return 'property';
+        if (code_num >= 141 && code_num <= 160) return 'public';
+        if (code_num >= 493 && code_num <= 498) return 'marriage';
+        if (code_num >= 499 && code_num <= 502) return 'defamation';
+
+        return 'other';
+    }
+
+    // Search and filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('sectionSearch');
+        const sectionItems = document.querySelectorAll('.section-item');
+        const categoryBadges = document.querySelectorAll('.category-badge');
+
+        let activeCategory = 'all';
+
+        // Search functionality
+        searchInput.addEventListener('input', filterSections);
+
+        // Category filter functionality
+        categoryBadges.forEach(badge => {
+            badge.addEventListener('click', function() {
+                // Update active state
+                categoryBadges.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                // Set active category
+                activeCategory = this.dataset.category;
+
+                // Filter sections
+                filterSections();
+            });
+        });
+
+        function filterSections() {
+            const searchTerm = searchInput.value.toLowerCase();
+
+            sectionItems.forEach(item => {
+                const code = item.dataset.code.toLowerCase();
+                const name = item.dataset.name.toLowerCase();
+                const category = item.dataset.category;
+
+                const matchesSearch = code.includes(searchTerm) || name.includes(searchTerm);
+                const matchesCategory = activeCategory === 'all' || category === activeCategory;
+
+                if (matchesSearch && matchesCategory) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Check if no results
+            const visibleItems = document.querySelectorAll('.section-item[style=""]');
+            const noResultsElement = document.getElementById('noResults');
+
+            if (visibleItems.length === 0) {
+                if (!noResultsElement) {
+                    const container = document.getElementById('sectionsContainer');
+                    const noResults = document.createElement('div');
+                    noResults.id = 'noResults';
+                    noResults.className = 'col-12';
+                    noResults.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i> No sections found matching your search criteria.
+                        </div>
+                    `;
+                    container.appendChild(noResults);
+                }
+            } else if (noResultsElement) {
+                noResultsElement.remove();
+            }
+        }
+    });
+
+    // Delete confirmation
+    function confirmDelete(sectionId, sectionCode) {
+        document.getElementById('deleteSectionCode').textContent = sectionCode;
+        document.getElementById('deleteForm').action = "{{ url_for('legal_sections.delete', section_id=0) }}".replace('0', sectionId);
+
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    }
+</script>
+{% endblock %}
+
+{% macro get_section_category(code) %}
+    {% set code_num = code|replace('A','')|replace('B','')|int %}
+
+    {% if code_num >= 299 and code_num <= 377 %}
+        Against Person
+    {% elif code_num >= 378 and code_num <= 462 %}
+        Against Property
+    {% elif code_num >= 141 and code_num <= 160 %}
+        Public Tranquility
+    {% elif code_num >= 493 and code_num <= 498 %}
+        Marriage
+    {% elif code_num >= 499 and code_num <= 502 %}
+        Defamation
+    {% else %}
+        Other
+    {% endif %}
+{% endmacro %}
+
+{% macro get_section_badge_color(code) %}
+    {% set code_num = code|replace('A','')|replace('B','')|int %}
+
+    {% if code_num >= 299 and code_num <= 377 %}
+        danger
+    {% elif code_num >= 378 and code_num <= 462 %}
+        warning
+    {% elif code_num >= 141 and code_num <= 160 %}
+        info
+    {% elif code_num >= 493 and code_num <= 498 %}
+        primary
+    {% elif code_num >= 499 and code_num <= 502 %}
+        secondary
+    {% else %}
+        dark
+    {% endif %}
+{% endmacro %}

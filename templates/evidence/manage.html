@@ -1,0 +1,547 @@
+{% extends 'layout.html' %}
+
+{% block title %}Evidence Management - FIR #{{ fir.fir_number }}{% endblock %}
+
+{% block styles %}
+<style>
+    .evidence-card {
+        transition: transform 0.2s;
+        margin-bottom: 20px;
+    }
+
+    .evidence-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .evidence-img-container {
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .evidence-img-container img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    .evidence-icon {
+        font-size: 64px;
+        color: #6c757d;
+    }
+
+    .tag-badge {
+        margin-right: 5px;
+        margin-bottom: 5px;
+        font-size: 0.8rem;
+    }
+
+    .metadata-table {
+        font-size: 0.85rem;
+    }
+
+    .metadata-table th {
+        width: 40%;
+    }
+
+    .timeline-container {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline-container::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: #dee2e6;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -30px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #007bff;
+    }
+
+    .timeline-date {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    .timeline-content {
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .analysis-container {
+        background-color: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 15px;
+        margin-top: 15px;
+        border-radius: 4px;
+    }
+
+    .dropzone {
+        border: 2px dashed #dee2e6;
+        border-radius: 5px;
+        padding: 30px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+        border-color: #007bff;
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+
+    .dropzone-icon {
+        font-size: 48px;
+        color: #6c757d;
+        margin-bottom: 15px;
+    }
+
+    .progress {
+        display: none;
+        margin-top: 15px;
+    }
+
+    .category-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+        <h1 class="mb-3 mb-md-0">Evidence Management</h1>
+        <a href="{{ url_for('fir.view_fir', fir_id=fir.id) }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to FIR
+        </a>
+    </div>
+
+    <div class="alert alert-info">
+        <div class="d-flex">
+            <div class="me-3">
+                <i class="fas fa-info-circle fa-2x"></i>
+            </div>
+            <div>
+                <h5 class="alert-heading">FIR #{{ fir.fir_number }}</h5>
+                <p class="mb-0">{{ fir.incident_description|truncate(150) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Evidence List -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-folder-open me-2"></i> Evidence Items</h5>
+                </div>
+                <div class="card-body">
+                    {% if evidence_items %}
+                        <div class="row">
+                            {% for evidence in evidence_items %}
+                                <div class="col-md-6">
+                                    <div class="card evidence-card">
+                                        {% if evidence.category %}
+                                            <span class="badge bg-info category-badge">{{ evidence.category }}</span>
+                                        {% endif %}
+
+                                        <div class="evidence-img-container">
+                                            {% if evidence.type == 'image' %}
+                                                <img src="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" alt="Evidence">
+                                            {% elif evidence.type == 'document' %}
+                                                <i class="fas fa-file-alt evidence-icon"></i>
+                                            {% elif evidence.type == 'video' %}
+                                                <i class="fas fa-video evidence-icon"></i>
+                                            {% elif evidence.type == 'audio' %}
+                                                <i class="fas fa-microphone evidence-icon"></i>
+                                            {% else %}
+                                                <i class="fas fa-file evidence-icon"></i>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                {{ evidence.description|truncate(30) or 'Evidence #' + evidence.id|string }}
+                                            </h5>
+
+                                            <p class="card-text text-muted small">
+                                                Uploaded: {{ evidence.uploaded_at.strftime('%d-%m-%Y %H:%M') }}
+                                            </p>
+
+                                            {% if evidence.tags %}
+                                                <div class="mb-2">
+                                                    {% for tag in evidence.get_tags() %}
+                                                        <span class="badge bg-secondary tag-badge">{{ tag }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+
+                                            <div class="d-flex justify-content-between mt-2">
+                                                <a href="{{ url_for('evidence.view_evidence', evidence_id=evidence.id) }}" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-eye me-1"></i> View
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-danger"
+                                                        onclick="confirmDelete({{ evidence.id }}, '{{ evidence.description|default('this evidence', true) }}')">
+                                                    <i class="fas fa-trash me-1"></i> Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-folder-open fa-4x mb-3 text-muted"></i>
+                            <h4>No Evidence Items</h4>
+                            <p class="text-muted">Upload evidence using the form below.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Upload Form -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-upload me-2"></i> Upload Evidence</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('evidence.upload_evidence', fir_id=fir.id) }}" method="post" enctype="multipart/form-data" id="evidenceUploadForm">
+                        <div class="mb-3">
+                            <label for="evidenceDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="evidenceDescription" name="description" rows="2" placeholder="Describe this evidence..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="evidenceCategory" class="form-label">Category</label>
+                            <select class="form-select" id="evidenceCategory" name="category">
+                                <option value="">Select a category</option>
+                                <option value="Physical Evidence">Physical Evidence</option>
+                                <option value="Digital Evidence">Digital Evidence</option>
+                                <option value="Documentary Evidence">Documentary Evidence</option>
+                                <option value="Testimonial Evidence">Testimonial Evidence</option>
+                                <option value="Other Evidence">Other Evidence</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="evidenceTags" class="form-label">Tags (comma separated)</label>
+                            <input type="text" class="form-control" id="evidenceTags" name="tags" placeholder="weapon, injury, location, etc.">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="evidenceLocation" class="form-label">Collection Location</label>
+                            <input type="text" class="form-control" id="evidenceLocation" name="location" placeholder="Where was this evidence collected?">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="evidenceCollectedAt" class="form-label">Collection Date/Time</label>
+                            <input type="datetime-local" class="form-control" id="evidenceCollectedAt" name="collected_at">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Evidence File</label>
+                            <div class="dropzone" id="evidenceDropzone">
+                                <i class="fas fa-cloud-upload-alt dropzone-icon"></i>
+                                <p class="mb-2">Drag & drop files here or click to browse</p>
+                                <p class="text-muted small mb-0">Supported formats: Images, Documents, Videos, Audio</p>
+                                <input type="file" id="evidenceFile" name="file" class="d-none" required>
+                            </div>
+                            <div class="progress mt-2">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <div id="filePreview" class="mt-2 d-none">
+                                <div class="d-flex align-items-center p-2 border rounded">
+                                    <i class="fas fa-file me-2"></i>
+                                    <span id="fileName">No file selected</span>
+                                    <button type="button" class="btn btn-sm btn-link text-danger ms-auto" id="removeFile">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="analyzeEvidence" name="analyze" checked>
+                            <label class="form-check-label" for="analyzeEvidence">
+                                Analyze this evidence using AI
+                            </label>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success" id="uploadButton">
+                                <i class="fas fa-upload me-2"></i> Upload Evidence
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Evidence Statistics -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i> Evidence Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Evidence by Type</h6>
+                        <div class="progress mb-1" style="height: 20px;">
+                            {% set image_count = evidence_items|selectattr('type', 'equalto', 'image')|list|length %}
+                            {% set document_count = evidence_items|selectattr('type', 'equalto', 'document')|list|length %}
+                            {% set video_count = evidence_items|selectattr('type', 'equalto', 'video')|list|length %}
+                            {% set audio_count = evidence_items|selectattr('type', 'equalto', 'audio')|list|length %}
+                            {% set other_count = evidence_items|selectattr('type', 'equalto', 'other')|list|length %}
+                            {% set total_count = evidence_items|length %}
+
+                            {% if total_count > 0 %}
+                                {% set image_percent = (image_count / total_count * 100)|round %}
+                                {% set document_percent = (document_count / total_count * 100)|round %}
+                                {% set video_percent = (video_count / total_count * 100)|round %}
+                                {% set audio_percent = (audio_count / total_count * 100)|round %}
+                                {% set other_percent = (other_count / total_count * 100)|round %}
+
+                                {% if image_percent > 0 %}
+                                <div class="progress-bar bg-primary" style="width: {{ image_percent }}%" title="Images: {{ image_count }}"></div>
+                                {% endif %}
+
+                                {% if document_percent > 0 %}
+                                <div class="progress-bar bg-success" style="width: {{ document_percent }}%" title="Documents: {{ document_count }}"></div>
+                                {% endif %}
+
+                                {% if video_percent > 0 %}
+                                <div class="progress-bar bg-warning" style="width: {{ video_percent }}%" title="Videos: {{ video_count }}"></div>
+                                {% endif %}
+
+                                {% if audio_percent > 0 %}
+                                <div class="progress-bar bg-info" style="width: {{ audio_percent }}%" title="Audio: {{ audio_count }}"></div>
+                                {% endif %}
+
+                                {% if other_percent > 0 %}
+                                <div class="progress-bar bg-secondary" style="width: {{ other_percent }}%" title="Other: {{ other_count }}"></div>
+                                {% endif %}
+                            {% else %}
+                                <div class="progress-bar bg-secondary" style="width: 100%">No evidence</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex flex-wrap mt-2">
+                            <div class="me-3 mb-2">
+                                <span class="badge bg-primary me-1">&nbsp;</span> Images ({{ image_count }})
+                            </div>
+                            <div class="me-3 mb-2">
+                                <span class="badge bg-success me-1">&nbsp;</span> Documents ({{ document_count }})
+                            </div>
+                            <div class="me-3 mb-2">
+                                <span class="badge bg-warning me-1">&nbsp;</span> Videos ({{ video_count }})
+                            </div>
+                            <div class="me-3 mb-2">
+                                <span class="badge bg-info me-1">&nbsp;</span> Audio ({{ audio_count }})
+                            </div>
+                            <div class="me-3 mb-2">
+                                <span class="badge bg-secondary me-1">&nbsp;</span> Other ({{ other_count }})
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h6>Common Tags</h6>
+                        <div class="d-flex flex-wrap">
+                            {% set all_tags = [] %}
+                            {% for evidence in evidence_items %}
+                                {% for tag in evidence.get_tags() %}
+                                    {% set _ = all_tags.append(tag) %}
+                                {% endfor %}
+                            {% endfor %}
+
+                            {% set tag_counts = {} %}
+                            {% for tag in all_tags %}
+                                {% if tag in tag_counts %}
+                                    {% set _ = tag_counts.update({tag: tag_counts[tag] + 1}) %}
+                                {% else %}
+                                    {% set _ = tag_counts.update({tag: 1}) %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% for tag, count in tag_counts.items() %}
+                                <span class="badge bg-secondary tag-badge">{{ tag }} ({{ count }})</span>
+                            {% endfor %}
+
+                            {% if all_tags|length == 0 %}
+                                <span class="text-muted">No tags found</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <span id="deleteItemName"></span>?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Dropzone functionality
+        const dropzone = document.getElementById('evidenceDropzone');
+        const fileInput = document.getElementById('evidenceFile');
+        const filePreview = document.getElementById('filePreview');
+        const fileName = document.getElementById('fileName');
+        const removeFile = document.getElementById('removeFile');
+        const progressBar = document.querySelector('.progress');
+        const progressBarInner = document.querySelector('.progress-bar');
+        const uploadForm = document.getElementById('evidenceUploadForm');
+
+        dropzone.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        dropzone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', function() {
+            dropzone.classList.remove('dragover');
+        });
+
+        dropzone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                updateFilePreview();
+            }
+        });
+
+        fileInput.addEventListener('change', updateFilePreview);
+
+        removeFile.addEventListener('click', function() {
+            fileInput.value = '';
+            filePreview.classList.add('d-none');
+            dropzone.classList.remove('d-none');
+        });
+
+        function updateFilePreview() {
+            if (fileInput.files.length) {
+                const file = fileInput.files[0];
+                fileName.textContent = file.name;
+                filePreview.classList.remove('d-none');
+                dropzone.classList.add('d-none');
+
+                // Update icon based on file type
+                const fileIcon = filePreview.querySelector('i');
+                if (file.type.startsWith('image/')) {
+                    fileIcon.className = 'fas fa-image me-2';
+                } else if (file.type.startsWith('video/')) {
+                    fileIcon.className = 'fas fa-video me-2';
+                } else if (file.type.startsWith('audio/')) {
+                    fileIcon.className = 'fas fa-microphone me-2';
+                } else if (file.type.includes('pdf') || file.type.includes('document')) {
+                    fileIcon.className = 'fas fa-file-pdf me-2';
+                } else {
+                    fileIcon.className = 'fas fa-file me-2';
+                }
+            }
+        }
+
+        // Form submission with progress
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!fileInput.files.length) {
+                alert('Please select a file to upload');
+                return;
+            }
+
+            const formData = new FormData(uploadForm);
+            const xhr = new XMLHttpRequest();
+
+            xhr.open('POST', uploadForm.action);
+
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    progressBarInner.style.width = percentComplete + '%';
+                    progressBar.style.display = 'flex';
+                }
+            });
+
+            xhr.addEventListener('load', function() {
+                if (xhr.status === 200) {
+                    window.location.reload();
+                } else {
+                    alert('Upload failed: ' + xhr.responseText);
+                    progressBar.style.display = 'none';
+                }
+            });
+
+            xhr.addEventListener('error', function() {
+                alert('Upload failed. Please try again.');
+                progressBar.style.display = 'none';
+            });
+
+            xhr.send(formData);
+        });
+    });
+
+    // Delete confirmation
+    function confirmDelete(evidenceId, evidenceName) {
+        document.getElementById('deleteItemName').textContent = evidenceName;
+        document.getElementById('deleteForm').action = "{{ url_for('evidence.delete_evidence', evidence_id=0) }}".replace('0', evidenceId);
+
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    }
+</script>
+{% endblock %}
