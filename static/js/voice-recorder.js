@@ -530,6 +530,19 @@ class VoiceRecorder {
     }
 
     /**
+     * Show speech recognition error
+     */
+    showSpeechRecognitionError(missingPackages) {
+        let errorMessage = "Speech recognition is not available on the server.";
+
+        if (missingPackages && missingPackages.length > 0) {
+            errorMessage += ` Missing packages: ${missingPackages.join(', ')}`;
+        }
+
+        this.showError(errorMessage);
+    }
+
+    /**
      * Clean up resources
      */
     destroy() {

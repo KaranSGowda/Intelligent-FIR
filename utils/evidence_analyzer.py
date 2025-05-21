@@ -1,13 +1,15 @@
 #utils/evidence_analyzer.py
 import os
 import logging
-import magic
 import datetime
 from PIL import Image, ExifTags
 import hashlib
+import mimetypes
 
-# Configure logging
+# Configure logging first to ensure logger is available
 logger = logging.getLogger(__name__)
+
+
 
 # Define constants
 EVIDENCE_TYPES = ['image', 'document', 'video', 'audio', 'other']
@@ -24,18 +26,42 @@ def get_file_type(file_path):
         str: One of the EVIDENCE_TYPES
     """
     try:
-        mime = magic.Magic(mime=True)
-        mime_type = mime.from_file(file_path)
+        # Try to use python-magic if available
+        try:
+            import magic
+            mime = magic.Magic(mime=True)
+            mime_type = mime.from_file(file_path)
+            logger.debug(f"Using python-magic to determine file type: {mime_type}")
+        except (ImportError, AttributeError, TypeError) as e:
+            logger.debug(f"python-magic not available or error: {str(e)}")
+            # Use mimetypes as fallback
+            mime_type, _ = mimetypes.guess_type(file_path)
+            logger.debug(f"Using mimetypes to determine file type: {mime_type}")
 
-        if mime_type.startswith('image/'):
+            if mime_type is None:
+                # If mimetypes can't determine the type, use file extension
+                ext = os.path.splitext(file_path)[1].lower()
+                if ext in ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff']:
+                    mime_type = 'image/jpeg'  # Default to image/jpeg for image files
+                elif ext in ['.mp4', '.avi', '.mov', '.wmv', '.flv', '.mkv']:
+                    mime_type = 'video/mp4'  # Default to video/mp4 for video files
+                elif ext in ['.mp3', '.wav', '.ogg', '.flac', '.aac']:
+                    mime_type = 'audio/mp3'  # Default to audio/mp3 for audio files
+                elif ext in ['.pdf', '.doc', '.docx', '.txt', '.rtf']:
+                    mime_type = 'application/pdf'  # Default to application/pdf for document files
+                else:
+                    mime_type = 'application/octet-stream'  # Default to binary for unknown types
+                logger.debug(f"Using file extension to determine file type: {mime_type}")
+
+        if mime_type and mime_type.startswith('image/'):
             return 'image'
-        elif mime_type.startswith('video/'):
+        elif mime_type and mime_type.startswith('video/'):
             return 'video'
-        elif mime_type.startswith('audio/'):
+        elif mime_type and mime_type.startswith('audio/'):
             return 'audio'
-        elif mime_type in ['application/pdf', 'application/msword',
+        elif mime_type and (mime_type in ['application/pdf', 'application/msword',
                           'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                          'text/plain', 'application/rtf']:
+                          'text/plain', 'application/rtf']):
             return 'document'
         else:
             return 'other'
