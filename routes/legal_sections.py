@@ -27,10 +27,10 @@ def index():
     if not (current_user.is_admin() or current_user.is_police()):
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('fir.dashboard'))
-    
+
     # Get all legal sections
     sections = LegalSection.query.order_by(LegalSection.code).all()
-    
+
     return render_template('legal_sections/index.html', sections=sections)
 
 @legal_sections_bp.route('/view/<int:section_id>')
@@ -43,14 +43,14 @@ def view(section_id):
     if not (current_user.is_admin() or current_user.is_police()):
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('fir.dashboard'))
-    
+
     # Get the section
     section = LegalSection.query.get_or_404(section_id)
-    
+
     # Get FIRs that reference this section
     firs_with_section = []
     all_firs = FIR.query.filter(FIR.legal_sections.isnot(None)).all()
-    
+
     for fir in all_firs:
         try:
             sections = json.loads(fir.legal_sections)
@@ -64,10 +64,10 @@ def view(section_id):
                     break
         except (json.JSONDecodeError, AttributeError):
             continue
-    
+
     # Sort by confidence (descending)
     firs_with_section.sort(key=lambda x: x['confidence'], reverse=True)
-    
+
     return render_template('legal_sections/view.html', section=section, firs=firs_with_section)
 
 @legal_sections_bp.route('/create', methods=['GET', 'POST'])
@@ -80,30 +80,30 @@ def create():
     if not current_user.is_admin():
         flash('You do not have permission to create legal sections.', 'danger')
         return redirect(url_for('legal_sections.index'))
-    
+
     if request.method == 'POST':
         code = request.form.get('code')
         name = request.form.get('name')
         description = request.form.get('description')
-        
+
         # Validate input
         if not code or not name:
             flash('Code and name are required.', 'danger')
             return render_template('legal_sections/create.html')
-        
+
         # Check if section already exists
         existing_section = LegalSection.query.filter_by(code=code).first()
         if existing_section:
             flash(f'Section with code {code} already exists.', 'danger')
             return render_template('legal_sections/create.html')
-        
+
         # Create new section
         section = LegalSection(
             code=code,
             name=name,
             description=description
         )
-        
+
         try:
             db.session.add(section)
             db.session.commit()
@@ -114,7 +114,7 @@ def create():
             logger.error(f"Error creating legal section: {str(e)}")
             flash(f'Error creating legal section: {str(e)}', 'danger')
             return render_template('legal_sections/create.html')
-    
+
     return render_template('legal_sections/create.html')
 
 @legal_sections_bp.route('/edit/<int:section_id>', methods=['GET', 'POST'])
@@ -127,23 +127,23 @@ def edit(section_id):
     if not current_user.is_admin():
         flash('You do not have permission to edit legal sections.', 'danger')
         return redirect(url_for('legal_sections.index'))
-    
+
     # Get the section
     section = LegalSection.query.get_or_404(section_id)
-    
+
     if request.method == 'POST':
         name = request.form.get('name')
         description = request.form.get('description')
-        
+
         # Validate input
         if not name:
             flash('Name is required.', 'danger')
             return render_template('legal_sections/edit.html', section=section)
-        
+
         # Update section
         section.name = name
         section.description = description
-        
+
         try:
             db.session.commit()
             flash('Legal section updated successfully.', 'success')
@@ -153,7 +153,7 @@ def edit(section_id):
             logger.error(f"Error updating legal section: {str(e)}")
             flash(f'Error updating legal section: {str(e)}', 'danger')
             return render_template('legal_sections/edit.html', section=section)
-    
+
     return render_template('legal_sections/edit.html', section=section)
 
 @legal_sections_bp.route('/delete/<int:section_id>', methods=['POST'])
@@ -166,10 +166,10 @@ def delete(section_id):
     if not current_user.is_admin():
         flash('You do not have permission to delete legal sections.', 'danger')
         return redirect(url_for('legal_sections.index'))
-    
+
     # Get the section
     section = LegalSection.query.get_or_404(section_id)
-    
+
     try:
         db.session.delete(section)
         db.session.commit()
@@ -178,7 +178,7 @@ def delete(section_id):
         db.session.rollback()
         logger.error(f"Error deleting legal section: {str(e)}")
         flash(f'Error deleting legal section: {str(e)}', 'danger')
-    
+
     return redirect(url_for('legal_sections.index'))
 
 @legal_sections_bp.route('/initialize', methods=['POST'])
@@ -191,14 +191,14 @@ def initialize():
     if not current_user.is_admin():
         flash('You do not have permission to initialize legal sections.', 'danger')
         return redirect(url_for('legal_sections.index'))
-    
+
     try:
         initialize_legal_sections()
         flash('Legal sections initialized successfully.', 'success')
     except Exception as e:
         logger.error(f"Error initializing legal sections: {str(e)}")
         flash(f'Error initializing legal sections: {str(e)}', 'danger')
-    
+
     return redirect(url_for('legal_sections.index'))
 
 @legal_sections_bp.route('/train-model', methods=['POST'])
@@ -211,7 +211,7 @@ def train_ml_model():
     if not current_user.is_admin():
         flash('You do not have permission to train the ML model.', 'danger')
         return redirect(url_for('legal_sections.index'))
-    
+
     try:
         success = train_model()
         if success:
@@ -221,7 +221,7 @@ def train_ml_model():
     except Exception as e:
         logger.error(f"Error training ML model: {str(e)}")
         flash(f'Error training ML model: {str(e)}', 'danger')
-    
+
     return redirect(url_for('legal_sections.index'))
 
 @legal_sections_bp.route('/analyze', methods=['GET', 'POST'])
@@ -234,29 +234,66 @@ def analyze():
     if not (current_user.is_admin() or current_user.is_police()):
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('fir.dashboard'))
-    
+
     if request.method == 'POST':
         complaint_text = request.form.get('complaint_text')
-        
+        language_code = request.form.get('language_code')
+
         if not complaint_text:
             flash('Complaint text is required.', 'danger')
             return render_template('legal_sections/analyze.html')
-        
+
         try:
-            # Analyze the complaint
-            analysis = analyze_complaint(complaint_text)
+            # Get language code from session if not provided in form
+            if not language_code:
+                try:
+                    from utils.language_utils import get_user_language
+                    language_code = get_user_language()
+                    logger.info(f"Using language from session: {language_code}")
+                except ImportError:
+                    language_code = "en-IN"  # Default to Indian English
+                    logger.info(f"Using default language: {language_code}")
+
+            # Analyze the complaint with language code
+            analysis = analyze_complaint(complaint_text, language_code)
             sections = analysis.get('sections', [])
-            
-            return render_template('legal_sections/analyze.html', 
-                                  complaint_text=complaint_text, 
+
+            # Check if original language was different
+            original_language = analysis.get('original_language')
+
+            return render_template('legal_sections/analyze.html',
+                                  complaint_text=complaint_text,
                                   sections=sections,
-                                  analyzed=True)
+                                  analyzed=True,
+                                  language_code=language_code,
+                                  original_language=original_language)
         except Exception as e:
             logger.error(f"Error analyzing complaint: {str(e)}")
             flash(f'Error analyzing complaint: {str(e)}', 'danger')
             return render_template('legal_sections/analyze.html', complaint_text=complaint_text)
-    
-    return render_template('legal_sections/analyze.html')
+
+    # Get available languages for the dropdown
+    languages = []
+    try:
+        from utils.language_utils import SUPPORTED_LANGUAGES, get_user_language
+        current_language = get_user_language()
+
+        for code, lang_info in SUPPORTED_LANGUAGES.items():
+            languages.append({
+                "code": code,
+                "name": lang_info["name"],
+                "native_name": lang_info["native_name"],
+                "flag": lang_info["flag"]
+            })
+    except ImportError:
+        # Fallback if language_utils is not available
+        current_language = "en-IN"
+        languages = [
+            {"code": "en-IN", "name": "English (India)", "native_name": "English (India)", "flag": "🇮🇳"},
+            {"code": "hi-IN", "name": "Hindi", "native_name": "हिन्दी", "flag": "🇮🇳"}
+        ]
+
+    return render_template('legal_sections/analyze.html', languages=languages, current_language=current_language)
 
 @legal_sections_bp.route('/api/analyze', methods=['POST'])
 @login_required
@@ -267,16 +304,31 @@ def api_analyze():
     # Only admin and police can access this API
     if not (current_user.is_admin() or current_user.is_police()):
         return jsonify({'error': 'Unauthorized'}), 403
-    
+
     data = request.get_json()
     complaint_text = data.get('complaint_text')
-    
+    language_code = data.get('language_code')
+
     if not complaint_text:
         return jsonify({'error': 'Complaint text is required'}), 400
-    
+
     try:
-        # Analyze the complaint
-        analysis = analyze_complaint(complaint_text)
+        # Get language code from session if not provided in request
+        if not language_code:
+            try:
+                from utils.language_utils import get_user_language
+                language_code = get_user_language()
+                logger.info(f"Using language from session: {language_code}")
+            except ImportError:
+                language_code = "en-IN"  # Default to Indian English
+                logger.info(f"Using default language: {language_code}")
+
+        # Analyze the complaint with language code
+        analysis = analyze_complaint(complaint_text, language_code)
+
+        # Add language information to the response
+        analysis['language_code'] = language_code
+
         return jsonify(analysis)
     except Exception as e:
         logger.error(f"Error analyzing complaint: {str(e)}")

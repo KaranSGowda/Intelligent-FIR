@@ -17,7 +17,12 @@
             {% endif %}
 
             <a href="{{ url_for('fir.generate_pdf', fir_id=fir.id) }}" class="btn btn-primary">
-                <i class="fas fa-file-pdf me-2"></i> Generate PDF
+                <i class="fas fa-file-pdf me-2"></i>
+                {% if fir.pdf_path %}
+                    Download PDF
+                {% else %}
+                    Generate PDF
+                {% endif %}
             </a>
 
             {% if current_user.id == fir.complainant_id and fir.status == "draft" %}
@@ -49,6 +54,24 @@
                                 <span class="badge bg-{{ 'success' if fir.urgency_level == 'low' else 'info' if fir.urgency_level == 'normal' else 'warning' if fir.urgency_level == 'high' else 'danger' }}">
                                     {{ fir.get_urgency_label() }}
                                 </span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>PDF Status:</strong>
+                                {% if fir.pdf_path %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle me-1"></i> PDF Available
+                                    </span>
+                                    <a href="{{ url_for('fir.generate_pdf', fir_id=fir.id) }}" class="btn btn-sm btn-outline-primary ms-2">
+                                        <i class="fas fa-download me-1"></i> Download
+                                    </a>
+                                {% else %}
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-times-circle me-1"></i> No PDF Generated
+                                    </span>
+                                {% endif %}
                             </div>
                         </div>
 

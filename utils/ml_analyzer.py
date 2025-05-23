@@ -1047,13 +1047,14 @@ def generate_relevance_explanation(text, section_code, confidence, matching_keyw
 
     return explanation
 
-def analyze_complaint(complaint_text):
+def analyze_complaint(complaint_text, language_code=None):
     """
     Analyze a complaint text and return relevant IPC sections.
     This is the main function to be called from other modules.
 
     Args:
         complaint_text: The text of the complaint
+        language_code: Optional language code for non-English complaints
 
     Returns:
         A dictionary with sections and analysis
@@ -1061,10 +1062,33 @@ def analyze_complaint(complaint_text):
     if not complaint_text:
         return {"sections": []}
 
-    # Get IPC section predictions
-    sections = predict_ipc_sections(complaint_text)
+    # Log the complaint for debugging
+    logger.info(f"Analyzing complaint: {complaint_text[:100]}...")
+    if language_code:
+        logger.info(f"Language code: {language_code}")
 
-    # Return in the expected format
-    return {
+    # Translate non-English text to English if needed
+    translated_text = complaint_text
+    original_language = None
+
+    if language_code and language_code != 'en-US' and language_code != 'en-GB' and language_code != 'en-IN':
+        try:
+            # Try to use a translation service if available
+            # For now, we'll just use the original text but log that translation would be needed
+            logger.info(f"Translation would be needed for language: {language_code}")
+            original_language = language_code
+        except Exception as e:
+            logger.error(f"Error translating text: {str(e)}")
+
+    # Get IPC section predictions
+    sections = predict_ipc_sections(translated_text)
+
+    # Add information about original language if translated
+    result = {
         "sections": sections
     }
+
+    if original_language:
+        result["original_language"] = original_language
+
+    return result

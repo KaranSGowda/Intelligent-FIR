@@ -7,9 +7,10 @@ from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from extensions import db
 from models import FIR, Evidence, User, Role
-from utils.openai_helper import analyze_complaint, map_legal_sections, analyze_image
+from utils.openai_helper import map_legal_sections, analyze_image
+from utils.ml_analyzer import analyze_complaint
 from utils.legal_mapper import get_legal_sections_for_fir
-from utils.pdf_generator import generate_fir_pdf, generate_fir_pdf_simple
+from utils.pdf_generator import generate_fir_pdf, generate_fir_pdf_simple, generate_and_store_fir_pdf
 from utils.speech_recognition import SpeechToText
 import tempfile
 import logging
@@ -209,10 +210,20 @@ def new_fir():
 
                 # Analyze the complaint text
                 if incident_description:
+                    # Get the user's language preference
+                    language_code = None
+                    try:
+                        from utils.language_utils import get_user_language
+                        language_code = get_user_language()
+                        logger.info(f"Using language from session for complaint analysis: {language_code}")
+                    except ImportError:
+                        language_code = "en-IN"  # Default to Indian English
+                        logger.info(f"Using default language for complaint analysis: {language_code}")
+
                     # Get complaint analysis - using try/except for each AI operation separately
                     # to ensure partial success is still possible
                     try:
-                        complaint_analysis = analyze_complaint(incident_description)
+                        complaint_analysis = analyze_complaint(incident_description, language_code)
                         if complaint_analysis and 'urgency_level' in complaint_analysis:
                             fir.urgency_level = complaint_analysis['urgency_level']
                     except Exception as e:
@@ -367,9 +378,19 @@ def submit_fir(fir_id):
                 else:
                     flash(f'Error mapping legal sections: {str(e)}', 'warning')
 
+            # Get the user's language preference
+            language_code = None
+            try:
+                from utils.language_utils import get_user_language
+                language_code = get_user_language()
+                logger.info(f"Using language from session for urgency analysis: {language_code}")
+            except ImportError:
+                language_code = "en-IN"  # Default to Indian English
+                logger.info(f"Using default language for urgency analysis: {language_code}")
+
             # Get complaint analysis for urgency - separate try/except to allow partial success
             try:
-                complaint_analysis = analyze_complaint(fir.incident_description)
+                complaint_analysis = analyze_complaint(fir.incident_description, language_code)
                 if complaint_analysis and 'urgency_level' in complaint_analysis:
                     fir.urgency_level = complaint_analysis['urgency_level']
             except Exception as e:
@@ -380,6 +401,18 @@ def submit_fir(fir_id):
                     flash(f'Error during urgency analysis: {str(e)}', 'warning')
 
         db.session.commit()
+
+        # Generate and store PDF for the FIR
+        try:
+            pdf_path = generate_and_store_fir_pdf(fir.id)
+            if pdf_path:
+                logger.info(f"Generated and stored PDF for FIR {fir.fir_number}: {pdf_path}")
+            else:
+                logger.warning(f"Failed to generate PDF for FIR {fir.fir_number}")
+        except Exception as pdf_error:
+            logger.error(f"Error generating PDF for FIR {fir.fir_number}: {str(pdf_error)}")
+            # Don't stop the process if PDF generation fails
+
         flash('FIR submitted successfully!', 'success')
     except Exception as e:
         db.session.rollback()
@@ -400,6 +433,14 @@ def generate_pdf(fir_id):
         return redirect(url_for('fir.dashboard'))
 
     try:
+        # Check if we already have a stored PDF
+        if fir.pdf_path and os.path.exists(fir.pdf_path):
+            logger.info(f"Using existing PDF for FIR {fir.fir_number}: {fir.pdf_path}")
+            return send_file(fir.pdf_path, as_attachment=True, download_name=f"FIR_{fir.fir_number}.pdf")
+
+        # If no stored PDF or it doesn't exist, generate a new one
+        logger.info(f"No existing PDF found for FIR {fir.fir_number}, generating new one")
+
         # Generate the PDF
         user = User.query.get(fir.complainant_id)
 
@@ -412,9 +453,9 @@ def generate_pdf(fir_id):
                 for section_data in legal_sections_data:
                     # Create a dynamic object with the required attributes
                     section_obj = type('LegalSection', (), {
-                        'code': section_data.get('code', 'Unknown'),
-                        'name': section_data.get('name', 'Unknown'),
-                        'description': section_data.get('description', '')
+                        'code': section_data.get('section_code', section_data.get('code', 'Unknown')),
+                        'name': section_data.get('section_name', section_data.get('name', 'Unknown')),
+                        'description': section_data.get('section_description', section_data.get('description', ''))
                     })()
                     legal_sections.append(section_obj)
             except Exception as json_error:
@@ -432,6 +473,11 @@ def generate_pdf(fir_id):
             # If enhanced PDF generation fails, fall back to simple version
             pdf_path = generate_fir_pdf_simple(fir, user, legal_sections)
             flash('Using simplified PDF format due to technical limitations.', 'warning')
+
+        # Store the PDF path in the database
+        fir.pdf_path = pdf_path
+        db.session.commit()
+        logger.info(f"Generated and stored new PDF for FIR {fir.fir_number}: {pdf_path}")
 
         # Return the PDF file
         return send_file(pdf_path, as_attachment=True, download_name=f"FIR_{fir.fir_number}.pdf")
@@ -454,13 +500,42 @@ def analyze_legal_sections():
         if not text.strip():
             return jsonify({'error': 'Empty text provided for analysis'}), 400
 
-        # Map legal sections
+        # Get language code if provided
+        language_code = data.get('language_code')
+
+        # If no language code provided, try to get from session
+        if not language_code:
+            try:
+                from utils.language_utils import get_user_language
+                language_code = get_user_language()
+                logger.info(f"Using language from session for legal analysis: {language_code}")
+            except ImportError:
+                language_code = "en-IN"  # Default to Indian English
+                logger.info(f"Using default language for legal analysis: {language_code}")
+
+        # Map legal sections with language code
         legal_mapping = map_legal_sections(text)
         legal_sections = get_legal_sections_for_fir(legal_mapping)
 
-        # Return the sections
+        # Also analyze the complaint with our ML model
+        try:
+            # analyze_complaint is already imported at the top
+            ml_analysis = analyze_complaint(text, language_code)
+            ml_sections = ml_analysis.get('sections', [])
+
+            # Combine the results (add ML sections that aren't already in the list)
+            existing_codes = {section.get('section_code') for section in legal_sections}
+            for ml_section in ml_sections:
+                if ml_section.get('section_code') not in existing_codes:
+                    legal_sections.append(ml_section)
+                    existing_codes.add(ml_section.get('section_code'))
+        except Exception as ml_error:
+            logger.warning(f"ML analysis failed, using only API results: {str(ml_error)}")
+
+        # Return the sections with language information
         return jsonify({
-            'sections': legal_sections
+            'sections': legal_sections,
+            'language_code': language_code
         }), 200
     except Exception as e:
         error_msg = str(e)

@@ -5,6 +5,8 @@
 {% block styles %}
 <!-- Font Awesome for icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<!-- Voice Recorder CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/voice-recorder.css') }}">
 <style>
     /* Main container styles */
     .container {
@@ -975,10 +977,11 @@
                 return;
             }
 
-            // Store in session storage for use in complaint form
+            // Store in both sessionStorage and localStorage for redundancy
             sessionStorage.setItem('voiceTranscription', transcription);
+            localStorage.setItem('voiceTranscription', transcription);
 
-            // Also store in server-side session via AJAX
+            // Store in server-side session via AJAX with proper error handling
             fetch('{{ url_for("fir.save_transcription") }}', {
                 method: 'POST',
                 headers: {
@@ -986,12 +989,18 @@
                     'X-CSRFToken': '{{ csrf_token() if csrf_token else "" }}'
                 },
                 body: JSON.stringify({ transcription: transcription })
-            }).catch(error => {
-                console.error('Error saving transcription to session:', error);
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to save transcription');
+                }
+                // Redirect to complaint form only after successful save
+                window.location.href = '{{ url_for("fir.new_fir") }}';
+            })
+            .catch(error => {
+                console.error('Error saving transcription:', error);
+                alert('There was an error saving the transcription. Please try again.');
             });
-
-            // Redirect to complaint form
-            window.location.href = '{{ url_for("fir.new_fir") }}';
         });
 
         // Hide overlay when text is entered manually

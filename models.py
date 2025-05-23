@@ -63,6 +63,7 @@ class FIR(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     transcription = db.Column(db.Text, nullable=True)
     legal_sections = db.Column(db.Text, nullable=True)  # JSON string of legal sections
+    pdf_path = db.Column(db.String(255), nullable=True)  # Path to the stored PDF file
 
     # Relationships
     processing_officer = db.relationship('User', foreign_keys=[processing_officer_id])

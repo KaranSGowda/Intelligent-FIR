@@ -3,6 +3,23 @@
  * Handles form submission, voice recording, and evidence uploads
  */
 document.addEventListener('DOMContentLoaded', function() {
+    // Load transcription from multiple sources
+    const descriptionInput = document.getElementById('incident_description');
+    if (descriptionInput) {
+        // Try to get transcription from different sources in order of preference
+        const transcription = 
+            sessionStorage.getItem('voiceTranscription') || 
+            localStorage.getItem('voiceTranscription') ||
+            document.getElementById('transcription')?.value || '';
+
+        if (transcription && transcription.trim() !== '') {
+            descriptionInput.value = transcription;
+            // Clear storage after successful load
+            sessionStorage.removeItem('voiceTranscription');
+            localStorage.removeItem('voiceTranscription');
+        }
+    }
+
     // Load languages for the recording dropdown
     const recordingLanguage = document.getElementById('recordingLanguage');
     if (recordingLanguage) {
