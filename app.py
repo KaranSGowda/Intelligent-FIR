@@ -63,6 +63,24 @@ def create_app():
         # Import models to ensure they're registered with SQLAlchemy
         import models
 
+        # Add root route
+        @app.route('/')
+        def index():
+            from flask_login import current_user
+            from flask import redirect, url_for, render_template
+
+            if current_user.is_authenticated:
+                # Redirect authenticated users to their appropriate dashboard
+                if current_user.is_admin():
+                    return redirect(url_for('admin.dashboard'))
+                elif current_user.is_police():
+                    return redirect(url_for('admin.cases'))
+                else:
+                    return redirect(url_for('fir.dashboard'))
+            else:
+                # Show the homepage for unauthenticated users
+                return render_template('index.html')
+
         # Register blueprints
         from routes.auth import auth_bp
         from routes.fir import fir_bp
@@ -112,6 +130,5 @@ def create_app():
 # Create the application instance
 app = create_app()
 
-
-
-
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)

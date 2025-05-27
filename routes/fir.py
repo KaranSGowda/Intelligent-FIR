@@ -20,7 +20,7 @@ import time
 
 logger = logging.getLogger(__name__)
 
-fir_bp = Blueprint('fir', __name__)
+fir_bp = Blueprint('fir', __name__, url_prefix='/fir')
 
 # Initialize the speech recognition
 speech_recognizer = SpeechToText()
@@ -260,7 +260,7 @@ def new_fir():
                             evidence = Evidence()
                             evidence.fir_id = fir.id
                             evidence.type = 'image'
-                            evidence.file_path = file_path
+                            evidence.file_path = f"uploads/images/{filename}"  # Store web-compatible path
                             evidence.description = request.form.get('evidence_description', '')
                             db.session.add(evidence)
 
@@ -433,13 +433,9 @@ def generate_pdf(fir_id):
         return redirect(url_for('fir.dashboard'))
 
     try:
-        # Check if we already have a stored PDF
-        if fir.pdf_path and os.path.exists(fir.pdf_path):
-            logger.info(f"Using existing PDF for FIR {fir.fir_number}: {fir.pdf_path}")
-            return send_file(fir.pdf_path, as_attachment=True, download_name=f"FIR_{fir.fir_number}.pdf")
-
-        # If no stored PDF or it doesn't exist, generate a new one
-        logger.info(f"No existing PDF found for FIR {fir.fir_number}, generating new one")
+        # For now, always generate a new PDF to avoid database issues
+        # TODO: Implement PDF caching once database schema is stable
+        logger.info(f"Generating new PDF for FIR {fir.fir_number}")
 
         # Generate the PDF
         user = User.query.get(fir.complainant_id)
@@ -474,10 +470,9 @@ def generate_pdf(fir_id):
             pdf_path = generate_fir_pdf_simple(fir, user, legal_sections)
             flash('Using simplified PDF format due to technical limitations.', 'warning')
 
-        # Store the PDF path in the database
-        fir.pdf_path = pdf_path
-        db.session.commit()
-        logger.info(f"Generated and stored new PDF for FIR {fir.fir_number}: {pdf_path}")
+        # For now, skip storing PDF path in database to avoid schema issues
+        # TODO: Implement PDF path storage once database schema is stable
+        logger.info(f"Generated PDF for FIR {fir.fir_number}: {pdf_path}")
 
         # Return the PDF file
         return send_file(pdf_path, as_attachment=True, download_name=f"FIR_{fir.fir_number}.pdf")

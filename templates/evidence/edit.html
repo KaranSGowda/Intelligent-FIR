@@ -14,13 +14,13 @@
         border-radius: 4px;
         margin-bottom: 20px;
     }
-    
+
     .evidence-preview img {
         max-height: 100%;
         max-width: 100%;
         object-fit: contain;
     }
-    
+
     .evidence-icon {
         font-size: 64px;
         color: #6c757d;
@@ -39,7 +39,7 @@
             </a>
         </div>
     </div>
-    
+
     <div class="alert alert-info mb-4">
         <div class="d-flex">
             <div class="me-3">
@@ -51,7 +51,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="row">
         <div class="col-md-8 mx-auto">
             <div class="card">
@@ -62,7 +62,7 @@
                     <!-- Evidence Preview -->
                     <div class="evidence-preview">
                         {% if evidence.type == 'image' %}
-                            <img src="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" alt="Evidence">
+                            <img src="{{ url_for('static', filename=evidence.file_path) }}" alt="Evidence">
                         {% elif evidence.type == 'document' %}
                             <i class="fas fa-file-alt evidence-icon"></i>
                         {% elif evidence.type == 'video' %}
@@ -73,14 +73,14 @@
                             <i class="fas fa-file evidence-icon"></i>
                         {% endif %}
                     </div>
-                    
+
                     <!-- Edit Form -->
                     <form action="{{ url_for('evidence.edit_evidence', evidence_id=evidence.id) }}" method="post">
                         <div class="mb-3">
                             <label for="evidenceDescription" class="form-label">Description</label>
                             <textarea class="form-control" id="evidenceDescription" name="description" rows="3" placeholder="Describe this evidence...">{{ evidence.description or '' }}</textarea>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="evidenceCategory" class="form-label">Category</label>
                             <select class="form-select" id="evidenceCategory" name="category">
@@ -92,22 +92,22 @@
                                 <option value="Other Evidence" {% if evidence.category == 'Other Evidence' %}selected{% endif %}>Other Evidence</option>
                             </select>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="evidenceTags" class="form-label">Tags (comma separated)</label>
                             <input type="text" class="form-control" id="evidenceTags" name="tags" placeholder="weapon, injury, location, etc." value="{{ tags_string }}">
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="evidenceLocation" class="form-label">Collection Location</label>
                             <input type="text" class="form-control" id="evidenceLocation" name="location" placeholder="Where was this evidence collected?" value="{{ evidence.location or '' }}">
                         </div>
-                        
+
                         <div class="mb-4">
                             <label for="evidenceCollectedAt" class="form-label">Collection Date/Time</label>
                             <input type="datetime-local" class="form-control" id="evidenceCollectedAt" name="collected_at" value="{{ evidence.collected_at.strftime('%Y-%m-%dT%H:%M') if evidence.collected_at else '' }}">
                         </div>
-                        
+
                         <div class="d-flex justify-content-between">
                             <a href="{{ url_for('evidence.view_evidence', evidence_id=evidence.id) }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-2"></i> Cancel

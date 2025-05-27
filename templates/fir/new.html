@@ -352,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
             transcribeButton.disabled = true;
             transcribeButton.textContent = 'Transcribing...';
 
-            fetch('/transcribe-audio', {
+            fetch('/fir/transcribe-audio', {
                 method: 'POST',
                 body: formData
             })

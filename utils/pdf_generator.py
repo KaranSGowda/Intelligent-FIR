@@ -8,6 +8,17 @@ import json
 from utils.qr_generator import generate_verification_qr, generate_document_id
 from models import LegalSection, Evidence, User
 
+# Try to import reportlab for alternative PDF generation
+try:
+    from reportlab.lib.pagesizes import letter, A4
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.lib import colors
+    REPORTLAB_AVAILABLE = True
+except ImportError:
+    REPORTLAB_AVAILABLE = False
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -26,7 +37,7 @@ def generate_fir_pdf(fir, user, legal_sections, evidence=None):
     """
     try:
         # Create directory to store PDFs if it doesn't exist
-        pdf_dir = os.path.join('static', 'pdfs')
+        pdf_dir = r'K:\IntelligentFirSystem\Intelligent-FIR\static\pdfs'
         os.makedirs(pdf_dir, exist_ok=True)
 
         # Generate a unique document ID
@@ -90,7 +101,15 @@ def generate_fir_pdf(fir, user, legal_sections, evidence=None):
         }
 
         # Generate PDF from HTML
-        pdfkit.from_string(html_content, pdf_path, options=options)
+        try:
+            pdfkit.from_string(html_content, pdf_path, options=options)
+        except OSError as e:
+            if "wkhtmltopdf" in str(e):
+                # Fallback to alternative PDF generation
+                logger.warning("wkhtmltopdf not found, using alternative PDF generation")
+                return generate_pdf_alternative(fir, user, legal_sections, evidence_items)
+            else:
+                raise
 
         logger.info(f"Generated PDF for FIR {fir.fir_number}: {pdf_path}")
         return pdf_path
@@ -112,7 +131,7 @@ def generate_fir_pdf_simple(fir, user, legal_sections):
     """
     try:
         # Create directory to store PDFs if it doesn't exist
-        pdf_dir = os.path.join('static', 'pdfs')
+        pdf_dir = r'K:\IntelligentFirSystem\Intelligent-FIR\static\pdfs'
         os.makedirs(pdf_dir, exist_ok=True)
 
         # Generate HTML content for PDF
@@ -191,7 +210,15 @@ def generate_fir_pdf_simple(fir, user, legal_sections):
         pdf_path = os.path.join(pdf_dir, filename)
 
         # Generate PDF from HTML
-        pdfkit.from_string(html_content, pdf_path)
+        try:
+            pdfkit.from_string(html_content, pdf_path)
+        except OSError as e:
+            if "wkhtmltopdf" in str(e):
+                # Fallback to alternative PDF generation
+                logger.warning("wkhtmltopdf not found, using alternative simple PDF generation")
+                return generate_simple_pdf_alternative(fir, user, legal_sections)
+            else:
+                raise
 
         return pdf_path
     except Exception as e:
@@ -274,3 +301,258 @@ def generate_and_store_fir_pdf(fir_id):
     except Exception as e:
         logger.error(f"Error in generate_and_store_fir_pdf: {str(e)}", exc_info=True)
         return None
+
+def generate_simple_pdf_alternative(fir, user, legal_sections):
+    """
+    Generate a PDF using reportlab when wkhtmltopdf is not available
+    """
+    try:
+        if not REPORTLAB_AVAILABLE:
+            # Fallback to text file if reportlab is not available
+            return generate_text_fallback(fir, user, legal_sections)
+
+        # Create directory to store PDFs if it doesn't exist
+        pdf_dir = r'K:\IntelligentFirSystem\Intelligent-FIR\static\pdfs'
+        os.makedirs(pdf_dir, exist_ok=True)
+
+        # Generate a unique filename
+        filename = f"fir_{fir.fir_number}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}.pdf"
+        pdf_path = os.path.join(pdf_dir, filename)
+
+        # Create PDF document
+        doc = SimpleDocTemplate(pdf_path, pagesize=A4)
+        styles = getSampleStyleSheet()
+        story = []
+
+        # Title
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=18,
+            spaceAfter=30,
+            alignment=1  # Center alignment
+        )
+        story.append(Paragraph("FIRST INFORMATION REPORT", title_style))
+        story.append(Spacer(1, 12))
+
+        # FIR Number
+        story.append(Paragraph(f"<b>FIR Number:</b> {fir.fir_number}", styles['Normal']))
+        story.append(Paragraph(f"<b>Filed on:</b> {fir.filed_at.strftime('%d-%m-%Y %H:%M') if fir.filed_at else 'Not submitted'}", styles['Normal']))
+        story.append(Spacer(1, 12))
+
+        # Complainant Details
+        story.append(Paragraph("<b>COMPLAINANT DETAILS</b>", styles['Heading2']))
+        story.append(Paragraph(f"<b>Name:</b> {user.full_name}", styles['Normal']))
+        story.append(Paragraph(f"<b>Contact:</b> {user.phone or 'Not provided'}", styles['Normal']))
+        story.append(Paragraph(f"<b>Address:</b> {user.address or 'Not provided'}", styles['Normal']))
+        story.append(Spacer(1, 12))
+
+        # Incident Details
+        story.append(Paragraph("<b>INCIDENT DETAILS</b>", styles['Heading2']))
+        story.append(Paragraph(f"<b>Date & Time:</b> {fir.incident_date.strftime('%d-%m-%Y %H:%M') if fir.incident_date else 'Not specified'}", styles['Normal']))
+        story.append(Paragraph(f"<b>Location:</b> {fir.incident_location or 'Not specified'}", styles['Normal']))
+        story.append(Paragraph(f"<b>Status:</b> {fir.get_status_label()}", styles['Normal']))
+        story.append(Paragraph(f"<b>Urgency:</b> {fir.get_urgency_label()}", styles['Normal']))
+        story.append(Spacer(1, 12))
+
+        # Description - Dynamic sizing based on content length
+        story.append(Paragraph("<b>DESCRIPTION:</b>", styles['Heading3']))
+
+        description_text = fir.incident_description or 'No description provided'
+
+        # Create a custom style for description that handles long text better
+        description_style = ParagraphStyle(
+            'DescriptionStyle',
+            parent=styles['Normal'],
+            fontSize=10,
+            leading=12,
+            spaceAfter=6,
+            alignment=0,  # Left alignment
+            leftIndent=0,
+            rightIndent=0,
+            wordWrap='LTR'
+        )
+
+        # Split long descriptions into multiple paragraphs for better readability
+        if len(description_text) > 500:
+            # For very long descriptions, break into smaller chunks
+            words = description_text.split()
+            chunks = []
+            current_chunk = []
+            current_length = 0
+
+            for word in words:
+                if current_length + len(word) > 400:  # ~400 chars per chunk
+                    if current_chunk:
+                        chunks.append(' '.join(current_chunk))
+                        current_chunk = [word]
+                        current_length = len(word)
+                else:
+                    current_chunk.append(word)
+                    current_length += len(word) + 1  # +1 for space
+
+            if current_chunk:
+                chunks.append(' '.join(current_chunk))
+
+            # Add each chunk as a separate paragraph
+            for i, chunk in enumerate(chunks):
+                story.append(Paragraph(chunk, description_style))
+                if i < len(chunks) - 1:  # Add small space between chunks except after last
+                    story.append(Spacer(1, 6))
+        else:
+            # For shorter descriptions, use single paragraph
+            story.append(Paragraph(description_text, description_style))
+
+        story.append(Spacer(1, 12))
+
+        # Legal Sections - Dynamic table sizing
+        if legal_sections:
+            story.append(Paragraph("<b>APPLICABLE LEGAL SECTIONS</b>", styles['Heading2']))
+
+            # Create table data for legal sections with dynamic description handling
+            table_data = [['Section Code', 'Section Name', 'Description']]
+
+            for section in legal_sections:
+                # Handle long descriptions by wrapping them in Paragraph objects
+                description_text = section.description
+
+                # Create a paragraph for the description to handle text wrapping
+                desc_style = ParagraphStyle(
+                    'TableDescStyle',
+                    parent=styles['Normal'],
+                    fontSize=8,
+                    leading=10,
+                    leftIndent=2,
+                    rightIndent=2,
+                    spaceAfter=2
+                )
+
+                # Wrap description in Paragraph for better text handling
+                if len(description_text) > 150:
+                    # For very long descriptions, truncate but keep it readable
+                    truncated_desc = description_text[:150] + "..."
+                    desc_paragraph = Paragraph(truncated_desc, desc_style)
+                else:
+                    desc_paragraph = Paragraph(description_text, desc_style)
+
+                table_data.append([
+                    Paragraph(section.code, desc_style),
+                    Paragraph(section.name, desc_style),
+                    desc_paragraph
+                ])
+
+            # Create table with dynamic column widths
+            # Adjust column widths based on content
+            available_width = 6.5 * inch  # Total available width
+            col_widths = [1.2*inch, 1.8*inch, 3.5*inch]  # Code, Name, Description
+
+            table = Table(table_data, colWidths=col_widths, repeatRows=1)
+            table.setStyle(TableStyle([
+                # Header styling
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('TOPPADDING', (0, 0), (-1, 0), 8),
+
+                # Data rows styling
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('FONTSIZE', (0, 1), (-1, -1), 8),
+                ('TOPPADDING', (0, 1), (-1, -1), 6),
+                ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+                ('LEFTPADDING', (0, 0), (-1, -1), 4),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+
+                # Alignment and borders
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+
+                # Alternating row colors for better readability
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.lightgrey]),
+            ]))
+
+            story.append(table)
+            story.append(Spacer(1, 12))
+
+        # Footer
+        story.append(Spacer(1, 24))
+        story.append(Paragraph("This is an officially generated FIR document from the Intelligent FIR Filing System.", styles['Normal']))
+        story.append(Paragraph(f"Generated on: {datetime.now(timezone.utc).strftime('%d-%m-%Y %H:%M:%S')}", styles['Normal']))
+
+        # Build PDF
+        doc.build(story)
+
+        logger.info(f"Generated PDF using reportlab: {pdf_path}")
+        return pdf_path
+
+    except Exception as e:
+        logger.error(f"Failed to generate PDF with reportlab: {str(e)}", exc_info=True)
+        # Fallback to text file
+        return generate_text_fallback(fir, user, legal_sections)
+
+def generate_text_fallback(fir, user, legal_sections):
+    """
+    Generate a simple text file as final fallback
+    """
+    try:
+        # Create directory to store PDFs if it doesn't exist
+        pdf_dir = r'K:\IntelligentFirSystem\Intelligent-FIR\static\pdfs'
+        os.makedirs(pdf_dir, exist_ok=True)
+
+        # Generate a unique filename
+        filename = f"fir_{fir.fir_number}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}.txt"
+        txt_path = os.path.join(pdf_dir, filename)
+
+        # Create text content
+        content = f"""
+FIRST INFORMATION REPORT
+========================
+
+FIR Number: {fir.fir_number}
+Filed on: {fir.filed_at.strftime('%d-%m-%Y %H:%M') if fir.filed_at else 'Not submitted'}
+
+COMPLAINANT DETAILS:
+-------------------
+Name: {user.full_name}
+Contact: {user.phone or 'Not provided'}
+Address: {user.address or 'Not provided'}
+
+INCIDENT DETAILS:
+----------------
+Date & Time: {fir.incident_date.strftime('%d-%m-%Y %H:%M') if fir.incident_date else 'Not specified'}
+Location: {fir.incident_location or 'Not specified'}
+Description: {fir.incident_description}
+Status: {fir.get_status_label()}
+Urgency: {fir.get_urgency_label()}
+
+APPLICABLE LEGAL SECTIONS:
+-------------------------
+"""
+
+        for section in legal_sections:
+            content += f"- {section.code}: {section.name} - {section.description}\n"
+
+        content += f"""
+
+This is an officially generated FIR document from the Intelligent FIR Filing System.
+Generated on: {datetime.now(timezone.utc).strftime('%d-%m-%Y %H:%M:%S')}
+"""
+
+        # Write to text file
+        with open(txt_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+
+        logger.info(f"Generated text-based FIR document: {txt_path}")
+        return txt_path
+
+    except Exception as e:
+        logger.error(f"Failed to generate text fallback: {str(e)}", exc_info=True)
+        raise Exception(f"Failed to generate document: {e}")
+
+def generate_pdf_alternative(fir, user, legal_sections, evidence_items):
+    """
+    Alternative PDF generation method (same as simple for now)
+    """
+    return generate_simple_pdf_alternative(fir, user, legal_sections)

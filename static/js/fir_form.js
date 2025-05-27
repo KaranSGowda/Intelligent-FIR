@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const descriptionInput = document.getElementById('incident_description');
     if (descriptionInput) {
         // Try to get transcription from different sources in order of preference
-        const transcription = 
-            sessionStorage.getItem('voiceTranscription') || 
+        const transcription =
+            sessionStorage.getItem('voiceTranscription') ||
             localStorage.getItem('voiceTranscription') ||
             document.getElementById('transcription')?.value || '';
 
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 formData.append('image', file);
 
                 // Send to server for analysis
-                const response = await fetch('/analyze_image', {
+                const response = await fetch('/fir/analyze_image', {
                     method: 'POST',
                     body: formData
                 });
@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Send to server for analysis
-            const response = await fetch('/analyze_legal_sections', {
+            const response = await fetch('/fir/analyze_legal_sections', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

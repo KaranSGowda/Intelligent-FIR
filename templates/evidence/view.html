@@ -155,39 +155,39 @@
                     <!-- Evidence Content -->
                     {% if evidence.type == 'image' %}
                         <div class="evidence-container">
-                            <img src="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" alt="Evidence" class="img-fluid">
+                            <img src="{{ url_for('static', filename=evidence.file_path) }}" alt="Evidence" class="img-fluid">
                         </div>
                         <div class="text-center mb-3">
-                            <a href="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                            <a href="{{ url_for('static', filename=evidence.file_path) }}" class="btn btn-sm btn-outline-primary" target="_blank">
                                 <i class="fas fa-external-link-alt me-1"></i> View Full Size
                             </a>
-                            <a href="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" class="btn btn-sm btn-outline-secondary" download>
+                            <a href="{{ url_for('static', filename=evidence.file_path) }}" class="btn btn-sm btn-outline-secondary" download>
                                 <i class="fas fa-download me-1"></i> Download
                             </a>
                         </div>
                     {% elif evidence.type == 'video' %}
                         <video controls class="video-player">
-                            <source src="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" type="video/mp4">
+                            <source src="{{ url_for('static', filename=evidence.file_path) }}" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                         <div class="text-center mb-3">
-                            <a href="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" class="btn btn-sm btn-outline-secondary" download>
+                            <a href="{{ url_for('static', filename=evidence.file_path) }}" class="btn btn-sm btn-outline-secondary" download>
                                 <i class="fas fa-download me-1"></i> Download
                             </a>
                         </div>
                     {% elif evidence.type == 'audio' %}
                         <audio controls class="audio-player">
-                            <source src="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" type="audio/mpeg">
+                            <source src="{{ url_for('static', filename=evidence.file_path) }}" type="audio/mpeg">
                             Your browser does not support the audio tag.
                         </audio>
                         <div class="text-center mb-3">
-                            <a href="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" class="btn btn-sm btn-outline-secondary" download>
+                            <a href="{{ url_for('static', filename=evidence.file_path) }}" class="btn btn-sm btn-outline-secondary" download>
                                 <i class="fas fa-download me-1"></i> Download
                             </a>
                         </div>
                     {% elif evidence.type == 'document' %}
                         {% if evidence.file_path.endswith('.pdf') %}
-                            <iframe src="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" class="document-preview"></iframe>
+                            <iframe src="{{ url_for('static', filename=evidence.file_path) }}" class="document-preview"></iframe>
                         {% else %}
                             <div class="text-center py-5">
                                 <i class="fas fa-file-alt evidence-icon"></i>
@@ -196,7 +196,7 @@
                             </div>
                         {% endif %}
                         <div class="text-center mb-3">
-                            <a href="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" class="btn btn-sm btn-outline-secondary" download>
+                            <a href="{{ url_for('static', filename=evidence.file_path) }}" class="btn btn-sm btn-outline-secondary" download>
                                 <i class="fas fa-download me-1"></i> Download
                             </a>
                         </div>
@@ -207,7 +207,7 @@
                             <p>Download the file to view its contents.</p>
                         </div>
                         <div class="text-center mb-3">
-                            <a href="{{ url_for('static', filename=evidence.file_path.replace('static/', '')) }}" class="btn btn-sm btn-outline-secondary" download>
+                            <a href="{{ url_for('static', filename=evidence.file_path) }}" class="btn btn-sm btn-outline-secondary" download>
                                 <i class="fas fa-download me-1"></i> Download
                             </a>
                         </div>
@@ -451,7 +451,7 @@
                             <i class="fas fa-edit me-2"></i> Edit Evidence
                         </a>
 
-                        <a href="{{ url_for('evidence.analyze_evidence', evidence_id=evidence.id) }}" class="btn btn-outline-info">
+                        <a href="{{ url_for('evidence.analyze_evidence_route', evidence_id=evidence.id) }}" class="btn btn-outline-info">
                             <i class="fas fa-search me-2"></i> Analyze Evidence
                         </a>
 
