@@ -75,7 +75,7 @@ def chatbot_query():
         # Check if this is a case description that should be analyzed
         case_keywords = [
             # Murder and violence
-            "murder", "murdered", "murderer", "muder", "mudered", "murderd", "murdred",
+            "murder", "murdered", "murderer", "murderd", "murdred",
             "kill", "killed", "killing", "killer", "homicide", "manslaughter",
             "stab", "stabbed", "stabbing", "stabing", "stabed", "stabd",
             "shoot", "shot", "shooting", "strangle", "strangled", "strangling",
@@ -185,8 +185,6 @@ def chatbot_query():
                 "murder": "302",
                 "murdered": "302",
                 "murderer": "302",
-                "muder": "302",
-                "mudered": "302",
                 "murderd": "302",
                 "murdred": "302",
                 "killed": "302",
