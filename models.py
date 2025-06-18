@@ -68,6 +68,9 @@ class FIR(db.Model):
     # Relationships
     processing_officer = db.relationship('User', foreign_keys=[processing_officer_id])
     evidence = db.relationship('Evidence', backref='fir', lazy=True, cascade="all, delete-orphan")
+    investigation_notes = db.relationship(
+        'InvestigationNote', backref='fir', lazy=True, cascade="all, delete-orphan", order_by="desc(InvestigationNote.created_at)"
+    )
 
     def get_status_label(self):
         status_labels = {
@@ -104,6 +107,16 @@ class LegalSection(db.Model):
     code = db.Column(db.String(50))
     name = db.Column(db.String(100))
     description = db.Column(db.Text)
+
+class InvestigationNote(db.Model):
+    __tablename__ = 'investigation_notes'
+    id = db.Column(db.Integer, primary_key=True)
+    fir_id = db.Column(db.Integer, db.ForeignKey('firs.id'), nullable=False)
+    officer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    officer = db.relationship('User', foreign_keys=[officer_id])
 
 
 

@@ -88,6 +88,7 @@ def register():
         full_name = request.form.get('full_name', '').strip()
         phone = request.form.get('phone', '').strip()
         address = request.form.get('address', '').strip()
+        role = request.form.get('role', 'public').strip().lower()
 
         # Input validation
         if not username or not email or not password or not full_name:
@@ -103,6 +104,10 @@ def register():
             flash('Please enter a valid email address.', 'danger')
             return render_template('register.html')
 
+        if role not in [Role.PUBLIC, Role.POLICE, Role.ADMIN]:
+            flash('Invalid role selected.', 'danger')
+            return render_template('register.html')
+
         try:
             # Check if username or email already exists
             user_exists = User.query.filter((User.username == username) | (User.email == email)).first()
@@ -115,20 +120,19 @@ def register():
             return render_template('register.html')
 
         try:
-            # Create new user (always as a public user through registration page)
+            # Create new user with selected role
             new_user = User()
             new_user.username = username
             new_user.email = email
             new_user.full_name = full_name
             new_user.phone = phone if phone else None
             new_user.address = address if address else None
-            new_user.role = Role.PUBLIC
+            new_user.role = role
             new_user.set_password(password)
 
             db.session.add(new_user)
             db.session.commit()
-
-            flash('Registration successful! You can now log in as a public user.', 'success')
+            flash(f'Registration successful! You can now log in as a {role} user.', 'success')
             return redirect(url_for('auth.login'))
         except Exception as e:
             db.session.rollback()

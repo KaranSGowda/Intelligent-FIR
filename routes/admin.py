@@ -4,6 +4,7 @@ from extensions import db
 from models import User, FIR, Role
 from utils.legal_mapper import initialize_legal_sections
 import os
+from datetime import datetime
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -200,3 +201,29 @@ def get_officers():
     officers = User.query.filter_by(role=Role.POLICE).all()
     officers_data = [{'id': officer.id, 'name': officer.full_name} for officer in officers]
     return jsonify(officers_data)
+
+@admin_bp.route('/police_dashboard')
+@login_required
+def police_dashboard():
+    """Police dashboard: summary and assigned cases"""
+    if not current_user.is_police() or current_user.is_admin():
+        flash('Access denied. Police officers only.', 'danger')
+        return redirect(url_for('admin.dashboard'))
+
+    # Assigned cases
+    assigned_cases = FIR.query.filter_by(processing_officer_id=current_user.id).order_by(FIR.filed_at.desc()).all()
+    total_assigned = len(assigned_cases)
+    open_cases = [f for f in assigned_cases if f.status in ('filed', 'under_investigation')]
+    closed_cases = [f for f in assigned_cases if f.status == 'closed']
+    urgent_cases = [f for f in assigned_cases if getattr(f, 'urgency_level', None) in ('high', 'critical') and f.status in ('filed', 'under_investigation')]
+    overdue_cases = [f for f in assigned_cases if f.status in ('filed', 'under_investigation') and hasattr(f, 'incident_date') and f.incident_date and f.incident_date < datetime.utcnow()]
+
+    return render_template(
+        'admin/police_dashboard.html',
+        total_assigned=total_assigned,
+        open_cases=open_cases,
+        closed_cases=closed_cases,
+        urgent_cases=urgent_cases,
+        overdue_cases=overdue_cases,
+        assigned_cases=assigned_cases
+    )

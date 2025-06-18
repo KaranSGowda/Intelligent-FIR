@@ -7,6 +7,8 @@ from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from extensions import db
 from models import FIR, Evidence, User, Role
+from models import __dict__ as models_dict
+import models
 from utils.openai_helper import map_legal_sections, analyze_image
 from utils.ml_analyzer import analyze_complaint
 from utils.legal_mapper import get_legal_sections_for_fir
@@ -662,5 +664,86 @@ def transcribe_audio_file():
             except:
                 pass
         return jsonify({'error': f'Error processing audio: {str(e)}'}), 500
+
+@fir_bp.route('/add_note/<int:fir_id>', methods=['POST'])
+@login_required
+def add_investigation_note(fir_id):
+    """Add an investigation note to a FIR (police/admin only)"""
+    fir = FIR.query.get_or_404(fir_id)
+    # Only admin or assigned police officer can add notes
+    if not (current_user.is_admin() or (current_user.is_police() and fir.processing_officer_id == current_user.id)):
+        msg = 'You do not have permission to add investigation notes to this FIR.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=False, message=msg), 403
+        flash(msg, 'danger')
+        return redirect(url_for('fir.view_fir', fir_id=fir.id))
+
+    note_content = request.form.get('note_content', '').strip()
+    if not note_content:
+        msg = 'Note content cannot be empty.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=False, message=msg), 400
+        flash(msg, 'warning')
+        return redirect(url_for('fir.view_fir', fir_id=fir.id))
+
+    InvestigationNoteModel = models_dict.get('InvestigationNote')
+    if not InvestigationNoteModel:
+        msg = 'InvestigationNote model not found.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=False, message=msg), 500
+        flash(msg, 'danger')
+        return redirect(url_for('fir.view_fir', fir_id=fir.id))
+    note = InvestigationNoteModel(
+        fir_id=fir.id,
+        officer_id=current_user.id,
+        content=note_content
+    )
+    try:
+        db.session.add(note)
+        db.session.commit()
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=True, note={
+                'content': note.content,
+                'author': current_user.full_name,
+                'created_at': note.created_at.strftime('%d-%m-%Y %H:%M')
+            })
+        flash('Investigation note added successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        msg = f'Error adding note: {str(e)}'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=False, message=msg), 500
+        flash(msg, 'danger')
+    return redirect(url_for('fir.view_fir', fir_id=fir.id))
+
+@fir_bp.route('/view/<int:fir_id>/delete_note', methods=['POST'])
+@login_required
+def delete_investigation_note(fir_id):
+    fir = FIR.query.get_or_404(fir_id)
+    # Only admin or assigned police officer can delete notes
+    if not (current_user.is_admin() or (current_user.is_police() and fir.processing_officer_id == current_user.id)):
+        msg = 'You do not have permission to delete investigation notes for this FIR.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=False, message=msg), 403
+        flash(msg, 'danger')
+        return redirect(url_for('fir.view_fir', fir_id=fir.id))
+
+    data = request.get_json()
+    note_index = data.get('index')
+    if note_index is None:
+        return jsonify(success=False, message='Invalid note index.'), 400
+
+    notes = fir.investigation_notes
+    if note_index < 0 or note_index >= len(notes):
+        return jsonify(success=False, message='Note not found.'), 404
+
+    note = notes[note_index]
+    try:
+        db.session.delete(note)
+        db.session.commit()
+        return jsonify(success=True)
+    except Exception as e:
+        db.session.rollback()
+        return jsonify(success=False, message=f'Error deleting note: {str(e)}'), 500
 
 

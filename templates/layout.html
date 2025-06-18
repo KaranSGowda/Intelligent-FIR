@@ -410,6 +410,83 @@
     </script>
 
     {% block scripts %}{% endblock %}
+    <script>
+    // Investigation Notes AJAX (for police/admin)
+    document.addEventListener('DOMContentLoaded', function() {
+        const noteForm = document.querySelector('form[action*="add_investigation_note"]');
+        if (noteForm) {
+            noteForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const textarea = noteForm.querySelector('textarea[name="note_content"]');
+                const noteContent = textarea.value.trim();
+                if (!noteContent) {
+                    textarea.classList.add('is-invalid');
+                    return;
+                } else {
+                    textarea.classList.remove('is-invalid');
+                }
+                const submitBtn = noteForm.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                fetch(noteForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams({note_content: noteContent})
+                })
+                .then(resp => resp.json())
+                .then(data => {
+                    if (data.success) {
+                        // Prepend new note to the list
+                        const notesList = document.querySelector('.investigation-notes-list');
+                        if (notesList) {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item investigation-note-item';
+                            li.innerHTML = `<div class="d-flex justify-content-between align-items-center"><span>${data.note.content}</span><small class="text-muted">By ${data.note.author} on ${data.note.created_at}</small><button class='btn btn-sm btn-link text-danger ms-2 delete-note-btn' title='Delete'><i class='fas fa-trash'></i></button></div>`;
+                            notesList.prepend(li);
+                        }
+                        textarea.value = '';
+                        textarea.classList.remove('is-invalid');
+                    } else {
+                        alert(data.message || 'Failed to add note.');
+                    }
+                })
+                .catch(() => alert('Failed to add note.'))
+                .finally(() => { submitBtn.disabled = false; });
+            });
+        }
+
+        // Delete note handler (delegated)
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.delete-note-btn')) {
+                const btn = e.target.closest('.delete-note-btn');
+                const noteItem = btn.closest('.investigation-note-item');
+                if (!noteItem) return;
+                if (!confirm('Delete this note?')) return;
+                // Find note index (for demo, in real app use note id)
+                const noteIndex = Array.from(document.querySelectorAll('.investigation-note-item')).indexOf(noteItem);
+                fetch(window.location.pathname + '/delete_note', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({index: noteIndex})
+                })
+                .then(resp => resp.json())
+                .then(data => {
+                    if (data.success) {
+                        noteItem.remove();
+                    } else {
+                        alert(data.message || 'Failed to delete note.');
+                    }
+                })
+                .catch(() => alert('Failed to delete note.'));
+            }
+        });
+    });
+    </script>
 
     <!-- Chatbot Widget -->
     {% if current_user.is_authenticated %}
