@@ -4,7 +4,8 @@ from extensions import db
 from models import User, FIR, Role
 from utils.legal_mapper import initialize_legal_sections
 import os
-from datetime import datetime
+from werkzeug.utils import secure_filename
+import pandas as pd
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -202,28 +203,51 @@ def get_officers():
     officers_data = [{'id': officer.id, 'name': officer.full_name} for officer in officers]
     return jsonify(officers_data)
 
-@admin_bp.route('/police_dashboard')
+@admin_bp.route('/upload_users', methods=['GET', 'POST'])
 @login_required
-def police_dashboard():
-    """Police dashboard: summary and assigned cases"""
-    if not current_user.is_police() or current_user.is_admin():
-        flash('Access denied. Police officers only.', 'danger')
+def upload_users():
+    if not current_user.is_admin():
+        flash('Only admins can upload users.', 'danger')
         return redirect(url_for('admin.dashboard'))
 
-    # Assigned cases
-    assigned_cases = FIR.query.filter_by(processing_officer_id=current_user.id).order_by(FIR.filed_at.desc()).all()
-    total_assigned = len(assigned_cases)
-    open_cases = [f for f in assigned_cases if f.status in ('filed', 'under_investigation')]
-    closed_cases = [f for f in assigned_cases if f.status == 'closed']
-    urgent_cases = [f for f in assigned_cases if getattr(f, 'urgency_level', None) in ('high', 'critical') and f.status in ('filed', 'under_investigation')]
-    overdue_cases = [f for f in assigned_cases if f.status in ('filed', 'under_investigation') and hasattr(f, 'incident_date') and f.incident_date and f.incident_date < datetime.utcnow()]
-
-    return render_template(
-        'admin/police_dashboard.html',
-        total_assigned=total_assigned,
-        open_cases=open_cases,
-        closed_cases=closed_cases,
-        urgent_cases=urgent_cases,
-        overdue_cases=overdue_cases,
-        assigned_cases=assigned_cases
-    )
+    if request.method == 'POST':
+        file = request.files.get('excel_file')
+        if not file:
+            flash('Please select a file.', 'danger')
+            return render_template('admin_upload_users.html')
+        filename = file.filename or ''
+        if not (filename.endswith('.xlsx') or filename.endswith('.csv')):
+            flash('Only .xlsx or .csv files are supported.', 'danger')
+            return render_template('admin_upload_users.html')
+        try:
+            if filename.endswith('.csv'):
+                df = pd.read_csv(file.stream)
+            else:
+                df = pd.read_excel(file.stream)
+            # Support police_users_template.csv format
+            if {'username', 'password', 'role'}.issubset(df.columns):
+                created, skipped = 0, 0
+                for _, row in df.iterrows():
+                    if User.query.filter_by(username=row['username']).first():
+                        skipped += 1
+                        continue
+                    user = User()
+                    user.username = row['username']
+                    user.full_name = row['name'] if 'name' in df.columns else ''
+                    user.phone = str(row['mobile']) if 'mobile' in df.columns else ''
+                    user.role = row['role']
+                    user.set_password(str(row['password']))
+                    user.email = ''
+                    user.address = ''
+                    db.session.add(user)
+                    created += 1
+                db.session.commit()
+                flash(f'Successfully created {created} users. Skipped {skipped} existing.', 'success')
+            else:
+                flash('File must contain at least columns: username, password, role', 'danger')
+                return render_template('admin_upload_users.html')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error processing file: {str(e)}', 'danger')
+        return redirect(url_for('admin.upload_users'))
+    return render_template('admin_upload_users.html')
