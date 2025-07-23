@@ -1,5 +1,96 @@
 /* Custom CSS for Intelligent FIR Filing System */
 
+/* Embassy-Inspired Theme Variables */
+:root {
+    --embassy-bg: #FFFFFF;
+    --embassy-section-bg: #FDF2EC;
+    --embassy-header-footer: #2C2C2C;
+    --embassy-primary: #E85C3C;
+    --embassy-accent: #F9B48D;
+    --embassy-text-main: #212121;
+    --embassy-text-secondary: #757575;
+    --embassy-card-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+body {
+    background-color: var(--embassy-bg);
+    color: var(--embassy-text-main);
+    font-family: 'Open Sans', 'Roboto', Arial, sans-serif;
+}
+
+section, .section-banner, .soft-banner {
+    background-color: var(--embassy-section-bg);
+}
+
+header, .navbar, .footer {
+    background-color: var(--embassy-header-footer) !important;
+    color: var(--embassy-bg);
+}
+
+h1, h2, h3, h4, h5, h6, .section-title {
+    font-family: 'Poppins', 'Nunito', 'Merriweather', serif;
+    color: var(--embassy-text-main);
+}
+
+.text-secondary, .form-text, .stat-label {
+    color: var(--embassy-text-secondary) !important;
+}
+
+/* Card/Box Styles */
+.card, .dashboard-card, .fir-details-container, .message-content, .chat-message {
+    background-color: var(--embassy-bg) !important;
+    box-shadow: var(--embassy-card-shadow) !important;
+    color: var(--embassy-text-main);
+}
+
+/* Primary Button */
+.btn-primary, .btn-record {
+    background-color: var(--embassy-primary) !important;
+    border-color: var(--embassy-primary) !important;
+    color: var(--embassy-bg) !important;
+    font-family: 'Poppins', 'Nunito', 'Merriweather', serif;
+}
+.btn-primary:hover, .btn-record:hover {
+    background-color: #d94e2c !important;
+    border-color: #d94e2c !important;
+}
+
+/* Accent Elements */
+.accent, .icon-accent, .highlight, .input-group-text {
+    color: var(--embassy-accent) !important;
+    fill: var(--embassy-accent) !important;
+}
+
+/* Header/Footer Text */
+header, .navbar, .footer {
+    font-family: 'Poppins', 'Nunito', 'Merriweather', serif;
+    color: var(--embassy-bg);
+}
+
+/* Section Banner */
+.section-banner, .soft-banner {
+    background-color: var(--embassy-section-bg) !important;
+    color: var(--embassy-text-main);
+}
+
+/* Utility Classes */
+.bg-embassy {
+    background-color: var(--embassy-bg) !important;
+}
+.bg-section {
+    background-color: var(--embassy-section-bg) !important;
+}
+.bg-header-footer {
+    background-color: var(--embassy-header-footer) !important;
+}
+.text-main {
+    color: var(--embassy-text-main) !important;
+}
+.text-secondary {
+    color: var(--embassy-text-secondary) !important;
+}
+
+
 /* Helper classes */
 .min-h-100 {
     min-height: 100px;
@@ -83,10 +174,12 @@
 }
 
 /* Dashboard cards */
+
 .dashboard-card {
     transition: transform 0.2s;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: var(--embassy-bg) !important;
+    box-shadow: var(--embassy-card-shadow) !important;
     overflow: hidden;
 }
 
@@ -97,10 +190,13 @@
 .dashboard-card-header {
     padding: 15px;
     font-weight: 600;
+    background-color: var(--embassy-section-bg);
+    color: var(--embassy-text-main);
 }
 
 .dashboard-card-body {
     padding: 20px;
+    background-color: var(--embassy-bg);
 }
 
 /* Stats counter */
@@ -118,6 +214,7 @@
 .fir-details-container {
     border-radius: 8px;
     padding: 20px;
+    background-color: white;
 }
 
 .section-title {
@@ -135,7 +232,7 @@
 
 .legal-section-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1); /* changed */
 }
 
 /* Confidence badges for legal sections */
@@ -175,8 +272,8 @@
 
 /* Record button styles */
 .btn-record {
-    background-color: var(--bs-danger);
-    color: white;
+    background-color: var(--embassy-primary) !important;
+    color: var(--embassy-bg) !important;
     border-radius: 50%;
     width: 60px;
     height: 60px;
@@ -186,12 +283,12 @@
 }
 
 .btn-record:hover {
-    background-color: #c82333;
+    background-color: #d94e2c !important;
 }
 
 .btn-stop {
-    background-color: var(--bs-dark);
-    color: white;
+    background-color: var(--embassy-header-footer) !important;
+    color: var(--embassy-bg) !important;
     border-radius: 50%;
     width: 60px;
     height: 60px;
@@ -201,13 +298,14 @@
 }
 
 .btn-stop:hover {
-    background-color: #23272b;
+    background-color: #212121 !important;
 }
 
 /* Chatbot styles */
 .chat-message {
     max-width: 80%;
     margin-bottom: 15px;
+    background-color: var(--embassy-bg) !important;
 }
 
 .user-message {
@@ -219,19 +317,19 @@
 }
 
 .user-message .message-content {
-    background-color: var(--bs-primary);
-    color: white;
+    background-color: var(--embassy-primary) !important;
+    color: var(--embassy-bg) !important;
 }
 
 .bot-message .message-content {
-    background-color: var(--bs-light);
-    color: var(--bs-dark);
+    background-color: var(--embassy-bg) !important;
+    color: var(--embassy-text-main) !important;
 }
 
 .message-content {
     border-radius: 15px;
     padding: 10px 15px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--embassy-card-shadow) !important;
 }
 
 .user-message .message-time {
@@ -241,7 +339,7 @@
 .typing-indicator {
     display: inline-block;
     padding: 10px 15px;
-    background-color: var(--bs-light);
+    background-color: white;
     border-radius: 15px;
 }
 
@@ -280,11 +378,12 @@
     margin-top: 40px;
     padding: 20px 0;
     font-size: 0.9rem;
+    background-color: var(--embassy-header-footer) !important;
+    color: var(--embassy-bg);
 }
 
 /* Mobile Responsive Enhancements */
 @media (max-width: 767.98px) {
-    /* General adjustments */
     h1 {
         font-size: 1.8rem;
     }
@@ -304,14 +403,14 @@
     .container {
         padding-left: 15px;
         padding-right: 15px;
+        background-color: white;
     }
 
-    /* Card adjustments */
     .card-body {
         padding: 15px;
+        background-color: white;
     }
 
-    /* Dashboard adjustments */
     .dashboard-card {
         margin-bottom: 15px;
     }
@@ -320,12 +419,11 @@
         font-size: 1.5rem;
     }
 
-    /* FIR view adjustments */
     .fir-details-container {
         padding: 15px;
+        background-color: white;
     }
 
-    /* Form adjustments */
     .form-label {
         margin-bottom: 0.3rem;
     }
@@ -335,30 +433,26 @@
         padding: 0.375rem 0.5rem;
     }
 
-    /* Button adjustments */
     .btn {
         padding: 0.375rem 0.75rem;
         font-size: 0.95rem;
     }
 
-    /* Chatbot adjustments */
     .chat-message {
         max-width: 90%;
+        background-color: white;
     }
 
-    /* Evidence thumbnails */
     .evidence-thumbnail {
         width: 80px;
         height: 80px;
     }
 
-    /* Recording controls */
     .recording-controls {
         flex-direction: column;
         gap: 10px;
     }
 
-    /* Table adjustments */
     .table {
         font-size: 0.9rem;
     }
@@ -367,7 +461,6 @@
         padding: 0.5rem;
     }
 
-    /* Navigation adjustments */
     .navbar-brand {
         font-size: 1.1rem;
     }
@@ -375,7 +468,6 @@
 
 /* Small mobile devices */
 @media (max-width: 575.98px) {
-    /* Further adjustments for very small screens */
     h1 {
         font-size: 1.6rem;
     }
@@ -386,19 +478,19 @@
 
     .card-header {
         padding: 0.75rem 1rem;
+        background-color: white;
     }
 
     .card-body {
         padding: 12px;
+        background-color: white;
     }
 
-    /* Status badges */
     .status-badge {
         font-size: 0.7rem;
         padding: 4px 8px;
     }
 
-    /* Button groups */
     .btn-group {
         display: flex;
         flex-direction: column;
@@ -410,13 +502,11 @@
         border-radius: 4px !important;
     }
 
-    /* Chatbot widget */
     .chatbot-widget {
         width: 300px;
         right: 10px;
     }
 
-    /* Evidence thumbnails */
     .evidence-thumbnail {
         width: 70px;
         height: 70px;
