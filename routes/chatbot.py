@@ -6,12 +6,13 @@ import sys
 import os
 import json
 from datetime import datetime
-from flask import Blueprint, request, jsonify, render_template, current_app
+from flask import Blueprint, request, jsonify, render_template, current_app, session
 from flask_login import login_required, current_user
 
 # Add the parent directory to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.chatbot import get_response
+from utils.language_utils import get_user_language, translate_text
 
 # Create blueprint
 chatbot_bp = Blueprint('chatbot', __name__, url_prefix='/chatbot')
@@ -63,14 +64,38 @@ def chatbot_query():
             current_app.logger.warning("Empty query")
             return jsonify({'error': 'Empty query'}), 400
 
+        # Detect user language
+        user_lang = get_user_language()
+        # If not English, translate query to English
+        query_for_bot = query
+        if user_lang not in ('en-US', 'en-GB', 'en-IN'):
+            query_for_bot = translate_text(query, dest_lang='en', src_lang=user_lang)
+        # Conversation context: store last 5 messages in session
+        history = session.get('chatbot_history', [])
+        # Add the new user message (in English for bot)
+        history.append({'role': 'user', 'content': query_for_bot})
+        # Limit to last 5 exchanges (user+bot)
+        history = history[-10:]
+        session['chatbot_history'] = history
+
         # Get user ID if authenticated
         user_id = current_user.id if current_user.is_authenticated else None
         logger.info(f"User ID: {user_id}")
         current_app.logger.info(f"User ID: {user_id}")
 
-        # Get response from chatbot
+        # Get response from chatbot (pass history if needed)
+        response = get_response(query_for_bot, user_id=user_id, history=history)
         logger.info("Getting response from chatbot")
         current_app.logger.info("Getting response from chatbot")
+
+        # Add bot response to history
+        if isinstance(response, dict) and 'text' in response:
+            history.append({'role': 'assistant', 'content': response['text']})
+            history = history[-10:]
+            session['chatbot_history'] = history
+            # If not English, translate response back to user language
+            if user_lang not in ('en-US', 'en-GB', 'en-IN'):
+                response['text'] = translate_text(response['text'], dest_lang=user_lang, src_lang='en')
 
         # Check if this is a case description that should be analyzed
         case_keywords = [

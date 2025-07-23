@@ -1,0 +1,42 @@
+[
+  {
+    "question": "What is an FIR?",
+    "keywords": ["fir", "first information report", "what is fir"],
+    "answer": "An FIR (First Information Report) is a written document prepared by the police when they receive information about the commission of a cognizable offence. It is the first step to initiate a criminal investigation."
+  },
+  {
+    "question": "How do I file an FIR?",
+    "keywords": ["file fir", "register fir", "how to file fir", "how to register fir"],
+    "answer": "To file an FIR, visit the nearest police station and provide details of the incident to the officer in charge. You can also file an FIR online in some states. The police must give you a copy of the FIR free of cost."
+  },
+  {
+    "question": "What is IPC section 302?",
+    "keywords": ["ipc 302", "section 302", "murder"],
+    "answer": "IPC Section 302 deals with punishment for murder. Whoever commits murder shall be punished with death or imprisonment for life and shall also be liable to fine."
+  },
+  {
+    "question": "What are my rights if I am arrested?",
+    "keywords": ["arrest rights", "rights on arrest", "arrested", "police arrest"],
+    "answer": "If you are arrested, you have the right to know the grounds of arrest, the right to inform a relative or friend, the right to consult a lawyer, and the right to be produced before a magistrate within 24 hours."
+  },
+  {
+    "question": "Can I get bail?",
+    "keywords": ["bail", "how to get bail", "can i get bail"],
+    "answer": "Bail is the release of an accused person from custody, usually on the condition of a bond or surety. Whether you can get bail depends on the nature of the offence. For bailable offences, bail is a right. For non-bailable offences, it is at the discretion of the court."
+  },
+  {
+    "question": "What is a cognizable offence?",
+    "keywords": ["cognizable", "cognizable offence"],
+    "answer": "A cognizable offence is one in which the police can arrest without a warrant and start an investigation without the permission of a court. Examples include murder, rape, and theft."
+  },
+  {
+    "question": "What is a non-cognizable offence?",
+    "keywords": ["non-cognizable", "non cognizable offence"],
+    "answer": "A non-cognizable offence is one in which the police cannot arrest without a warrant and cannot start an investigation without the court's permission. Examples include defamation and public nuisance."
+  },
+  {
+    "question": "How can I track my FIR status?",
+    "keywords": ["track fir", "fir status", "check fir status"],
+    "answer": "You can track your FIR status by visiting the police station where you filed the FIR or by checking the online FIR portal if available in your state."
+  }
+] 

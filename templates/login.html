@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 
-{% block title %}Login - Intelligent FIR Filing System{% endblock %}
+{% block title %}{{ _('Login') }} - Intelligent FIR Filing System{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -8,19 +8,19 @@
         <div class="col-md-6">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Login</h4>
+                    <h4 class="mb-0">{{ _('Login') }}</h4>
                 </div>
                 <div class="card-body p-4">
                     <form method="POST" action="{{ url_for('auth.login') }}">
                         <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
+                            <label for="username" class="form-label">{{ _('Username') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
                                 <input type="text" class="form-control" id="username" name="username" required autofocus>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
+                            <label for="password" class="form-label">{{ _('Password') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                 <input type="password" class="form-control" id="password" name="password" required>
@@ -28,13 +28,13 @@
                         </div>
                         
                         <div class="mb-4">
-                            <label class="form-label">Login as:</label>
+                            <label class="form-label">{{ _('Login as:') }}</label>
                             <div class="row">
                                 <div class="col-4">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="login_as" id="login_public" value="public" checked>
                                         <label class="form-check-label" for="login_public">
-                                            <i class="fas fa-user text-info me-1"></i> Public
+                                            <i class="fas fa-user text-info me-1"></i> {{ _('Public') }}
                                         </label>
                                     </div>
                                 </div>
@@ -42,7 +42,7 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="login_as" id="login_police" value="police">
                                         <label class="form-check-label" for="login_police">
-                                            <i class="fas fa-user-shield text-primary me-1"></i> Police
+                                            <i class="fas fa-user-shield text-primary me-1"></i> {{ _('Police') }}
                                         </label>
                                     </div>
                                 </div>
@@ -50,7 +50,7 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="login_as" id="login_admin" value="admin">
                                         <label class="form-check-label" for="login_admin">
-                                            <i class="fas fa-user-tie text-danger me-1"></i> Admin
+                                            <i class="fas fa-user-tie text-danger me-1"></i> {{ _('Admin') }}
                                         </label>
                                     </div>
                                 </div>
@@ -59,40 +59,40 @@
                         
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-sign-in-alt me-2"></i> Login
+                                <i class="fas fa-sign-in-alt me-2"></i> {{ _('Login') }}
                             </button>
                         </div>
                     </form>
                 </div>
                 <div class="card-footer bg-light text-center">
-                    <p class="mb-0">Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
+                    <p class="mb-0">{{ _('Don\'t have an account?') }} <a href="{{ url_for('auth.register') }}">{{ _('Register') }}</a></p>
                 </div>
             </div>
             
             <div class="mt-4 text-center">
-                <h5>Login Credentials for Demo</h5>
+                <h5>{{ _('Login Credentials for Demo') }}</h5>
                 <div class="row mt-3">
                     <div class="col-md-4">
                         <div class="card mb-3">
                             <div class="card-body">
-                                <h6 class="mb-2"><i class="fas fa-user me-2"></i>Public User</h6>
-                                <small>Username: user<br>Password: password</small>
+                                <h6 class="mb-2"><i class="fas fa-user me-2"></i> {{ _('Public User') }}</h6>
+                                <small>{{ _('Username: user<br>Password: password') }}</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="card mb-3">
                             <div class="card-body">
-                                <h6 class="mb-2"><i class="fas fa-user-shield me-2"></i>Police</h6>
-                                <small>Username: police<br>Password: password</small>
+                                <h6 class="mb-2"><i class="fas fa-user-shield me-2"></i> {{ _('Police') }}</h6>
+                                <small>{{ _('Username: police<br>Password: password') }}</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="card mb-3">
                             <div class="card-body">
-                                <h6 class="mb-2"><i class="fas fa-user-tie me-2"></i>Admin</h6>
-                                <small>Username: admin<br>Password: password</small>
+                                <h6 class="mb-2"><i class="fas fa-user-tie me-2"></i> {{ _('Admin') }}</h6>
+                                <small>{{ _('Username: admin<br>Password: password') }}</small>
                             </div>
                         </div>
                     </div>

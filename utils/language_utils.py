@@ -157,6 +157,36 @@ TRANSLATIONS = {
     # Add more translations for other languages as needed
 }
 
+# Add translation support using googletrans
+try:
+    from googletrans import Translator
+    _translator = Translator()
+except ImportError:
+    _translator = None
+    logger.warning("googletrans is not installed. Translation will not be available.")
+
+def translate_text(text, dest_lang, src_lang=None):
+    """
+    Translate text to the destination language using googletrans.
+    Args:
+        text: The text to translate
+        dest_lang: Destination language code (e.g., 'en', 'hi')
+        src_lang: Source language code (optional)
+    Returns:
+        Translated text (str), or original text if translation fails or not available
+    """
+    if not _translator or not text or dest_lang in (None, '', 'en', 'en-US', 'en-GB', 'en-IN'):
+        return text
+    try:
+        # googletrans expects 'en', 'hi', etc. Use only the first part of the code
+        dest = dest_lang.split('-')[0]
+        src = src_lang.split('-')[0] if src_lang else None
+        result = _translator.translate(text, dest=dest, src=src)
+        return result.text
+    except Exception as e:
+        logger.warning(f"Translation failed: {e}")
+        return text
+
 def get_user_language():
     """Get the user's preferred language from session or default to browser language."""
     # First check if language is set in session

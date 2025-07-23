@@ -1,16 +1,16 @@
 {% extends 'layout.html' %}
 
-{% block title %}Error - Intelligent FIR Filing System{% endblock %}
+{% block title %}{{ 'Error'|translate }}{% endblock %}
 
 {% block content %}
 <div class="container py-4">
     <div class="alert alert-danger">
-        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Error</h4>
-        <p>{{ error }}</p>
+        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>{{ 'An error occurred'|translate }}</h4>
+        <p>{{ error_message|translate }}</p>
         <hr>
         <p class="mb-0">
             <a href="{{ url_for('fir.index') }}" class="alert-link">
-                <i class="fas fa-home me-1"></i> Return to Home
+                <i class="fas fa-home me-1"></i> {{ 'Return to Home'|translate }}
             </a>
         </p>
     </div>

@@ -6,42 +6,40 @@
 <div class="container py-5">
     <div class="row justify-content-center align-items-center">
         <div class="col-lg-6 mb-4 mb-lg-0">
-            <h1 class="display-4 fw-bold mb-4">AI-Powered FIR Filing</h1>
+            <h1 class="display-4 fw-bold mb-4">{{ _('AI-Powered FIR Filing') }}</h1>
             <p class="lead mb-4">
-                Our intelligent system simplifies the process of filing police complaints,
-                transforming spoken words into professionally structured documents with automatic
-                legal section mapping.
+                {{ _('Our intelligent system simplifies the process of filing police complaints, transforming spoken words into professionally structured documents with automatic legal section mapping.') }}
             </p>
             <div class="mb-4">
-                <h5><i class="fas fa-check-circle text-success me-2"></i> Key Features</h5>
+                <h5><i class="fas fa-check-circle text-success me-2"></i> {{ _('Key Features') }}</h5>
                 <ul class="list-unstyled ps-4">
-                    <li class="mb-2"><i class="fas fa-microphone me-2"></i> Voice-to-text transcription</li>
-                    <li class="mb-2"><i class="fas fa-gavel me-2"></i> Automatic legal section mapping</li>
-                    <li class="mb-2"><i class="fas fa-file-alt me-2"></i> Professional FIR generation</li>
-                    <li class="mb-2"><i class="fas fa-camera me-2"></i> Evidence collection & analysis</li>
-                    <li class="mb-2"><i class="fas fa-mobile-alt me-2"></i> Mobile-responsive design</li>
+                    <li class="mb-2"><i class="fas fa-microphone me-2"></i> {{ _('Voice-to-text transcription') }}</li>
+                    <li class="mb-2"><i class="fas fa-gavel me-2"></i> {{ _('Automatic legal section mapping') }}</li>
+                    <li class="mb-2"><i class="fas fa-file-alt me-2"></i> {{ _('Professional FIR generation') }}</li>
+                    <li class="mb-2"><i class="fas fa-camera me-2"></i> {{ _('Evidence collection & analysis') }}</li>
+                    <li class="mb-2"><i class="fas fa-mobile-alt me-2"></i> {{ _('Mobile-responsive design') }}</li>
                 </ul>
             </div>
             <div class="d-grid gap-2 d-md-flex">
                 {% if current_user.is_authenticated %}
                     {% if current_user.is_admin() or current_user.is_police() %}
                         <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary btn-lg px-4">
-                            Go to Dashboard <i class="fas fa-arrow-right ms-2"></i>
+                            {{ _('Go to Dashboard') }} <i class="fas fa-arrow-right ms-2"></i>
                         </a>
                     {% else %}
                         <a href="{{ url_for('fir.new_fir') }}" class="btn btn-primary btn-lg px-4">
-                            File a New Complaint <i class="fas fa-file-alt ms-2"></i>
+                            {{ _('File a New Complaint') }} <i class="fas fa-file-alt ms-2"></i>
                         </a>
                         <a href="{{ url_for('fir.voice_transcription') }}" class="btn btn-outline-primary btn-lg px-4">
-                            Voice Transcription <i class="fas fa-microphone ms-2"></i>
+                            {{ _('Voice Transcription') }} <i class="fas fa-microphone ms-2"></i>
                         </a>
                     {% endif %}
                 {% else %}
                     <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg px-4">
-                        Login <i class="fas fa-sign-in-alt ms-2"></i>
+                        {{ _('Login') }} <i class="fas fa-sign-in-alt ms-2"></i>
                     </a>
                     <a href="{{ url_for('auth.register') }}" class="btn btn-outline-secondary btn-lg px-4">
-                        Register <i class="fas fa-user-plus ms-2"></i>
+                        {{ _('Register') }} <i class="fas fa-user-plus ms-2"></i>
                     </a>
                 {% endif %}
             </div>
@@ -52,7 +50,7 @@
                     <div class="mb-4">
                         <i class="fas fa-shield-alt fa-5x text-primary"></i>
                     </div>
-                    <h2 class="card-title mb-3">How It Works</h2>
+                    <h2 class="card-title mb-3">{{ 'How It Works'|translate }}</h2>
                     <div class="row text-start mt-4">
                         <div class="col-md-6 mb-3">
                             <div class="d-flex">
@@ -60,8 +58,8 @@
                                     <i class="fas fa-microphone fa-2x"></i>
                                 </div>
                                 <div>
-                                    <h5>Record</h5>
-                                    <p class="small">Speak your complaint into the system</p>
+                                    <h5>{{ 'Record'|translate }}</h5>
+                                    <p class="small">{{ 'Speak your complaint into the system'|translate }}</p>
                                 </div>
                             </div>
                         </div>
@@ -71,8 +69,8 @@
                                     <i class="fas fa-keyboard fa-2x"></i>
                                 </div>
                                 <div>
-                                    <h5>Transcribe</h5>
-                                    <p class="small">AI converts speech to accurate text</p>
+                                    <h5>{{ 'Transcribe'|translate }}</h5>
+                                    <p class="small">{{ 'AI converts speech to accurate text'|translate }}</p>
                                 </div>
                             </div>
                         </div>
@@ -82,8 +80,8 @@
                                     <i class="fas fa-brain fa-2x"></i>
                                 </div>
                                 <div>
-                                    <h5>Analyze</h5>
-                                    <p class="small">System maps applicable legal sections</p>
+                                    <h5>{{ 'Analyze'|translate }}</h5>
+                                    <p class="small">{{ 'System maps applicable legal sections'|translate }}</p>
                                 </div>
                             </div>
                         </div>
@@ -93,8 +91,8 @@
                                     <i class="fas fa-file-pdf fa-2x"></i>
                                 </div>
                                 <div>
-                                    <h5>Generate</h5>
-                                    <p class="small">Professional FIR document created</p>
+                                    <h5>{{ 'Generate'|translate }}</h5>
+                                    <p class="small">{{ 'Professional FIR document created'|translate }}</p>
                                 </div>
                             </div>
                         </div>
@@ -106,8 +104,8 @@
 
     <div class="row mt-5 pt-5">
         <div class="col-12 text-center mb-4">
-            <h2>Why Choose Our System?</h2>
-            <p class="lead">Transforming the traditional FIR filing process with technology</p>
+            <h2>{{ 'Why Choose Our System?'|translate }}</h2>
+            <p class="lead">{{ 'Transforming the traditional FIR filing process with technology'|translate }}</p>
         </div>
         <div class="col-md-4 mb-4">
             <div class="card h-100 border-0 shadow-sm">
@@ -115,8 +113,8 @@
                     <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
                         <i class="fas fa-bolt text-white fa-2x"></i>
                     </div>
-                    <h4>Save Time</h4>
-                    <p>Reduce FIR filing time by up to 70% with our streamlined AI-powered process.</p>
+                    <h4>{{ 'Save Time'|translate }}</h4>
+                    <p>{{ 'Reduce FIR filing time by up to 70% with our streamlined AI-powered process.'|translate }}</p>
                 </div>
             </div>
         </div>
@@ -126,8 +124,8 @@
                     <div class="rounded-circle bg-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
                         <i class="fas fa-check-double text-white fa-2x"></i>
                     </div>
-                    <h4>Improve Accuracy</h4>
-                    <p>AI ensures accurate legal section mapping and standardized documentation.</p>
+                    <h4>{{ 'Improve Accuracy'|translate }}</h4>
+                    <p>{{ 'AI ensures accurate legal section mapping and standardized documentation.'|translate }}</p>
                 </div>
             </div>
         </div>
@@ -137,8 +135,8 @@
                     <div class="rounded-circle bg-info d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
                         <i class="fas fa-universal-access text-white fa-2x"></i>
                     </div>
-                    <h4>Accessible to All</h4>
-                    <p>Voice-based input makes the system accessible to everyone, regardless of literacy level.</p>
+                    <h4>{{ 'Accessible to All'|translate }}</h4>
+                    <p>{{ 'Voice-based input makes the system accessible to everyone, regardless of literacy level.'|translate }}</p>
                 </div>
             </div>
         </div>

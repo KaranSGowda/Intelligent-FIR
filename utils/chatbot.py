@@ -93,13 +93,14 @@ class FIRChatbot:
             "You can ask questions like 'What is the status of my case FIR20230101123456?', 'What is IPC section 302?', or 'Someone stole my phone yesterday, which sections apply?'"
         ]
 
-    def process_query(self, query, user_id=None):
+    def process_query(self, query, user_id=None, history=None):
         """
         Process a user query and return a response.
 
         Args:
             query: The user's query text
             user_id: The ID of the user making the query (for access control)
+            history: List of previous user and assistant messages (for context)
 
         Returns:
             dict: A response object with text and any additional data
@@ -194,6 +195,50 @@ class FIRChatbot:
                 "   - 'I was assaulted by a group of people yesterday'\n\n"
                 "Just describe your situation, and I'll identify which IPC sections might apply!"
             )
+
+        # --- OpenAI GPT fallback for unmatched queries ---
+        # Check legal FAQ first
+        try:
+            from utils.legal_faq import find_faq_answer
+            faq_answer = find_faq_answer(query)
+            if faq_answer:
+                return self._create_response(faq_answer)
+        except Exception as e:
+            logger.warning(f"FAQ lookup failed: {e}")
+
+        try:
+            from utils.openai_helper import OPENAI_API_KEY, openai
+        except ImportError:
+            OPENAI_API_KEY = None
+            openai = None
+
+        if OPENAI_API_KEY and openai:
+            try:
+                from utils.openai_helper import analyze_complaint as openai_analyze_complaint
+                logger.info("Routing unmatched query to OpenAI GPT for legal Q&A.")
+                # Build conversation history for OpenAI
+                messages = []
+                if history:
+                    for msg in history:
+                        if msg['role'] in ('user', 'assistant'):
+                            messages.append({"role": msg['role'], "content": msg['content']})
+                # Add system prompt at the start
+                messages = ([{"role": "system", "content": "You are a helpful legal assistant for Indian law enforcement and citizens. Answer the user's question clearly and concisely. If the question is about Indian law, FIRs, police procedure, or legal rights, provide an accurate answer. If you don't know, say so."}] + messages)
+                # Add the current user query if not already present
+                if not messages or messages[-1]['content'].strip().lower() != query:
+                    messages.append({"role": "user", "content": query})
+                ai_response = openai.chat.completions.create(
+                    model="gpt-4o",
+                    messages=messages
+                )
+                answer = ai_response.choices[0].message.content.strip()
+                return self._create_response(f"[AI-generated]\n{answer}")
+            except Exception as e:
+                logger.error(f"OpenAI GPT fallback failed: {e}")
+                # Fall through to generic response
+
+        # If OpenAI is not available or fails, return generic response
+        return self._create_response(self.generic_responses[1])
 
         # Check for IPC-related keywords
         if 'ipc' in query or 'section' in query or 'penal code' in query:
@@ -604,15 +649,16 @@ class FIRChatbot:
 # Create a singleton instance
 chatbot = FIRChatbot()
 
-def get_response(query, user_id=None):
+def get_response(query, user_id=None, history=None):
     """
     Get a response from the chatbot.
 
     Args:
         query: The user's query text
         user_id: The ID of the user making the query (for access control)
+        history: List of previous user and assistant messages (for context)
 
     Returns:
         dict: A response object with text and any additional data
     """
-    return chatbot.process_query(query, user_id)
+    return chatbot.process_query(query, user_id, history)
