@@ -1,11 +1,8 @@
 import os
 import logging
-from flask import Flask
+from flask import Flask, session, request, redirect, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
-from flask_babel import Babel, _
-from flask import session, request, redirect, url_for
-from flask_babel import get_locale
 
 # Import extensions
 from extensions import db, login_manager
@@ -23,17 +20,14 @@ except ImportError:
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Remove any code that sets GOOGLE_APPLICATION_CREDENTIALS or prints related warnings
-
-# Define get_locale function outside of create_app for use in context processor
-def get_locale():
-    # Use session if set, otherwise use browser's best match
-    return session.get('lang', request.accept_languages.best_match(['en', 'hi', 'ta']))
 
 def create_app():
     # create the app
     app = Flask(__name__)
+    # Add a dummy translate filter so |translate in templates does not error
+    app.jinja_env.filters['translate'] = lambda s: s
     app.secret_key = os.environ.get("SESSION_SECRET", "development_key")
+    print(f"[DEBUG] Flask secret key: {app.secret_key}")  # REMOVE THIS LINE AFTER DEBUGGING
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
     # Enable CORS
@@ -70,18 +64,8 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"  # type: ignore
 
-    app.config['BABEL_DEFAULT_LOCALE'] = 'en'
-    app.config['BABEL_TRANSLATION_DIRECTORIES'] = 'translations'
 
-    babel = Babel(app, locale_selector=get_locale)
 
-    @app.route('/set_language/<lang_code>')
-    def set_language(lang_code):
-        session['lang'] = lang_code
-        return redirect(request.referrer or url_for('index'))
-
-    # Use the translation API instead of Flask-Babel for better accuracy
-    app.jinja_env.filters['translate'] = lambda s: translate_text(s, session.get('lang', 'en'))
 
     with app.app_context():
         # Import models to ensure they're registered with SQLAlchemy
@@ -152,11 +136,27 @@ def create_app():
     return app
 
 # Create the application instance
+
 app = create_app()
 
+# Register dummy translate filter after app is created
+app.jinja_env.filters['translate'] = lambda s: s
+
+
+# Inject dummy _ and get_locale functions so templates using _('...') and get_locale() do not error
 @app.context_processor
-def inject_get_locale():
-    return dict(get_locale=get_locale)
+def inject_template_globals():
+    return {
+        '_': lambda s: s,
+        'get_locale': lambda: 'en'
+    }
 
 if __name__ == '__main__':
+    @app.route('/routes')
+    def list_routes():
+        output = []
+        for rule in app.url_map.iter_rules():
+            methods = ','.join(sorted(rule.methods or []))
+            output.append(f"{rule.rule} [{methods}] => {rule.endpoint}")
+        return '<br>'.join(sorted(output))
     app.run(debug=True, host='0.0.0.0', port=5000)
