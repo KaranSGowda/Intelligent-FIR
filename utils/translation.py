@@ -1,4 +1,5 @@
 from flask import session
+import asyncio
 
 try:
     from googletrans import Translator
@@ -15,7 +16,13 @@ def translate_text(text, dest_lang=None):
     # googletrans expects 'en', 'hi', 'ta', 'kn', etc.
     dest = dest_lang.split('-')[0]
     try:
-        result = _translator.translate(text, dest=dest)
-        return result.text
-    except Exception:
+        # For googletrans 3.x, we need to handle async calls
+        async def translate_async():
+            return await _translator.translate(text, dest=dest)
+        
+        # Run the async function
+        result = asyncio.run(translate_async())
+        return result.text if hasattr(result, 'text') else str(result)
+    except Exception as e:
+        # Return original text if translation fails
         return text

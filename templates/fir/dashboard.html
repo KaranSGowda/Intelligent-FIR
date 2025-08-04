@@ -3,163 +3,599 @@
 {% block title %}My Complaints - Intelligent FIR Filing System{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
-        <div class="mb-3 mb-md-0">
-            <h2 class="mb-2"><i class="fas fa-clipboard-list me-2"></i> My Complaints</h2>
-            <p class="lead">View and manage your filed complaints</p>
-        </div>
-        {% if current_user.is_public() %}
-            <a href="{{ url_for('fir.new_fir') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i> File New Complaint
-            </a>
-        {% endif %}
-    </div>
-
-    <!-- Complaints/Cases Cards -->
-    <div class="row">
-        {% if firs %}
-            {% for fir in firs %}
-                <div class="col-md-6 mb-4">
-                    <div class="card border-0 shadow-sm dashboard-card h-100 urgency-{{ fir.urgency_level }}">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><a href="{{ url_for('fir.view_fir', fir_id=fir.id) }}" class="text-decoration-none">{{ fir.fir_number }}</a></h5>
-                            <span class="status-badge status-{{ fir.status }}">{{ fir.get_status_label() }}</span>
+<div class="dashboard-container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header py-4 mb-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="dashboard-icon me-3">
+                            <i class="fas fa-clipboard-list fa-2x text-primary"></i>
                         </div>
-                        <div class="card-body p-3">
-                            <p class="card-text mb-3">
-                                {{ fir.incident_description[:150] }}{% if fir.incident_description|length > 150 %}...{% endif %}
-                            </p>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <small class="text-muted d-block"><i class="fas fa-calendar-alt me-2"></i>
-                                        {% if fir.incident_date %}
-                                            {{ fir.incident_date.strftime('%d-%m-%Y') }}
-                                        {% else %}
-                                            Date not specified
-                                        {% endif %}
-                                    </small>
-                                </div>
-                                <div class="col-md-6">
-                                    <small class="text-muted d-block"><i class="fas fa-map-marker-alt me-2"></i>
-                                        {{ fir.incident_location|truncate(30) or 'Location not specified' }}
-                                    </small>
-                                </div>
-                            </div>
-
-                            {% if fir.legal_sections %}
-                                <div class="mb-3">
-                                    <small class="text-muted d-block mb-2">Legal Sections:</small>
-                                    <div>
-                                        {% for section in fir.legal_sections %}
-                                            <span class="badge bg-info text-dark me-1 mb-1">{{ section.code }} - {{ section.name }}</span>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            {% endif %}
-
-                            {% if fir.processing_officer %}
-                                <div class="mb-3">
-                                    <small class="text-muted d-block">
-                                        <i class="fas fa-user-shield me-2"></i> Assigned to: {{ fir.processing_officer.full_name }}
-                                    </small>
-                                </div>
-                            {% endif %}
-
-                            <div>
-                                <span class="badge bg-{{ 'success' if fir.urgency_level == 'low' else 'info' if fir.urgency_level == 'normal' else 'warning' if fir.urgency_level == 'high' else 'danger' }}">
-                                    {{ fir.get_urgency_label() }} Urgency
-                                </span>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-light d-flex justify-content-between align-items-center">
-                            <small class="text-muted">Filed: {{ fir.filed_at.strftime('%d-%m-%Y %H:%M') if fir.filed_at else 'Draft' }}</small>
-                            <div class="btn-group">
-                                <a href="{{ url_for('fir.view_fir', fir_id=fir.id) }}" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-eye me-1"></i> View
-                                </a>
-                                <a href="{{ url_for('fir.generate_pdf', fir_id=fir.id) }}" class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-file-pdf me-1"></i> PDF
-                                </a>
-                            </div>
+                        <div>
+                            <h1 class="dashboard-title mb-1">{{ _('My Complaints') }}</h1>
+                            <p class="dashboard-subtitle text-muted">{{ _('View and manage your filed complaints') }}</p>
                         </div>
                     </div>
                 </div>
-            {% endfor %}
-        {% else %}
-            <div class="col-12">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
+                <div class="col-lg-4 text-lg-end">
                     {% if current_user.is_public() %}
-                        You haven't filed any complaints yet.
-                        <a href="{{ url_for('fir.new_fir') }}" class="alert-link">File a new complaint</a>.
-                    {% else %}
-                        No cases have been assigned to you yet.
+                        <a href="{{ url_for('fir.new_fir') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus me-2"></i> {{ _('File New Complaint') }}
+                        </a>
                     {% endif %}
                 </div>
             </div>
-        {% endif %}
+        </div>
     </div>
 
-    <!-- Information Cards for Public Users -->
-    {% if current_user.is_public() %}
-        <div class="row mt-4">
-            <div class="col-12">
-                <h4 class="mb-3">Information & Guidelines</h4>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <div class="text-center mb-3">
-                            <i class="fas fa-file-alt fa-3x text-primary"></i>
-                        </div>
-                        <h5 class="card-title">Filing a Complaint</h5>
-                        <p class="card-text">Learn how to file a comprehensive complaint using our voice-enabled system.</p>
-                        <div class="alert alert-light">
-                            <ul class="mb-0 ps-3">
-                                <li>Provide clear and detailed information</li>
-                                <li>Include exact locations and times</li>
-                                <li>Upload relevant evidence</li>
-                                <li>Review before submission</li>
-                            </ul>
-                        </div>
-                    </div>
+    <!-- Dashboard Stats -->
+    <!-- Modern Dashboard Stats -->
+    <div class="dashboard-stats mb-5">
+        <div class="container">
+            <div class="stats-row d-flex flex-wrap justify-content-center gap-4">
+                <div class="stat-card-modern">
+                    <div class="stat-icon bg-primary text-white mb-3"><i class="fas fa-users"></i></div>
+                    <div class="stat-number text-primary">10,000+</div>
+                    <div class="stat-label">Users Served</div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <div class="text-center mb-3">
-                            <i class="fas fa-search fa-3x text-info"></i>
-                        </div>
-                        <h5 class="card-title">Tracking Your Case</h5>
-                        <p class="card-text">Understanding the different stages of your complaint investigation.</p>
-                        <div class="alert alert-light">
-                            <ol class="mb-0 ps-3">
-                                <li><strong>Draft:</strong> Not yet submitted</li>
-                                <li><strong>Filed:</strong> Submitted and awaiting assignment</li>
-                                <li><strong>Under Investigation:</strong> Officer assigned and investigating</li>
-                                <li><strong>Closed:</strong> Investigation complete</li>
-                            </ol>
-                        </div>
-                    </div>
+                <div class="stat-card-modern">
+                    <div class="stat-icon bg-success text-white mb-3"><i class="fas fa-file-alt"></i></div>
+                    <div class="stat-number text-success">25,000+</div>
+                    <div class="stat-label">Complaints Filed</div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <div class="text-center mb-3">
-                            <i class="fas fa-gavel fa-3x text-warning"></i>
-                        </div>
-                        <h5 class="card-title">Legal Sections</h5>
-                        <p class="card-text">Our AI system automatically identifies applicable legal sections based on your complaint.</p>
-                        <div class="alert alert-light">
-                            <p class="mb-0">Each section of the law addresses specific violations. The system analyzes your complaint to identify relevant legal sections, which helps police properly categorize and process your case.</p>
-                        </div>
-                    </div>
+                <div class="stat-card-modern">
+                    <div class="stat-icon bg-warning text-white mb-3"><i class="fas fa-clock"></i></div>
+                    <div class="stat-number text-warning">70%</div>
+                    <div class="stat-label">Time Saved</div>
                 </div>
             </div>
         </div>
-    {% endif %}
+    </div>
+
+    <style>
+    .stat-card-modern {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        padding: 2rem 2.5rem;
+        text-align: center;
+        min-width: 220px;
+        margin-bottom: 1.5rem;
+        transition: box-shadow 0.2s, transform 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .stat-card-modern:hover {
+        box-shadow: 0 8px 32px rgba(0,123,255,0.15);
+        transform: translateY(-4px) scale(1.03);
+    }
+    .stat-icon {
+        width: 56px; height: 56px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 50%;
+        font-size: 2rem;
+    }
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .stat-label {
+        font-size: 1.1rem;
+        color: #555;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+    @media (max-width: 991.98px) {
+        .stats-row {
+            flex-direction: column !important;
+            align-items: center !important;
+        }
+        .stat-card-modern {
+            min-width: 180px;
+            padding: 1.5rem 1rem;
+        }
+    }
+    </style>
+
+    <!-- Complaints Grid -->
+    <div class="complaints-section">
+        <div class="container">
+            {% if firs %}
+                <div class="row g-4">
+                    {% for fir in firs %}
+                        <div class="col-lg-6 col-xl-4">
+                            <div class="complaint-card card h-100 border-0 shadow-sm urgency-{{ fir.urgency_level }} fade-in" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div class="fir-number">
+                                        <h5 class="mb-0">
+                                            <a href="{{ url_for('fir.view_fir', fir_id=fir.id) }}" class="text-decoration-none">
+                                                {{ fir.fir_number }}
+                                            </a>
+                                        </h5>
+                                    </div>
+                                    <div class="status-indicator">
+                                        <span class="status-badge status-{{ fir.status }}">
+                                            {{ fir.get_status_label() }}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="card-body p-4">
+                                    <div class="complaint-description mb-3">
+                                        <p class="card-text">
+                                            {{ fir.incident_description[:150] }}{% if fir.incident_description|length > 150 %}...{% endif %}
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="complaint-details mb-3">
+                                        <div class="detail-row">
+                                            <div class="detail-item">
+                                                <i class="fas fa-calendar-alt text-muted me-2"></i>
+                                                <span class="detail-label">{{ _('Incident Date') }}:</span>
+                                                <span class="detail-value">
+                                                    {% if fir.incident_date %}
+                                                        {{ fir.incident_date.strftime('%d-%m-%Y') }}
+                                                    {% else %}
+                                                        {{ _('Not specified') }}
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="detail-row">
+                                            <div class="detail-item">
+                                                <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                                                <span class="detail-label">{{ _('Location') }}:</span>
+                                                <span class="detail-value">
+                                                    {{ fir.incident_location|truncate(30) or _('Not specified') }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {% if fir.legal_sections %}
+                                        <div class="legal-sections mb-3">
+                                            <div class="section-label mb-2">
+                                                <i class="fas fa-gavel text-muted me-2"></i>
+                                                {{ _('Legal Sections') }}:
+                                            </div>
+                                            <div class="section-tags">
+                                                {% for section in fir.legal_sections %}
+                                                    <span class="section-tag">{{ section.code }} - {{ section.name }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if fir.processing_officer %}
+                                        <div class="officer-info mb-3">
+                                            <div class="officer-item">
+                                                <i class="fas fa-user-shield text-muted me-2"></i>
+                                                <span class="officer-label">{{ _('Assigned to') }}:</span>
+                                                <span class="officer-name">{{ fir.processing_officer.full_name }}</span>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="urgency-indicator mb-3">
+                                        <span class="urgency-badge urgency-{{ fir.urgency_level }}">
+                                            {{ fir.get_urgency_label() }} {{ _('Urgency') }}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+                                    <div class="filing-info">
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            {% if fir.filed_at %}
+                                                {{ _('Filed') }}: {{ fir.filed_at.strftime('%d-%m-%Y %H:%M') }}
+                                            {% else %}
+                                                {{ _('Draft') }}
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('fir.view_fir', fir_id=fir.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye me-1"></i> {{ _('View') }}
+                                            </a>
+                                            <a href="{{ url_for('fir.generate_pdf', fir_id=fir.id) }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-file-pdf me-1"></i> {{ _('PDF') }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-content text-center py-5">
+                        <div class="empty-state-icon mb-4">
+                            <i class="fas fa-inbox fa-4x text-muted"></i>
+                        </div>
+                        <h3 class="empty-state-title mb-3">{{ _('No Complaints Yet') }}</h3>
+                        <p class="empty-state-description text-muted mb-4">
+                            {% if current_user.is_public() %}
+                                {{ _('You haven\'t filed any complaints yet. Start by filing your first complaint.') }}
+                            {% else %}
+                                {{ _('No cases have been assigned to you yet.') }}
+                            {% endif %}
+                        </p>
+                        {% if current_user.is_public() %}
+                            <a href="{{ url_for('fir.new_fir') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus me-2"></i> {{ _('File Your First Complaint') }}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Dashboard Container */
+.dashboard-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+    .stat-card-modern {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        padding: 2rem 2.5rem;
+        text-align: center;
+        min-width: 220px;
+        margin-bottom: 1.5rem;
+        transition: box-shadow 0.2s, transform 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .stat-card-modern:hover {
+        box-shadow: 0 8px 32px rgba(0,123,255,0.15);
+        transform: translateY(-4px) scale(1.03);
+    }
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 2rem;
+    }
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .stat-label {
+        font-size: 1.1rem;
+        color: #555;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+    @media (max-width: 991.98px) {
+        .stats-row {
+            flex-direction: column !important;
+            align-items: center !important;
+        }
+        .stat-card-modern {
+            min-width: 180px;
+            padding: 1.5rem 1rem;
+        }
+    }
+
+    </style>
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(37, 99, 235, 0.1);
+    font-size: 1.5rem;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--embassy-text-main);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--embassy-text-secondary);
+    font-weight: 500;
+}
+
+/* Complaint Cards */
+.complaint-card {
+    transition: all 0.3s ease;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+}
+
+.complaint-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--embassy-primary), var(--embassy-primary-hover));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.complaint-card:hover::before {
+    opacity: 1;
+}
+
+.complaint-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--embassy-primary), var(--embassy-primary-hover));
+    color: white;
+    border-bottom: none;
+    padding: 1.25rem;
+}
+
+.fir-number h5 a {
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.fir-number h5 a:hover {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+}
+
+/* Complaint Details */
+.complaint-description {
+    min-height: 60px;
+}
+
+.detail-row {
+    margin-bottom: 0.75rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: var(--embassy-text-secondary);
+    margin-right: 0.5rem;
+}
+
+.detail-value {
+    color: var(--embassy-text-main);
+    font-weight: 500;
+}
+
+/* Legal Sections */
+.legal-sections {
+    background: rgba(59, 130, 246, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.section-label {
+    font-weight: 600;
+    color: var(--embassy-text-main);
+    font-size: 0.9rem;
+}
+
+.section-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.section-tag {
+    background: var(--embassy-primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Officer Info */
+.officer-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.officer-label {
+    font-weight: 600;
+    color: var(--embassy-text-secondary);
+    margin-right: 0.5rem;
+}
+
+.officer-name {
+    color: var(--embassy-text-main);
+    font-weight: 500;
+}
+
+/* Urgency Badge */
+.urgency-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.urgency-badge.urgency-low {
+    background: linear-gradient(135deg, var(--embassy-success), #34D399);
+    color: white;
+}
+
+.urgency-badge.urgency-normal {
+    background: linear-gradient(135deg, var(--embassy-info), #60A5FA);
+    color: white;
+}
+
+.urgency-badge.urgency-high {
+    background: linear-gradient(135deg, var(--embassy-warning), #FBBF24);
+    color: white;
+}
+
+.urgency-badge.urgency-critical {
+    background: linear-gradient(135deg, var(--embassy-danger), #F87171);
+    color: white;
+}
+
+/* Card Footer */
+.card-footer {
+    border-top: 1px solid var(--embassy-border);
+    padding: 1rem 1.5rem;
+}
+
+.filing-info {
+    font-size: 0.85rem;
+}
+
+.action-buttons .btn-group {
+    gap: 0.5rem;
+}
+
+.action-buttons .btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.action-buttons .btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Empty State */
+.empty-state {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin: 2rem 0;
+}
+
+.empty-state-content {
+    padding: 3rem 2rem;
+}
+
+.empty-state-icon {
+    opacity: 0.5;
+}
+
+.empty-state-title {
+    font-weight: 600;
+    color: var(--embassy-text-main);
+}
+
+.empty-state-description {
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-title {
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-subtitle {
+        font-size: 1rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .complaint-card {
+        margin-bottom: 1rem;
+    }
+    
+    .card-header {
+        padding: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .card-footer {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .action-buttons .btn-group {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-header {
+        text-align: center;
+    }
+    
+    .dashboard-icon {
+        margin: 0 auto 1rem;
+    }
+    
+    .stat-card {
+        text-align: center;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .section-tags {
+        justify-content: center;
+    }
+}
+</style>
 {% endblock %}

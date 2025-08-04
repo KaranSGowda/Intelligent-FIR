@@ -25,6 +25,11 @@ logger = logging.getLogger(__name__)
 
 # Remove any code that sets GOOGLE_APPLICATION_CREDENTIALS or prints related warnings
 
+# Define get_locale function outside of create_app for use in context processor
+def get_locale():
+    # Use session if set, otherwise use browser's best match
+    return session.get('lang', request.accept_languages.best_match(['en', 'hi', 'ta']))
+
 def create_app():
     # create the app
     app = Flask(__name__)
@@ -68,10 +73,6 @@ def create_app():
     app.config['BABEL_DEFAULT_LOCALE'] = 'en'
     app.config['BABEL_TRANSLATION_DIRECTORIES'] = 'translations'
 
-    def get_locale():
-        # Use session if set, otherwise use browser's best match
-        return session.get('lang', request.accept_languages.best_match(['en', 'hi', 'ta']))
-
     babel = Babel(app, locale_selector=get_locale)
 
     @app.route('/set_language/<lang_code>')
@@ -79,6 +80,7 @@ def create_app():
         session['lang'] = lang_code
         return redirect(request.referrer or url_for('index'))
 
+    # Use the translation API instead of Flask-Babel for better accuracy
     app.jinja_env.filters['translate'] = lambda s: translate_text(s, session.get('lang', 'en'))
 
     with app.app_context():

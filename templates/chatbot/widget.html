@@ -48,17 +48,18 @@
     .chatbot-toggle {
         width: 70px;
         height: 70px;
-        background-color: var(--bs-primary);
+        background: linear-gradient(135deg, var(--embassy-primary), var(--embassy-primary-hover));
         color: white;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         font-size: 28px;
-        transition: all 0.3s ease;
+        transition: var(--embassy-transition);
         position: relative;
+        border: none;
     }
 
     .chatbot-toggle::after {
@@ -67,15 +68,17 @@
         top: -30px;
         left: 50%;
         transform: translateX(-50%);
-        background-color: rgba(0, 0, 0, 0.7);
+        background: var(--embassy-header-footer);
         color: white;
-        padding: 5px 10px;
-        border-radius: 4px;
+        padding: 8px 12px;
+        border-radius: var(--embassy-border-radius);
         font-size: 14px;
+        font-weight: 500;
         opacity: 0;
         transition: opacity 0.3s;
         pointer-events: none;
         white-space: nowrap;
+        box-shadow: var(--embassy-card-shadow);
     }
 
     .chatbot-toggle:hover::after {
@@ -84,6 +87,7 @@
 
     .chatbot-toggle:hover {
         transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
     }
 
     .chatbot-container {
@@ -92,9 +96,10 @@
         right: 0;
         width: 380px;
         height: 550px;
-        background-color: var(--bs-dark);
-        border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        background: var(--embassy-bg);
+        border: 1px solid var(--embassy-border);
+        border-radius: var(--embassy-border-radius);
+        box-shadow: var(--embassy-card-shadow-hover);
         display: flex;
         flex-direction: column;
         overflow: hidden;

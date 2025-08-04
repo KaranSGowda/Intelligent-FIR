@@ -16,6 +16,7 @@ def login():
         return redirect(url_for('fir.dashboard'))
 
     if request.method == 'POST':
+        from models import User, Role
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         selected_role = request.form.get('login_as', 'public')  # Default to public if not specified
@@ -82,6 +83,7 @@ def register():
         return redirect(url_for('fir.dashboard'))
 
     if request.method == 'POST':
+        from models import User, Role
         username = request.form.get('username', '').strip()
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')

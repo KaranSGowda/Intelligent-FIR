@@ -176,28 +176,243 @@
         .voice-transcription-tab::before {
             display: none !important;
         }
+        
+        /* Brand styling */
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--embassy-primary), var(--embassy-primary-hover));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .brand-text {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: white;
+        }
+        
+        /* Footer styling */
+        .footer {
+            background: var(--embassy-header-footer);
+            color: var(--embassy-bg);
+            padding: 3rem 0 1rem;
+            margin-top: 4rem;
+        }
+        
+        .footer-section {
+            margin-bottom: 2rem;
+        }
+        
+        .footer-title {
+            color: var(--embassy-bg);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .footer-subtitle {
+            color: var(--embassy-bg);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        
+        .footer-description {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--embassy-transition);
+            display: inline-block;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .social-link {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: var(--embassy-transition);
+        }
+        
+        .social-link:hover {
+            background: var(--embassy-primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+        
+        .footer-divider {
+            border-color: rgba(255, 255, 255, 0.2);
+            margin: 2rem 0 1rem;
+        }
+        
+        .footer-bottom {
+            padding-top: 1rem;
+        }
+        
+        .copyright {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .footer-badges .badge {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        /* Back to top button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--embassy-primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--embassy-transition);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            z-index: 1000;
+        }
+        
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .back-to-top:hover {
+            background: var(--embassy-primary-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+        
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+        
+        .loading-text {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .footer {
+                padding: 2rem 0 1rem;
+            }
+            
+            .footer-section {
+                text-align: center;
+            }
+            
+            .social-links {
+                justify-content: center;
+            }
+            
+            .back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+            }
+        }
     </style>
     {% block styles %}{% endblock %}
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4" style="box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); border-bottom: 3px solid #007bff;">
+    <!-- Modern Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="backdrop-filter: blur(10px); background: rgba(26, 26, 26, 0.95) !important; border-bottom: 1px solid var(--embassy-border);">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('fir.index') }}" style="font-size: 1.4rem; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);">
-                <i class="fas fa-shield-alt me-2" style="color: #007bff;"></i>
-                {{ 'Intelligent FIR System'|translate }}
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
+                <div class="brand-icon me-2">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <span class="brand-text">{{ 'Intelligent FIR System'|translate }}</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto" style="font-weight: 600;">
+                <ul class="navbar-nav ms-auto align-items-center">
                     {% if current_user.is_authenticated %}
                         {% if current_user.is_admin() %}
                         <!-- Admin Navigation -->
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
-                                <i class="fas fa-chart-line me-1"></i> {{ 'Admin Dashboard'|translate }}
+                            <a class="nav-link d-flex align-items-center" href="{{ url_for('admin.dashboard') }}">
+                                <i class="fas fa-chart-line me-2"></i> {{ 'Admin Dashboard'|translate }}
                             </a>
                         </li>
                         <li class="nav-item">
@@ -270,10 +485,27 @@
                     {% else %}
                         <!-- Public User Navigation -->
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.login') }}">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}" id="mainLoginLink">
                                 <i class="fas fa-sign-in-alt me-1"></i> {{ 'Login'|translate }}
                             </a>
                         </li>
+
+    <script>
+    // Force full-page navigation for login link, even if intercepted by modal or SPA code
+    document.addEventListener('DOMContentLoaded', function() {
+        var loginLink = document.getElementById('mainLoginLink');
+        if (loginLink) {
+            loginLink.addEventListener('click', function(e) {
+                // Only force if not already a normal navigation
+                if (e.defaultPrevented) return;
+                if (loginLink.hasAttribute('data-bs-toggle') || loginLink.hasAttribute('data-bs-target')) return;
+                // Always force full page navigation
+                window.location.href = loginLink.href;
+                e.preventDefault();
+            });
+        }
+    });
+    </script>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('auth.register') }}">
                                 <i class="fas fa-user-plus me-1"></i> {{ 'Register'|translate }}
@@ -281,9 +513,10 @@
                         </li>
                     {% endif %}
                 </ul>
-                <!-- Restore original navbar right items: profile/user dropdown and Google Translate as separate items -->
+                <!-- User profile dropdown -->
                 {% if current_user.is_authenticated %}
-                    <li class="nav-item dropdown me-2">
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user-circle me-1"></i>
                             {{ current_user.username }}
@@ -305,17 +538,7 @@
                             </a></li>
                         </ul>
                     </li>
-                {% else %}
-                    <li class="nav-item me-2">
-                        <a class="nav-link" href="{{ url_for('auth.login') }}">
-                            <i class="fas fa-sign-in-alt me-1"></i> {{ 'Login'|translate }}
-                        </a>
-                    </li>
-                    <li class="nav-item me-2">
-                        <a class="nav-link" href="{{ url_for('auth.register') }}">
-                            <i class="fas fa-user-plus me-1"></i> {{ 'Register'|translate }}
-                        </a>
-                    </li>
+                </ul>
                 {% endif %}
             </div>
         </div>
@@ -433,7 +656,7 @@
         });
     </script>
 
-    {% block scripts %}{% endblock %}
+    
     <script>
     // Investigation Notes AJAX (for police/admin)
     document.addEventListener('DOMContentLoaded', function() {
@@ -460,7 +683,7 @@
                     body: new URLSearchParams({note_content: noteContent})
                 })
                 .then(resp => resp.json())
-                .then data => {
+                .then(data => {
                     if (data.success) {
                         // Prepend new note to the list
                         const notesList = document.querySelector('.investigation-notes-list');
@@ -851,5 +1074,364 @@
         z-index: auto !important;
     }
     </style>
+    
+    <!-- Modern Footer -->
+    <footer class="footer mt-auto">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="footer-section">
+                        <h5 class="footer-title">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            {{ 'Intelligent FIR System'|translate }}
+                        </h5>
+                        <p class="footer-description">
+                            {{ 'Transforming police complaint management with AI-powered technology for better efficiency and accuracy.'|translate }}
+                        </p>
+                        <div class="social-links">
+                            <a href="#" class="social-link" aria-label="Facebook">
+                                <i class="fab fa-facebook"></i>
+                            </a>
+                            <a href="#" class="social-link" aria-label="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="social-link" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6">
+                    <div class="footer-section">
+                        <h6 class="footer-subtitle">{{ 'Quick Links'|translate }}</h6>
+                        <ul class="footer-links">
+                            <li><a href="{{ url_for('index') }}">{{ 'Home'|translate }}</a></li>
+                            <li><a href="{{ url_for('fir.new_fir') }}">{{ 'File Complaint'|translate }}</a></li>
+                            <li><a href="{{ url_for('fir.voice_transcription') }}">{{ 'Voice Transcription'|translate }}</a></li>
+<li><a href="{{ url_for('chatbot.test_endpoint') }}">{{ 'Legal Assistant'|translate }}</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6">
+                    <div class="footer-section">
+                        <h6 class="footer-subtitle">{{ 'Support'|translate }}</h6>
+                        <ul class="footer-links">
+                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#helpCenterModal">{{ 'Help Center'|translate }}</a></li>
+                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#contactModal">{{ 'Contact Us'|translate }}</a></li>
+                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#privacyPolicyModal">{{ 'Privacy Policy'|translate }}</a></li>
+                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">{{ 'Terms of Service'|translate }}</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="footer-section">
+                        <h6 class="footer-subtitle">{{ 'Contact Information'|translate }}</h6>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                <span>{{ 'Police Headquarters, City Center'|translate }}</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-phone me-2"></i>
+                                <span>+91 100</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-envelope me-2"></i>
+                                <span>support@intelligentfir.com</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <hr class="footer-divider">
+            
+            <div class="footer-bottom">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="copyright">
+                            © 2024 {{ 'Intelligent FIR System'|translate }}. {{ 'All rights reserved.'|translate }}
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <div class="footer-badges">
+                            <span class="badge bg-success me-2">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                {{ 'Secure'|translate }}
+                            </span>
+                            <span class="badge bg-info me-2">
+                                <i class="fas fa-cloud me-1"></i>
+                                {{ 'Cloud Powered'|translate }}
+                            </span>
+                            <span class="badge bg-warning">
+                                <i class="fas fa-robot me-1"></i>
+                                {{ 'AI Powered'|translate }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="back-to-top" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <!-- Help Center Modal -->
+    <div class="modal fade" id="helpCenterModal" tabindex="-1" aria-labelledby="helpCenterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="helpCenterModalLabel">
+                        <i class="fas fa-question-circle me-2"></i>
+                        {{ 'Help Center'|translate }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="help-section mb-4">
+                        <h6 class="mb-3"><i class="fas fa-file-alt me-2"></i>{{ 'Filing a Complaint'|translate }}</h6>
+                        <p>{{ 'Learn how to file a complaint effectively using our system. Follow our step-by-step guide to ensure your complaint is processed correctly.'|translate }}</p>
+                    </div>
+                    <div class="help-section mb-4">
+                        <h6 class="mb-3"><i class="fas fa-microphone me-2"></i>{{ 'Voice Transcription'|translate }}</h6>
+                        <p>{{ 'Use our voice transcription feature to record your complaint verbally. The system will automatically convert your voice to text.'|translate }}</p>
+                    </div>
+                    <div class="help-section mb-4">
+                        <h6 class="mb-3"><i class="fas fa-robot me-2"></i>{{ 'AI Assistant'|translate }}</h6>
+                        <p>{{ 'Get help from our AI-powered assistant for legal guidance and complaint filing assistance.'|translate }}</p>
+                    </div>
+                    <div class="help-section">
+                        <h6 class="mb-3"><i class="fas fa-search me-2"></i>{{ 'Tracking Your Complaint'|translate }}</h6>
+                        <p>{{ 'Track the status of your complaint using the FIR number provided after submission.'|translate }}</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Close'|translate }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div class="modal fade" id="privacyPolicyModal" tabindex="-1" aria-labelledby="privacyPolicyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="privacyPolicyModalLabel">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        {{ 'Privacy Policy'|translate }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="privacy-section mb-4">
+                        <h6 class="mb-3">{{ 'Information Collection'|translate }}</h6>
+                        <p>{{ 'We collect information necessary for processing your complaints and ensuring proper investigation. This includes personal details, incident information, and any supporting evidence provided.'|translate }}</p>
+                    </div>
+                    <div class="privacy-section mb-4">
+                        <h6 class="mb-3">{{ 'Data Security'|translate }}</h6>
+                        <p>{{ 'Your information is protected using advanced encryption and security measures. Access is restricted to authorized personnel only.'|translate }}</p>
+                    </div>
+                    <div class="privacy-section mb-4">
+                        <h6 class="mb-3">{{ 'Information Usage'|translate }}</h6>
+                        <p>{{ 'Your information is used solely for the purpose of complaint processing, investigation, and communication regarding your case.'|translate }}</p>
+                    </div>
+                    <div class="privacy-section">
+                        <h6 class="mb-3">{{ 'Your Rights'|translate }}</h6>
+                        <p>{{ 'You have the right to access, modify, or request deletion of your personal information, subject to legal requirements.'|translate }}</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Close'|translate }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms of Service Modal -->
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsModalLabel">
+                        <i class="fas fa-gavel me-2"></i>
+                        {{ 'Terms of Service'|translate }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="terms-section mb-4">
+                        <h6 class="mb-3">{{ 'Service Usage'|translate }}</h6>
+                        <p>{{ 'By using our service, you agree to provide accurate and truthful information in your complaints. False complaints may result in legal action.'|translate }}</p>
+                    </div>
+                    <div class="terms-section mb-4">
+                        <h6 class="mb-3">{{ 'User Responsibilities'|translate }}</h6>
+                        <p>{{ 'Users must maintain the confidentiality of their account credentials and not share access with unauthorized individuals.'|translate }}</p>
+                    </div>
+                    <div class="terms-section mb-4">
+                        <h6 class="mb-3">{{ 'Service Availability'|translate }}</h6>
+                        <p>{{ 'While we strive to maintain continuous service availability, we cannot guarantee uninterrupted access to the system.'|translate }}</p>
+                    </div>
+                    <div class="terms-section">
+                        <h6 class="mb-3">{{ 'Modifications'|translate }}</h6>
+                        <p>{{ 'We reserve the right to modify these terms of service. Users will be notified of significant changes.'|translate }}</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Close'|translate }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contactModalLabel">
+                        <i class="fas fa-users me-2"></i>
+                        {{ 'Contact Support Team'|translate }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="contact-person mb-4">
+                        <div class="contact-person-header">
+                            <div class="contact-avatar">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="contact-info">
+                                <h6 class="contact-name">Karan S Gowda</h6>
+                                <span class="contact-role">Admin</span>
+                            </div>
+                        </div>
+                        <div class="contact-details mt-3">
+                            <div class="contact-detail-item">
+                                <i class="fas fa-phone text-primary me-2"></i>
+                                <span>+91 7975591793</span>
+                            </div>
+                            <div class="contact-detail-item">
+                                <i class="fas fa-envelope text-primary me-2"></i>
+                                <span>karansgowda1712@gmail.com</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-person mb-4">
+                        <div class="contact-person-header">
+                            <div class="contact-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="contact-info">
+                                <h6 class="contact-name">Abhishek Tevari</h6>
+                                <span class="contact-role">Support Team</span>
+                            </div>
+                        </div>
+                        <div class="contact-details mt-3">
+                            <div class="contact-detail-item">
+                                <i class="fas fa-phone text-primary me-2"></i>
+                                <span>+91 8310518595</span>
+                            </div>
+                            <div class="contact-detail-item">
+                                <i class="fas fa-envelope text-primary me-2"></i>
+                                <span>abhitevari@gmail.com</span>
+                            </div>
+                            <div class="contact-detail-item">
+                                <i class="fas fa-info-circle text-info me-2"></i>
+                                <span>Available for technical support and assistance</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-person">
+                        <div class="contact-person-header">
+                            <div class="contact-avatar">
+                                <i class="fas fa-user-cog"></i>
+                            </div>
+                            <div class="contact-info">
+                                <h6 class="contact-name">Mohammed Afnan</h6>
+                                <span class="contact-role">Support Team</span>
+                            </div>
+                        </div>
+                        <div class="contact-details mt-3">
+                            <div class="contact-detail-item">
+                                <i class="fas fa-phone text-primary me-2"></i>
+                                <span>+91 6361116966</span>
+                            </div>
+                            <div class="contact-detail-item">
+                                <i class="fas fa-envelope text-primary me-2"></i>
+                                <span>afnanaffu5@gmail.com</span>
+                            </div>
+                            <div class="contact-detail-item">
+                                <i class="fas fa-info-circle text-info me-2"></i>
+                                <span>Available for technical support and assistance</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Close'|translate }}</button>
+                    <a href="mailto:karansgowda1712@gmail.com" class="btn btn-primary">
+                        <i class="fas fa-envelope me-2"></i>
+                        {{ 'Send Email'|translate }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">{{ 'Loading...'|translate }}</p>
+        </div>
+    </div>
+    
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    
+    <script>
+        // Back to top functionality
+        const backToTopButton = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Loading overlay
+        window.addEventListener('load', () => {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 300);
+            }
+        });
+        
+        // Add padding for fixed navbar
+        document.body.style.paddingTop = '80px';
+    </script>
+    
+    {% block scripts %}{% endblock %}
 </body>
 </html>
