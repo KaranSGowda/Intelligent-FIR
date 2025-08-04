@@ -4,430 +4,194 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Intelligent FIR Filing System - AI-powered police complaint management">
-    <meta name="theme-color" content="#212529">
+    <meta name="theme-color" content="#e18456ff">
     <!-- Favicon and app icons -->
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" sizes="16x16 32x32 64x64">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}" sizes="64x64">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon.png') }}">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <title>{% block title %}Intelligent FIR Filing System{% endblock %}</title>
-    <!-- Bootstrap CSS (Bootstrap 5 + Dark Theme) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-    <style>
-        /* Enhanced Navigation Styles */
-        .navbar {
-            padding: 12px 0;
-            transition: all 0.3s ease;
-        }
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/templates/layout.css') }}">
+    {% block extra_css %}{% endblock %}
+<style>
+/* Enhanced Navigation Styles with Orange Theme */
+.navbar {
+    padding: 12px 0;
+    transition: all 0.3s ease;
+    background:#d65a20 !important; /* Dark header */
+}
 
-        .navbar-dark {
-            background: linear-gradient(to right, #1a1e21, #212529) !important;
-        }
+.navbar-brand {
+    position: relative;
+    padding: 8px 15px;
+    border-radius: 5px;
+    overflow: hidden;
+    color: #FFFFFF;
+}
 
-        .navbar-brand {
-            position: relative;
-            padding: 8px 15px;
-            border-radius: 5px;
-            overflow: hidden;
-        }
+.navbar-brand::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(to right, #E9914E, #E4732B); /* Accent to Primary */
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+}
 
-        .navbar-brand::after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(to right, #007bff, #00c6ff);
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s ease;
-        }
+.navbar-brand:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
 
-        .navbar-brand:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
+.nav-item {
+    margin: 0 2px;
+    position: relative;
+}
 
-        .nav-item {
-            margin: 0 2px;
-            position: relative;
-        }
+.nav-link {
+    position: relative;
+    z-index: 1;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+    color: #FDF7EF !important;
+}
 
-        .nav-link {
-            position: relative;
-            z-index: 1;
-            font-size: 15px;
-            letter-spacing: 0.3px;
-        }
+.nav-link:hover {
+    color: #FFFFFF !important;
+}
 
-        .nav-link:hover {
-            color: white !important;
-        }
+.nav-link i {
+    transition: transform 0.3s ease;
+}
 
-        .nav-link i {
-            transition: transform 0.3s ease;
-        }
+.nav-link:hover i {
+    transform: scale(1.2);
+}
 
-        .nav-link:hover i {
-            transform: scale(1.2);
-        }
+/* Active tab indicator */
+.nav-item.active .nav-link {
+    background-color: #F3C497; /* soft orange for active */
+    border-bottom: 3px solid #E9914E;
+    color: #B1451D !important;
+}
 
-        /* Active tab indicator */
-        .nav-item.active .nav-link {
-            background-color: rgba(0, 123, 255, 0.15);
-            border-bottom: 3px solid #007bff;
-        }
+/* Dropdown enhancements */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #FDF7EF;
+}
 
-        /* Dropdown enhancements */
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            padding: 10px;
-        }
+.dropdown-item {
+    border-radius: 5px;
+    padding: 8px 15px;
+    transition: all 0.2s ease;
+    color: #72301C;
+}
 
-        .dropdown-item {
-            border-radius: 5px;
-            padding: 8px 15px;
-            transition: all 0.2s ease;
-        }
+.dropdown-item:hover {
+    background-color: #F3C497;
+    transform: translateX(5px);
+}
 
-        .dropdown-item:hover {
-            background-color: rgba(0, 123, 255, 0.1);
-            transform: translateX(5px);
-        }
+/* Badge enhancements */
+.badge {
+    padding: 5px 8px;
+    font-weight: 600;
+    background-color: #B1451D;
+    color: #FFF;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-        /* Badge enhancements */
-        .badge {
-            padding: 5px 8px;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+/* Voice Transcription Tab Special Styling */
+.voice-transcription-tab {
+    position: relative;
+    animation: pulse 2s infinite;
+}
 
-        /* Voice Transcription Tab Special Styling */
-        .voice-transcription-tab {
-            position: relative;
-            animation: pulse 2s infinite;
-        }
+.voice-transcription-tab::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 5px;
+    z-index: -1;
+    background: linear-gradient(45deg, #E4732B, #E9914E);
+    opacity: 0.3;
+}
 
-        .voice-transcription-tab::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border-radius: 5px;
-            z-index: -1;
-            background: linear-gradient(45deg, #007bff, #00c6ff);
-            opacity: 0.3;
-        }
+.voice-transcription-tab .nav-link:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 12px rgba(228, 115, 43, 0.4) !important;
+    background-color: rgba(228, 115, 43, 0.3) !important;
+}
 
-        .voice-transcription-tab .nav-link:hover {
-            transform: translateY(-3px) !important;
-            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3) !important;
-            background-color: rgba(0, 123, 255, 0.3) !important;
-        }
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
 
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.03);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        /* Make sure the voice transcription tab is always visible */
-        @media (max-width: 991.98px) {
-            .navbar-collapse.show .voice-transcription-tab {
-                background-color: rgba(0, 123, 255, 0.1);
-                margin: 10px 0;
-                border-radius: 5px;
-            }
-        }
-
-        .voice-transcription-tab .nav-link,
-        .voice-transcription-tab .nav-link:hover,
-        .voice-transcription-tab .nav-link:focus,
-        .voice-transcription-tab .nav-link.active {
-            background: none !important;
-            color: #007bff !important;
-            box-shadow: none !important;
-            border: none !important;
-            outline: none !important;
-            transition: none !important;
-        }
-        /* Remove animation and glow for voice transcription tab */
-        .voice-transcription-tab {
-            animation: none !important;
-        }
-        .voice-transcription-tab::before {
-            display: none !important;
-        }
-        
-        /* Brand styling */
-        .brand-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--embassy-primary), var(--embassy-primary-hover));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-        }
-        
-        .brand-text {
-            font-weight: 700;
-            font-size: 1.3rem;
-            color: white;
-        }
-        
-        /* Footer styling */
-        .footer {
-            background: var(--embassy-header-footer);
-            color: var(--embassy-bg);
-            padding: 3rem 0 1rem;
-            margin-top: 4rem;
-        }
-        
-        .footer-section {
-            margin-bottom: 2rem;
-        }
-        
-        .footer-title {
-            color: var(--embassy-bg);
-            font-weight: 600;
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-        }
-        
-        .footer-subtitle {
-            color: var(--embassy-bg);
-            font-weight: 600;
-            margin-bottom: 1rem;
-            font-size: 1rem;
-        }
-        
-        .footer-description {
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-        }
-        
-        .footer-links {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .footer-links li {
-            margin-bottom: 0.5rem;
-        }
-        
-        .footer-links a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            transition: var(--embassy-transition);
-            display: inline-block;
-        }
-        
-        .footer-links a:hover {
-            color: white;
-            transform: translateX(5px);
-        }
-        
-        .social-links {
-            display: flex;
-            gap: 1rem;
-        }
-        
-        .social-link {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-decoration: none;
-            transition: var(--embassy-transition);
-        }
-        
-        .social-link:hover {
-            background: var(--embassy-primary);
-            color: white;
-            transform: translateY(-3px);
-        }
-        
-        .contact-info {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-        
-        .contact-item {
-            display: flex;
-            align-items: center;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
-        }
-        
-        .footer-divider {
-            border-color: rgba(255, 255, 255, 0.2);
-            margin: 2rem 0 1rem;
-        }
-        
-        .footer-bottom {
-            padding-top: 1rem;
-        }
-        
-        .copyright {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            margin: 0;
-        }
-        
-        .footer-badges .badge {
-            font-size: 0.75rem;
-            padding: 0.5rem 0.75rem;
-        }
-        
-        /* Back to top button */
-        .back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: var(--embassy-primary);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--embassy-transition);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(20px);
-            z-index: 1000;
-        }
-        
-        .back-to-top.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-        
-        .back-to-top:hover {
-            background: var(--embassy-primary-hover);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
-        }
-        
-        /* Loading overlay */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.3s ease;
-        }
-        
-        .loading-content {
-            text-align: center;
-            color: white;
-        }
-        
-        .loading-text {
-            margin-top: 1rem;
-            font-size: 1.1rem;
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .footer {
-                padding: 2rem 0 1rem;
-            }
-            
-            .footer-section {
-                text-align: center;
-            }
-            
-            .social-links {
-                justify-content: center;
-            }
-            
-            .back-to-top {
-                bottom: 20px;
-                right: 20px;
-                width: 45px;
-                height: 45px;
-            }
-        }
-    </style>
+/* Make sure the voice transcription tab is always visible */
+@media (max-width: 991.98px) {
+    .navbar-collapse.show .voice-transcription-tab {
+        background-color: rgba(228, 115, 43, 0.1);
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+}
+</style>
     {% block styles %}{% endblock %}
 </head>
 <body>
-    <!-- Modern Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="backdrop-filter: blur(10px); background: rgba(26, 26, 26, 0.95) !important; border-bottom: 1px solid var(--embassy-border);">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4" style="box-shadow: 0 4px 12px #bd741d8f; border-bottom: 3px solid #ffc107;">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
-                <div class="brand-icon me-2">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <span class="brand-text">{{ 'Intelligent FIR System'|translate }}</span>
+            <a class="navbar-brand" href="{{ url_for('fir.index') }}" style="font-size: 1.4rem; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);">
+                <i class="fas fa-shield-alt me-2" style="color: #504e4a;"></i>
+                Intelligent FIR System
             </a>
-            
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
+                <ul class="navbar-nav ms-auto" style="font-weight: 600;">
                     {% if current_user.is_authenticated %}
                         {% if current_user.is_admin() %}
                         <!-- Admin Navigation -->
                         <li class="nav-item">
-                            <a class="nav-link d-flex align-items-center" href="{{ url_for('admin.dashboard') }}">
-                                <i class="fas fa-chart-line me-2"></i> {{ 'Admin Dashboard'|translate }}
+                            <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+                                <i class="fas fa-chart-line me-1"></i> Admin Dashboard
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin.cases') }}">
-                                <i class="fas fa-folder-open me-1"></i> {{ 'Manage Cases'|translate }}
+                                <i class="fas fa-folder-open me-1"></i> Manage Cases
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin.users') }}">
-                                <i class="fas fa-users-cog me-1"></i> {{ 'Manage Users'|translate }}
+                                <i class="fas fa-users-cog me-1"></i> Manage Users
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('legal_sections.index') }}">
-                                <i class="fas fa-gavel me-1"></i> {{ 'Legal Sections'|translate }}
+                                <i class="fas fa-gavel me-1"></i> Legal Sections
                             </a>
                         </li>
 
@@ -453,18 +217,18 @@
                         <!-- Public User Navigation -->
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('fir.dashboard') }}" style="padding: 10px 15px; margin: 0 5px; border-radius: 5px; transition: all 0.3s ease;">
-                                <i class="fas fa-clipboard-list me-1" style="color: #17a2b8;"></i> <span style="font-weight: 600;">{{ 'My Complaints'|translate }}</span>
+                                <i class="fas fa-clipboard-list me-1" style="color: #17a2b8;"></i> <span style="font-weight: 600;">My Complaints</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('fir.new_fir') }}" style="padding: 10px 15px; margin: 0 5px; border-radius: 5px; transition: all 0.3s ease;">
-                                <i class="fas fa-plus-circle me-1" style="color: #28a745;"></i> <span style="font-weight: 600;">{{ 'File New Complaint'|translate }}</span>
+                                <i class="fas fa-plus-circle me-1" style="color: #28a745;"></i> <span style="font-weight: 600;">File New Complaint</span>
                             </a>
                         </li>
                         <li class="nav-item voice-transcription-tab">
-                            <a class="nav-link" href="{{ url_for('fir.voice_transcription') }}" style="padding: 10px 15px; margin: 0 5px; border-radius: 5px; transition: all 0.3s ease; background-color: rgba(0, 123, 255, 0.2); border: 2px solid #007bff; box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);">
-                                <i class="fas fa-microphone me-1" style="color: #007bff; font-size: 18px;"></i>
-                                <span style="font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);">{{ 'Voice Transcription'|translate }}</span>
+                            <a class="nav-link" href="{{ url_for('fir.voice_transcription') }}" style="padding: 10px 15px; margin: 0 5px; border-radius: 5px; transition: all 0.3s ease; background-color: rgba(255, 140, 0, 0.2); border: 2px solid #FF8C00; box-shadow: 0 4px 8px rgba(255, 140, 0, 0.2);">
+                                <i class="fas fa-microphone me-1" style="color: #FF8C00; font-size: 18px;"></i>
+                                <span style="font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);">Voice Transcription</span>
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-left: -15px; margin-top: -5px;">
                                     <i class="fas fa-star fa-xs"></i>
                                 </span>
@@ -477,69 +241,57 @@
                         {% if (current_user.is_admin() or current_user.is_police()) and current_user.is_public() %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('auth.role_select') }}">
-                                <i class="fas fa-exchange-alt me-1"></i> {{ 'Switch Role'|translate }}
+                                <i class="fas fa-exchange-alt me-1"></i> Switch Role
                             </a>
                         </li>
                         {% endif %}
 
+                        <!-- User Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i>
+                                {{ current_user.username }}
+                                {% if current_user.is_admin() %}
+                                <span class="badge bg-danger ms-1">Admin</span>
+                                {% elif current_user.is_police() %}
+                                <span class="badge bg-primary ms-1">Police</span>
+                                {% else %}
+                                <span class="badge bg-info ms-1">Public</span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
+                                    <i class="fas fa-id-card me-2"></i> Profile
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                </a></li>
+                            </ul>
+                        </li>
                     {% else %}
-                        <!-- Public User Navigation -->
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.login') }}" id="mainLoginLink">
-                                <i class="fas fa-sign-in-alt me-1"></i> {{ 'Login'|translate }}
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i> Login
                             </a>
                         </li>
-
-    <script>
-    // Force full-page navigation for login link, even if intercepted by modal or SPA code
-    document.addEventListener('DOMContentLoaded', function() {
-        var loginLink = document.getElementById('mainLoginLink');
-        if (loginLink) {
-            loginLink.addEventListener('click', function(e) {
-                // Only force if not already a normal navigation
-                if (e.defaultPrevented) return;
-                if (loginLink.hasAttribute('data-bs-toggle') || loginLink.hasAttribute('data-bs-target')) return;
-                // Always force full page navigation
-                window.location.href = loginLink.href;
-                e.preventDefault();
-            });
-        }
-    });
-    </script>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('auth.register') }}">
-                                <i class="fas fa-user-plus me-1"></i> {{ 'Register'|translate }}
+                                <i class="fas fa-user-plus me-1"></i> Register
                             </a>
                         </li>
                     {% endif %}
-                </ul>
-                <!-- User profile dropdown -->
-                {% if current_user.is_authenticated %}
-                <ul class="navbar-nav">
+
+                    <!-- Language Selector -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-circle me-1"></i>
-                            {{ current_user.username }}
-                            {% if current_user.is_admin() %}
-                            <span class="badge bg-danger ms-1">{{ 'Admin'|translate }}</span>
-                            {% elif current_user.is_police() %}
-                            <span class="badge bg-primary ms-1">{{ 'Police'|translate }}</span>
-                            {% else %}
-                            <span class="badge bg-info ms-1">{{ 'Public'|translate }}</span>
-                            {% endif %}
+                        <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-language me-1"></i> <span id="currentLanguage">Language</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
-                                <i class="fas fa-id-card me-2"></i> {{ 'Profile'|translate }}
-                            </a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
-                                <i class="fas fa-sign-out-alt me-2"></i> {{ 'Logout'|translate }}
-                            </a></li>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown" id="languageMenu">
+                            <li><div class="dropdown-item text-center"><div class="spinner-border spinner-border-sm" role="status"></div> Loading...</div></li>
                         </ul>
                     </li>
                 </ul>
-                {% endif %}
             </div>
         </div>
     </nav>
@@ -567,10 +319,10 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6 mb-2 mb-md-0">
-                    <p class="mb-1 mb-md-0">&copy; 2025 {{ 'Intelligent FIR Filing System'|translate }}</p>
+                    <p class="mb-1 mb-md-0">&copy; 2025 Intelligent FIR Filing System</p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
-                    <p class="mb-1 mb-md-0">{{ 'AI-Powered Police Complaint Management'|translate }}</p>
+                    <p class="mb-1 mb-md-0">AI-Powered Police Complaint Management</p>
                 </div>
             </div>
         </div>
@@ -588,17 +340,17 @@
             // Add hover effects to nav links
             const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
 
-            // Special handling for voice transcription tab
-            const voiceTranscriptionTab = document.querySelector('.voice-transcription-tab');
-            if (voiceTranscriptionTab) {
-                // Add a subtle glow effect
-                setInterval(function() {
-                    voiceTranscriptionTab.style.boxShadow = '0 0 15px rgba(0, 123, 255, 0.5)';
-                    setTimeout(function() {
-                        voiceTranscriptionTab.style.boxShadow = 'none';
-                    }, 1000);
-                }, 2000);
-            }
+                            // Special handling for voice transcription tab
+                const voiceTranscriptionTab = document.querySelector('.voice-transcription-tab');
+                if (voiceTranscriptionTab) {
+                    // Add a subtle glow effect
+                    setInterval(function() {
+                        voiceTranscriptionTab.style.boxShadow = '0 0 15px rgba(255, 140, 0, 0.5)';
+                        setTimeout(function() {
+                            voiceTranscriptionTab.style.boxShadow = 'none';
+                        }, 1000);
+                    }, 2000);
+                }
 
             navLinks.forEach(link => {
                 // Add hover effect
@@ -623,8 +375,8 @@
 
                 // Highlight active link
                 if (link.getAttribute('href') === window.location.pathname) {
-                    link.style.backgroundColor = 'rgba(0, 123, 255, 0.2)';
-                    link.style.borderBottom = '2px solid #007bff';
+                    link.style.backgroundColor = 'rgba(255, 140, 0, 0.2)';
+                    link.style.borderBottom = '2px solid #FF8C00';
                     link.parentElement.classList.add('active');
 
                     // If this is the voice transcription page, add extra highlighting
@@ -641,7 +393,7 @@
                             notification.style.bottom = '-20px';
                             notification.style.left = '50%';
                             notification.style.transform = 'translateX(-50%)';
-                            notification.style.backgroundColor = '#007bff';
+                            notification.style.backgroundColor = '#FF8C00';
                             notification.style.color = 'white';
                             notification.style.padding = '5px 15px';
                             notification.style.borderRadius = '0 0 10px 10px';
@@ -656,7 +408,7 @@
         });
     </script>
 
-    
+    {% block scripts %}{% endblock %}
     <script>
     // Investigation Notes AJAX (for police/admin)
     document.addEventListener('DOMContentLoaded', function() {
@@ -739,699 +491,5 @@
     {% if current_user.is_authenticated %}
         {% include 'chatbot/widget.html' %}
     {% endif %}
-    <p style="position:fixed;bottom:0;right:0;z-index:9999;background:#fff;color:#000;padding:4px 8px;font-size:12px;">Current language: {{ get_locale() }}</p>
-    <style>
-    /* Style Google Translate dropdown to match navbar */
-    #google-translate-navbar-item {
-        min-width: unset !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: flex-end !important;
-        justify-content: center !important;
-        height: auto !important;
-        position: static !important;
-        right: auto !important;
-        top: auto !important;
-        transform: none !important;
-        z-index: auto !important;
-    }
-    #google-translate-navbar-item .goog-te-gadget {
-        color: #fff !important;
-        font-weight: 500;
-        font-size: 12px;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        justify-content: center;
-        height: 100%;
-    }
-    #google-translate-navbar-item .goog-te-combo {
-        background: #212529;
-        color: #fff;
-        border: 1px solid #444;
-        border-radius: 4px;
-        padding: 2px 6px;
-        margin: 0 0 2px 0;
-        font-size: 12px;
-        width: 130px;
-    }
-    #google-translate-navbar-item .goog-te-gadget-simple {
-        background-color: transparent;
-        border: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        justify-content: center;
-        height: 100%;
-    }
-    #google-translate-navbar-item .goog-te-gadget a {
-        color: rgba(255,255,255,0.7);
-        text-decoration: none;
-        font-size: 10px;
-        margin-top: 2px;
-    }
-    #google-translate-navbar-item .goog-te-gadget a:hover {
-        color: #fff;
-        text-decoration: none;
-    }
-    /* Ensure navbar brand is fully visible */
-    .navbar-brand {
-        font-size: 1.4rem !important;
-        white-space: nowrap;
-        margin-right: 40px !important;
-        padding-right: 20px !important;
-    }
-    /* Add extra space between brand and other navbar items */
-    .navbar > .container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-    }
-    /* Container spacing */
-    .navbar > .container {
-        display: flex !important;
-        justify-content: flex-start !important;
-        align-items: center !important;
-        gap: 30px !important;
-        padding-right: 180px !important; /* Make room for the translate widget */
-    }
-
-    /* Brand styling */
-    .navbar-brand {
-        font-size: 1.4rem !important;
-        white-space: nowrap !important;
-        margin-right: 60px !important;
-        padding-right: 30px !important;
-        flex-shrink: 0 !important;
-        min-width: max-content !important;
-    }
-
-    /* Navigation items styling */
-    .navbar-nav {
-        display: flex !important;
-        align-items: center !important;
-        gap: 15px !important;
-        margin-right: 170px !important;
-    }
-
-    .nav-item {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    .nav-link {
-        padding: 8px 15px !important;
-        border-radius: 5px !important;
-        transition: all 0.3s ease !important;
-        white-space: nowrap !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-    }
-
-    .nav-link:hover {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        transform: translateY(-1px) !important;
-    }
-
-    .nav-link i {
-        font-size: 16px !important;
-    }
-
-    /* Special buttons styling */
-    .nav-link.btn-primary-soft {
-        background-color: rgba(0, 123, 255, 0.1) !important;
-        color: #fff !important;
-        border: 1px solid rgba(0, 123, 255, 0.3) !important;
-    }
-
-    .nav-link.btn-primary-soft:hover {
-        background-color: rgba(0, 123, 255, 0.2) !important;
-    }
-
-    /* Voice transcription button */
-    .voice-transcription-tab .nav-link {
-        background-color: rgba(0, 123, 255, 0.15) !important;
-        border: 1px solid rgba(0, 123, 255, 0.4) !important;
-        padding: 10px 20px !important;
-    }
-
-    .voice-transcription-tab .nav-link:hover {
-        background-color: rgba(0, 123, 255, 0.25) !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
-    }
-
-    /* Google Translate positioning */
-    #google-translate-navbar-item {
-        position: absolute !important;
-        right: 10px !important;
-        top: 50% !important;
-        transform: translateY(-50%) !important;
-        min-width: 160px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: flex-end !important;
-        justify-content: center !important;
-        height: auto !important;
-        padding-left: 20px !important;
-        z-index: 1030 !important;
-    }
-
-    #google-translate-navbar-item .goog-te-gadget {
-        color: #fff !important;
-        font-weight: 500;
-        font-size: 11px;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-    }
-
-    #google-translate-navbar-item .goog-te-combo {
-        background: #212529;
-        color: #fff;
-        border: 1px solid #444;
-        border-radius: 4px;
-        padding: 2px 6px;
-        margin: 0 0 2px 0;
-        font-size: 11px;
-        width: 120px;
-    }
-
-    #google-translate-navbar-item .goog-te-gadget a {
-        color: rgba(255,255,255,0.7);
-        text-decoration: none;
-        font-size: 9px;
-        margin-top: 1px;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 991.98px) {
-        .navbar-nav {
-            margin-right: 0 !important;
-            gap: 10px !important;
-            padding: 15px 0 !important;
-        }
-        
-        .nav-link {
-            padding: 10px 15px !important;
-        }
-        
-        #google-translate-navbar-item {
-            position: relative !important;
-            transform: none !important;
-            right: auto !important;
-            top: auto !important;
-            margin-top: 15px !important;
-            width: 100% !important;
-            align-items: center !important;
-        }
-    }
-
-    /* Add spacing to user/profile dropdown */
-    .navbar-nav .dropdown:last-child {
-        margin-right: 60px !important;
-    }
-
-    /* Add extra space to the Google Translate widget */
-    #google-translate-navbar-item {
-        min-width: 180px !important;
-        margin-left: 30px !important;
-        margin-right: 10px !important;
-    }
-
-    /* Responsive fix for right-side items */
-    @media (max-width: 1200px) {
-        .navbar-nav .dropdown:last-child {
-            margin-right: 20px !important;
-        }
-        #google-translate-navbar-item {
-            min-width: 140px !important;
-            margin-left: 10px !important;
-        }
-    }
-    /* New styles for the flex container */
-    .navbar-right-items {
-        gap: 32px !important;
-        min-width: 350px !important;
-        margin-left: auto !important;
-    }
-
-    @media (max-width: 1200px) {
-        .navbar-right-items {
-            gap: 16px !important;
-            min-width: 200px !important;
-        }
-        #google-translate-navbar-item {
-            min-width: 120px !important;
-        }
-    }
-    @media (max-width: 991.98px) {
-        .navbar-right-items {
-            flex-direction: column !important;
-            align-items: flex-end !important;
-            min-width: 100px !important;
-            gap: 8px !important;
-        }
-        #google-translate-navbar-item {
-            min-width: 100px !important;
-        }
-    }
-    /* Remove previous right margin and absolute positioning for translate widget */
-    #google-translate-navbar-item {
-        min-width: 180px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: flex-end !important;
-        justify-content: center !important;
-        height: auto !important;
-        position: static !important;
-        right: auto !important;
-        top: auto !important;
-        transform: none !important;
-        z-index: auto !important;
-    }
-
-    .navbar-right-items {
-        gap: 32px !important;
-        min-width: 350px !important;
-        margin-left: auto !important;
-    }
-
-    @media (max-width: 1200px) {
-        .navbar-right-items {
-            gap: 16px !important;
-            min-width: 200px !important;
-        }
-        #google-translate-navbar-item {
-            min-width: 120px !important;
-        }
-    }
-    @media (max-width: 991.98px) {
-        .navbar-right-items {
-            flex-direction: column !important;
-            align-items: flex-end !important;
-            min-width: 100px !important;
-            gap: 8px !important;
-        }
-        #google-translate-navbar-item {
-            min-width: 100px !important;
-        }
-    }
-    #navbar-more-menu .dropdown-toggle {
-        font-size: 1.4rem;
-        padding: 8px 12px;
-        display: flex;
-        align-items: center;
-    }
-    #navbar-more-menu .dropdown-menu {
-        min-width: 220px;
-    }
-    #google-translate-navbar-item {
-        min-width: 180px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: flex-end !important;
-        justify-content: center !important;
-        height: auto !important;
-        position: static !important;
-        right: auto !important;
-        top: auto !important;
-        transform: none !important;
-        z-index: auto !important;
-    }
-    </style>
-    
-    <!-- Modern Footer -->
-    <footer class="footer mt-auto">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-lg-4">
-                    <div class="footer-section">
-                        <h5 class="footer-title">
-                            <i class="fas fa-shield-alt me-2"></i>
-                            {{ 'Intelligent FIR System'|translate }}
-                        </h5>
-                        <p class="footer-description">
-                            {{ 'Transforming police complaint management with AI-powered technology for better efficiency and accuracy.'|translate }}
-                        </p>
-                        <div class="social-links">
-                            <a href="#" class="social-link" aria-label="Facebook">
-                                <i class="fab fa-facebook"></i>
-                            </a>
-                            <a href="#" class="social-link" aria-label="Twitter">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                            <a href="#" class="social-link" aria-label="LinkedIn">
-                                <i class="fab fa-linkedin"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-lg-2 col-md-6">
-                    <div class="footer-section">
-                        <h6 class="footer-subtitle">{{ 'Quick Links'|translate }}</h6>
-                        <ul class="footer-links">
-                            <li><a href="{{ url_for('index') }}">{{ 'Home'|translate }}</a></li>
-                            <li><a href="{{ url_for('fir.new_fir') }}">{{ 'File Complaint'|translate }}</a></li>
-                            <li><a href="{{ url_for('fir.voice_transcription') }}">{{ 'Voice Transcription'|translate }}</a></li>
-<li><a href="{{ url_for('chatbot.test_endpoint') }}">{{ 'Legal Assistant'|translate }}</a></li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div class="col-lg-2 col-md-6">
-                    <div class="footer-section">
-                        <h6 class="footer-subtitle">{{ 'Support'|translate }}</h6>
-                        <ul class="footer-links">
-                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#helpCenterModal">{{ 'Help Center'|translate }}</a></li>
-                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#contactModal">{{ 'Contact Us'|translate }}</a></li>
-                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#privacyPolicyModal">{{ 'Privacy Policy'|translate }}</a></li>
-                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">{{ 'Terms of Service'|translate }}</a></li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div class="col-lg-4">
-                    <div class="footer-section">
-                        <h6 class="footer-subtitle">{{ 'Contact Information'|translate }}</h6>
-                        <div class="contact-info">
-                            <div class="contact-item">
-                                <i class="fas fa-map-marker-alt me-2"></i>
-                                <span>{{ 'Police Headquarters, City Center'|translate }}</span>
-                            </div>
-                            <div class="contact-item">
-                                <i class="fas fa-phone me-2"></i>
-                                <span>+91 100</span>
-                            </div>
-                            <div class="contact-item">
-                                <i class="fas fa-envelope me-2"></i>
-                                <span>support@intelligentfir.com</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <hr class="footer-divider">
-            
-            <div class="footer-bottom">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <p class="copyright">
-                            © 2024 {{ 'Intelligent FIR System'|translate }}. {{ 'All rights reserved.'|translate }}
-                        </p>
-                    </div>
-                    <div class="col-md-6 text-md-end">
-                        <div class="footer-badges">
-                            <span class="badge bg-success me-2">
-                                <i class="fas fa-shield-alt me-1"></i>
-                                {{ 'Secure'|translate }}
-                            </span>
-                            <span class="badge bg-info me-2">
-                                <i class="fas fa-cloud me-1"></i>
-                                {{ 'Cloud Powered'|translate }}
-                            </span>
-                            <span class="badge bg-warning">
-                                <i class="fas fa-robot me-1"></i>
-                                {{ 'AI Powered'|translate }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-    
-    <!-- Back to Top Button -->
-    <button id="backToTop" class="back-to-top" aria-label="Back to top">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-    
-    <!-- Help Center Modal -->
-    <div class="modal fade" id="helpCenterModal" tabindex="-1" aria-labelledby="helpCenterModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="helpCenterModalLabel">
-                        <i class="fas fa-question-circle me-2"></i>
-                        {{ 'Help Center'|translate }}
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="help-section mb-4">
-                        <h6 class="mb-3"><i class="fas fa-file-alt me-2"></i>{{ 'Filing a Complaint'|translate }}</h6>
-                        <p>{{ 'Learn how to file a complaint effectively using our system. Follow our step-by-step guide to ensure your complaint is processed correctly.'|translate }}</p>
-                    </div>
-                    <div class="help-section mb-4">
-                        <h6 class="mb-3"><i class="fas fa-microphone me-2"></i>{{ 'Voice Transcription'|translate }}</h6>
-                        <p>{{ 'Use our voice transcription feature to record your complaint verbally. The system will automatically convert your voice to text.'|translate }}</p>
-                    </div>
-                    <div class="help-section mb-4">
-                        <h6 class="mb-3"><i class="fas fa-robot me-2"></i>{{ 'AI Assistant'|translate }}</h6>
-                        <p>{{ 'Get help from our AI-powered assistant for legal guidance and complaint filing assistance.'|translate }}</p>
-                    </div>
-                    <div class="help-section">
-                        <h6 class="mb-3"><i class="fas fa-search me-2"></i>{{ 'Tracking Your Complaint'|translate }}</h6>
-                        <p>{{ 'Track the status of your complaint using the FIR number provided after submission.'|translate }}</p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Close'|translate }}</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Privacy Policy Modal -->
-    <div class="modal fade" id="privacyPolicyModal" tabindex="-1" aria-labelledby="privacyPolicyModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="privacyPolicyModalLabel">
-                        <i class="fas fa-shield-alt me-2"></i>
-                        {{ 'Privacy Policy'|translate }}
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="privacy-section mb-4">
-                        <h6 class="mb-3">{{ 'Information Collection'|translate }}</h6>
-                        <p>{{ 'We collect information necessary for processing your complaints and ensuring proper investigation. This includes personal details, incident information, and any supporting evidence provided.'|translate }}</p>
-                    </div>
-                    <div class="privacy-section mb-4">
-                        <h6 class="mb-3">{{ 'Data Security'|translate }}</h6>
-                        <p>{{ 'Your information is protected using advanced encryption and security measures. Access is restricted to authorized personnel only.'|translate }}</p>
-                    </div>
-                    <div class="privacy-section mb-4">
-                        <h6 class="mb-3">{{ 'Information Usage'|translate }}</h6>
-                        <p>{{ 'Your information is used solely for the purpose of complaint processing, investigation, and communication regarding your case.'|translate }}</p>
-                    </div>
-                    <div class="privacy-section">
-                        <h6 class="mb-3">{{ 'Your Rights'|translate }}</h6>
-                        <p>{{ 'You have the right to access, modify, or request deletion of your personal information, subject to legal requirements.'|translate }}</p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Close'|translate }}</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Terms of Service Modal -->
-    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="termsModalLabel">
-                        <i class="fas fa-gavel me-2"></i>
-                        {{ 'Terms of Service'|translate }}
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="terms-section mb-4">
-                        <h6 class="mb-3">{{ 'Service Usage'|translate }}</h6>
-                        <p>{{ 'By using our service, you agree to provide accurate and truthful information in your complaints. False complaints may result in legal action.'|translate }}</p>
-                    </div>
-                    <div class="terms-section mb-4">
-                        <h6 class="mb-3">{{ 'User Responsibilities'|translate }}</h6>
-                        <p>{{ 'Users must maintain the confidentiality of their account credentials and not share access with unauthorized individuals.'|translate }}</p>
-                    </div>
-                    <div class="terms-section mb-4">
-                        <h6 class="mb-3">{{ 'Service Availability'|translate }}</h6>
-                        <p>{{ 'While we strive to maintain continuous service availability, we cannot guarantee uninterrupted access to the system.'|translate }}</p>
-                    </div>
-                    <div class="terms-section">
-                        <h6 class="mb-3">{{ 'Modifications'|translate }}</h6>
-                        <p>{{ 'We reserve the right to modify these terms of service. Users will be notified of significant changes.'|translate }}</p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Close'|translate }}</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Contact Modal -->
-    <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="contactModalLabel">
-                        <i class="fas fa-users me-2"></i>
-                        {{ 'Contact Support Team'|translate }}
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="contact-person mb-4">
-                        <div class="contact-person-header">
-                            <div class="contact-avatar">
-                                <i class="fas fa-user-tie"></i>
-                            </div>
-                            <div class="contact-info">
-                                <h6 class="contact-name">Karan S Gowda</h6>
-                                <span class="contact-role">Admin</span>
-                            </div>
-                        </div>
-                        <div class="contact-details mt-3">
-                            <div class="contact-detail-item">
-                                <i class="fas fa-phone text-primary me-2"></i>
-                                <span>+91 7975591793</span>
-                            </div>
-                            <div class="contact-detail-item">
-                                <i class="fas fa-envelope text-primary me-2"></i>
-                                <span>karansgowda1712@gmail.com</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="contact-person mb-4">
-                        <div class="contact-person-header">
-                            <div class="contact-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="contact-info">
-                                <h6 class="contact-name">Abhishek Tevari</h6>
-                                <span class="contact-role">Support Team</span>
-                            </div>
-                        </div>
-                        <div class="contact-details mt-3">
-                            <div class="contact-detail-item">
-                                <i class="fas fa-phone text-primary me-2"></i>
-                                <span>+91 8310518595</span>
-                            </div>
-                            <div class="contact-detail-item">
-                                <i class="fas fa-envelope text-primary me-2"></i>
-                                <span>abhitevari@gmail.com</span>
-                            </div>
-                            <div class="contact-detail-item">
-                                <i class="fas fa-info-circle text-info me-2"></i>
-                                <span>Available for technical support and assistance</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="contact-person">
-                        <div class="contact-person-header">
-                            <div class="contact-avatar">
-                                <i class="fas fa-user-cog"></i>
-                            </div>
-                            <div class="contact-info">
-                                <h6 class="contact-name">Mohammed Afnan</h6>
-                                <span class="contact-role">Support Team</span>
-                            </div>
-                        </div>
-                        <div class="contact-details mt-3">
-                            <div class="contact-detail-item">
-                                <i class="fas fa-phone text-primary me-2"></i>
-                                <span>+91 6361116966</span>
-                            </div>
-                            <div class="contact-detail-item">
-                                <i class="fas fa-envelope text-primary me-2"></i>
-                                <span>afnanaffu5@gmail.com</span>
-                            </div>
-                            <div class="contact-detail-item">
-                                <i class="fas fa-info-circle text-info me-2"></i>
-                                <span>Available for technical support and assistance</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Close'|translate }}</button>
-                    <a href="mailto:karansgowda1712@gmail.com" class="btn btn-primary">
-                        <i class="fas fa-envelope me-2"></i>
-                        {{ 'Send Email'|translate }}
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <p class="loading-text">{{ 'Loading...'|translate }}</p>
-        </div>
-    </div>
-    
-    <!-- JavaScript -->
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-    
-    <script>
-        // Back to top functionality
-        const backToTopButton = document.getElementById('backToTop');
-        
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                backToTopButton.classList.add('show');
-            } else {
-                backToTopButton.classList.remove('show');
-            }
-        });
-        
-        backToTopButton.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-        
-        // Loading overlay
-        window.addEventListener('load', () => {
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            if (loadingOverlay) {
-                loadingOverlay.style.opacity = '0';
-                setTimeout(() => {
-                    loadingOverlay.style.display = 'none';
-                }, 300);
-            }
-        });
-        
-        // Add padding for fixed navbar
-        document.body.style.paddingTop = '80px';
-    </script>
-    
-    {% block scripts %}{% endblock %}
 </body>
 </html>

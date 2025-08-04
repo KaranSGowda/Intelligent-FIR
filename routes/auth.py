@@ -1,5 +1,3 @@
-# Add session test route after Blueprint is defined
-
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -12,87 +10,56 @@ logger = logging.getLogger(__name__)
 
 auth_bp = Blueprint('auth', __name__)
 
-# Add session test route after Blueprint is defined
-@auth_bp.route('/session_test')
-def session_test():
-    from flask_login import current_user
-    if current_user.is_authenticated:
-        return f"[SESSION TEST] Logged in as: {current_user.username} (role: {current_user.role})"
-    else:
-        return "[SESSION TEST] Not logged in."
-
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        print("[DEBUG] User already authenticated, redirecting to dashboard")
         return redirect(url_for('fir.dashboard'))
 
-    print("[DEBUG] Login page accessed, method:", request.method)
-
     if request.method == 'POST':
-        print("[DEBUG] Login form submitted")
-        from models import User, Role
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
-
-        print(f"[DEBUG] Login attempt: username={username}")
+        selected_role = request.form.get('login_as', 'public')  # Default to public if not specified
 
         # Input validation
         if not username or not password:
-            print("[DEBUG] Missing username or password")
             flash('Username and password are required.', 'danger')
             return render_template('login.html')
 
         try:
-            print("[DEBUG] Querying user from database...")
             user = User.query.filter_by(username=username).first()
-            if not user:
-                print("[DEBUG] User not found")
-                flash('Incorrect username or password.', 'danger')
-                return render_template('login.html')
-            else:
-                print(f"[DEBUG] User found: {user.username}, role={user.role}")
 
-            print("[DEBUG] Checking password...")
-            if not user.check_password(password):
-                print("[DEBUG] Incorrect password")
-                flash('Incorrect username or password.', 'danger')
+            if not user or not user.check_password(password):
+                flash('Invalid username or password.', 'danger')
                 return render_template('login.html')
-            else:
-                print("[DEBUG] Password check passed")
         except Exception as e:
             logger.error(f"Login error: {str(e)}")
-            print(f"[DEBUG] Login error: {str(e)}")
             flash('An error occurred during login. Please try again.', 'danger')
+            return render_template('login.html')
+
+        # Check if user has permission for the selected role
+        if (selected_role == 'admin' and not user.is_admin()) or \
+           (selected_role == 'police' and not user.is_police()):
+            flash('You do not have permission to log in with the selected role.', 'danger')
             return render_template('login.html')
 
         try:
-            print("[DEBUG] Logging in user...")
             login_user(user, remember=True)
-            logger.info(f"User {username} logged in successfully with role {user.role}")
-            print(f"[DEBUG] User {username} logged in successfully with role {user.role}")
+            logger.info(f"User {username} logged in successfully with role {selected_role}")
             flash('Logged in successfully.', 'success')
 
-            # Redirect based on user's actual role
-            if user.is_admin():
-                print("[DEBUG] Redirecting to admin dashboard")
+            # Redirect based on selected role
+            if selected_role == 'admin':
                 return redirect(url_for('admin.dashboard'))
-            elif user.is_police():
-                print("[DEBUG] Redirecting to admin cases")
+            elif selected_role == 'police':
                 return redirect(url_for('admin.cases'))
             else:  # Public user
-                print("[DEBUG] Redirecting to fir dashboard")
                 return redirect(url_for('fir.dashboard'))
         except Exception as e:
             logger.error(f"Login session error: {str(e)}")
-            print(f"[DEBUG] Login session error: {str(e)}")
             flash('An error occurred during login. Please try again.', 'danger')
             return render_template('login.html')
 
-    print("[DEBUG] Rendering login page (GET or failed POST)")
     return render_template('login.html')
-
-    # ...existing register logic here...
 
 @auth_bp.route('/role-select')
 @login_required
@@ -109,14 +76,12 @@ def role_select():
     # Otherwise, show the role selection page
     return render_template('role_select.html')
 
-
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('fir.dashboard'))
 
     if request.method == 'POST':
-        from models import User, Role
         username = request.form.get('username', '').strip()
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
@@ -125,27 +90,21 @@ def register():
         address = request.form.get('address', '').strip()
         role = request.form.get('role', 'public').strip().lower()
 
-        print(f"[DEBUG] Registration attempt: username={username}, email={email}, role={role}")
-
         # Input validation
         if not username or not email or not password or not full_name:
-            print("[DEBUG] Missing required fields")
             flash('Username, email, password, and full name are required.', 'danger')
             return render_template('register.html')
 
         if len(password) < 6:
-            print("[DEBUG] Password too short")
             flash('Password must be at least 6 characters long.', 'danger')
             return render_template('register.html')
 
         # Basic email validation
         if '@' not in email or '.' not in email:
-            print("[DEBUG] Invalid email format")
             flash('Please enter a valid email address.', 'danger')
             return render_template('register.html')
 
         if role not in [Role.PUBLIC, Role.POLICE, Role.ADMIN]:
-            print(f"[DEBUG] Invalid role: {role}")
             flash('Invalid role selected.', 'danger')
             return render_template('register.html')
 
@@ -153,33 +112,31 @@ def register():
             # Check if username or email already exists
             user_exists = User.query.filter((User.username == username) | (User.email == email)).first()
             if user_exists:
-                print("[DEBUG] Username or email already exists")
                 flash('Username or email already exists.', 'danger')
                 return render_template('register.html')
         except Exception as e:
             logger.error(f"Registration validation error: {str(e)}")
-            print(f"[DEBUG] Registration validation error: {str(e)}")
             flash('An error occurred during registration. Please try again.', 'danger')
             return render_template('register.html')
 
         try:
-            user = User()
-            user.username = username
-            user.email = email
-            user.full_name = full_name
-            user.role = role
-            user.phone = phone if phone else None
-            user.address = address if address else None
-            user.set_password(password)
-            db.session.add(user)
+            # Create new user with selected role
+            new_user = User()
+            new_user.username = username
+            new_user.email = email
+            new_user.full_name = full_name
+            new_user.phone = phone if phone else None
+            new_user.address = address if address else None
+            new_user.role = role
+            new_user.set_password(password)
+
+            db.session.add(new_user)
             db.session.commit()
-            print(f"[DEBUG] Registration successful for {username}")
             flash(f'Registration successful! You can now log in as a {role} user.', 'success')
             return redirect(url_for('auth.login'))
         except Exception as e:
             db.session.rollback()
             logger.error(f"Registration error: {str(e)}")
-            print(f"[DEBUG] Registration error: {str(e)}")
             flash('An error occurred during registration. Please try again.', 'danger')
             return render_template('register.html')
 

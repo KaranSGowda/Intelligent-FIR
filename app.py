@@ -1,12 +1,11 @@
 import os
 import logging
-from flask import Flask, session, request, redirect, url_for
+from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
 
 # Import extensions
 from extensions import db, login_manager
-from utils.translation import translate_text
 
 # Try to load environment variables from .env file
 try:
@@ -20,14 +19,10 @@ except ImportError:
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-
 def create_app():
     # create the app
     app = Flask(__name__)
-    # Add a dummy translate filter so |translate in templates does not error
-    app.jinja_env.filters['translate'] = lambda s: s
     app.secret_key = os.environ.get("SESSION_SECRET", "development_key")
-    print(f"[DEBUG] Flask secret key: {app.secret_key}")  # REMOVE THIS LINE AFTER DEBUGGING
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
     # Enable CORS
@@ -63,9 +58,6 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"  # type: ignore
-
-
-
 
     with app.app_context():
         # Import models to ensure they're registered with SQLAlchemy
@@ -136,27 +128,7 @@ def create_app():
     return app
 
 # Create the application instance
-
 app = create_app()
 
-# Register dummy translate filter after app is created
-app.jinja_env.filters['translate'] = lambda s: s
-
-
-# Inject dummy _ and get_locale functions so templates using _('...') and get_locale() do not error
-@app.context_processor
-def inject_template_globals():
-    return {
-        '_': lambda s: s,
-        'get_locale': lambda: 'en'
-    }
-
 if __name__ == '__main__':
-    @app.route('/routes')
-    def list_routes():
-        output = []
-        for rule in app.url_map.iter_rules():
-            methods = ','.join(sorted(rule.methods or []))
-            output.append(f"{rule.rule} [{methods}] => {rule.endpoint}")
-        return '<br>'.join(sorted(output))
     app.run(debug=True, host='0.0.0.0', port=5000)

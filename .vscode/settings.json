@@ -3,5 +3,8 @@
     "python.analysis.extraPaths": [
         "${workspaceFolder}"
     ],
-    "python.linting.enabled": true
+    "python.linting.enabled": true,
+    "cursorpyright.analysis.extraPaths": [
+        "${workspaceFolder}"
+    ]
 }

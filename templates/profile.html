@@ -2,6 +2,10 @@
 
 {% block title %}My Profile - Intelligent FIR Filing System{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/templates/profile.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
