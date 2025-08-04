@@ -1,0 +1,302 @@
+/* Login Template Styles */
+
+body {
+    background-color: #FDF2EC;
+}
+
+/* Login Container */
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--embassy-bg) 0%, var(--embassy-section-bg) 100%);
+    padding: 20px;
+}
+
+.login-card {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(214, 90, 32, 0.1);
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--embassy-primary), var(--embassy-accent));
+}
+
+/* Login Header */
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-logo {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--embassy-primary), var(--embassy-accent));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+    font-size: 2rem;
+}
+
+.login-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--embassy-text-main);
+    margin-bottom: 10px;
+    font-family: 'Poppins', 'Nunito', 'Merriweather', serif;
+}
+
+.login-subtitle {
+    color: var(--embassy-text-secondary);
+    font-size: 1rem;
+}
+
+/* Form Styles */
+.login-form {
+    margin-top: 30px;
+}
+
+.form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--embassy-text-main);
+    font-size: 0.95rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #e1e5e9;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--embassy-primary);
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(214, 90, 32, 0.1);
+}
+
+.form-control.error {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+/* Input Group with Icons */
+.input-group {
+    position: relative;
+}
+
+.input-group-text {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--embassy-accent);
+    z-index: 2;
+}
+
+.input-group .form-control {
+    padding-left: 50px;
+}
+
+/* Role Selection */
+.role-selector {
+    margin-bottom: 25px;
+}
+
+.role-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.role-option {
+    flex: 1;
+    min-width: 120px;
+}
+
+.role-option input[type="radio"] {
+    display: none;
+}
+
+.role-option label {
+    display: block;
+    padding: 12px 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    font-weight: 500;
+    color: var(--embassy-text-secondary);
+}
+
+.role-option input[type="radio"]:checked + label {
+    border-color: var(--embassy-primary);
+    background-color: var(--embassy-primary);
+    color: white;
+}
+
+.role-option label:hover {
+    border-color: var(--embassy-accent);
+    background-color: var(--embassy-section-bg);
+}
+
+/* Submit Button */
+.login-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--embassy-primary), var(--embassy-accent));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(214, 90, 32, 0.3);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+}
+
+/* Links */
+.login-links {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid #e1e5e9;
+}
+
+.login-links a {
+    color: var(--embassy-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.login-links a:hover {
+    color: var(--embassy-primary-hover);
+}
+
+/* Error Messages */
+.error-message {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Success Messages */
+.success-message {
+    color: #FF8C00;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Loading State */
+.login-btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.login-btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+    .login-card {
+        padding: 30px 20px;
+        margin: 10px;
+    }
+    
+    .login-title {
+        font-size: 1.8rem;
+    }
+    
+    .role-options {
+        flex-direction: column;
+    }
+    
+    .role-option {
+        min-width: auto;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .login-card {
+        background-color: #8B4513;
+        color: white;
+    }
+    
+    .form-control {
+        background-color: #A0522D;
+        border-color: #A0522D;
+        color: white;
+    }
+    
+    .form-control:focus {
+        background-color: #8B4513;
+    }
+    
+    .role-option label {
+        background-color: #A0522D;
+        border-color: #A0522D;
+        color: #FDF2EC;
+    }
+} 

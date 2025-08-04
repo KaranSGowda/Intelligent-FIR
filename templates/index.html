@@ -2,604 +2,95 @@
 
 {% block title %}Intelligent FIR Filing System - Home{% endblock %}
 
-{% block content %}
-<!-- Hero Section -->
-<div class="hero-section py-5 mb-5">
-    <div class="container">
-        <div class="row justify-content-center align-items-center">
-            <div class="col-lg-6 mb-4 mb-lg-0 fade-in">
-                <h1 class="display-3 fw-bold mb-4 text-gradient hero-main-title">
-                    {{ _('AI-Powered FIR Filing') }}
-                </h1>
-                <p class="lead mb-4">
-                    {{ _('Our intelligent system simplifies the process of filing police complaints, transforming spoken words into professionally structured documents with automatic legal section mapping.') }}
-                </p>
-                
-                <!-- Feature Highlights -->
-                <div class="feature-highlights mb-4">
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <div class="feature-item d-flex align-items-center">
-                                <div class="feature-icon me-3">
-                                    <i class="fas fa-microphone text-primary"></i>
-                                </div>
-                                <span class="feature-text">{{ _('Voice-to-text') }}</span>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="feature-item d-flex align-items-center">
-                                <div class="feature-icon me-3">
-                                    <i class="fas fa-gavel text-success"></i>
-                                </div>
-                                <span class="feature-text">{{ _('Legal Mapping') }}</span>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="feature-item d-flex align-items-center">
-                                <div class="feature-icon me-3">
-                                    <i class="fas fa-file-alt text-info"></i>
-                                </div>
-                                <span class="feature-text">{{ _('PDF Generation') }}</span>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="feature-item d-flex align-items-center">
-                                <div class="feature-icon me-3">
-                                    <i class="fas fa-mobile-alt text-warning"></i>
-                                </div>
-                                <span class="feature-text">{{ _('Mobile Ready') }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="action-buttons d-grid gap-3 d-md-flex">
-                    {% if current_user.is_authenticated %}
-                        {% if current_user.is_admin() or current_user.is_police() %}
-                            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary btn-lg px-4 scale-in">
-                                {{ _('Go to Dashboard') }} <i class="fas fa-arrow-right ms-2"></i>
-                            </a>
-                        {% else %}
-                            <a href="{{ url_for('fir.new_fir') }}" class="btn btn-primary btn-lg px-4 scale-in">
-                                {{ _('File a New Complaint') }} <i class="fas fa-file-alt ms-2"></i>
-                            </a>
-                            <a href="{{ url_for('fir.voice_transcription') }}" class="btn btn-outline-primary btn-lg px-4 scale-in">
-                                {{ _('Voice Transcription') }} <i class="fas fa-microphone ms-2"></i>
-                            </a>
-                        {% endif %}
-                    {% else %}
-                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg px-4 scale-in">
-                            {{ _('Login') }} <i class="fas fa-sign-in-alt ms-2"></i>
-                        </a>
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-secondary btn-lg px-4 scale-in">
-                            {{ _('Register') }} <i class="fas fa-user-plus ms-2"></i>
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- Hero Visual -->
-            <div class="col-lg-6 slide-up">
-                <div class="hero-visual position-relative">
-                    <div class="card bg-gradient-primary border-0 shadow-lg p-4">
-                        <div class="card-body text-center">
-                            <div class="hero-icon mb-4">
-                                <i class="fas fa-shield-alt fa-6x text-white opacity-75"></i>
-                            </div>
-                            <h2 class="card-title mb-4 text-white fw-bold display-5">{{ 'How It Works'|translate }}</h2>
-                            
-                            <!-- Process Steps -->
-                            <div class="process-steps">
-                                <div class="row g-4">
-                                    <div class="col-md-6">
-                                        <div class="process-step">
-                                            <div class="step-icon mb-3">
-                                                <i class="fas fa-microphone fa-2x text-white"></i>
-                                            </div>
-                                            <h5 class="text-white">{{ 'Record'|translate }}</h5>
-                                            <p class="text-white-50 small">{{ 'Speak your complaint into the system'|translate }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="process-step">
-                                            <div class="step-icon mb-3">
-                                                <i class="fas fa-keyboard fa-2x text-white"></i>
-                                            </div>
-                                            <h5 class="text-white">{{ 'Transcribe'|translate }}</h5>
-                                            <p class="text-white-50 small">{{ 'AI converts speech to accurate text'|translate }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="process-step">
-                                            <div class="step-icon mb-3">
-                                                <i class="fas fa-brain fa-2x text-white"></i>
-                                            </div>
-                                            <h5 class="text-white">{{ 'Analyze'|translate }}</h5>
-                                            <p class="text-white-50 small">{{ 'System maps applicable legal sections'|translate }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="process-step">
-                                            <div class="step-icon mb-3">
-                                                <i class="fas fa-file-pdf fa-2x text-white"></i>
-                                            </div>
-                                            <h5 class="text-white">{{ 'Generate'|translate }}</h5>
-                                            <p class="text-white-50 small">{{ 'Professional FIR document created'|translate }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Features Section -->
-<div class="features-section py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-5 fade-in">
-                <h2 class="section-title display-4 fw-bold text-primary">{{ 'Why Choose Our System?'|translate }}</h2>
-                <p class="lead text-muted">{{ 'Transforming the traditional FIR filing process with technology'|translate }}</p>
-            </div>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-md-4 mb-4 slide-up" style="animation-delay: 0.1s;">
-                <div class="feature-card card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon-wrapper mb-4">
-                            <div class="feature-icon-bg bg-primary">
-                                <i class="fas fa-bolt text-white fa-2x"></i>
-                            </div>
-                        </div>
-                        <h4 class="feature-title">{{ 'Save Time'|translate }}</h4>
-                        <p class="feature-description">{{ 'Reduce FIR filing time by up to 70% with our streamlined AI-powered process.'|translate }}</p>
-                        <div class="feature-stats">
-                            <span class="stat-number">70%</span>
-                            <span class="stat-label">{{ 'Faster'|translate }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4 mb-4 slide-up" style="animation-delay: 0.2s;">
-                <div class="feature-card card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon-wrapper mb-4">
-                            <div class="feature-icon-bg bg-success">
-                                <i class="fas fa-check-double text-white fa-2x"></i>
-                            </div>
-                        </div>
-                        <h4 class="feature-title">{{ 'Improve Accuracy'|translate }}</h4>
-                        <p class="feature-description">{{ 'AI ensures accurate legal section mapping and standardized documentation.'|translate }}</p>
-                        <div class="feature-stats">
-                            <span class="stat-number">95%</span>
-                            <span class="stat-label">{{ 'Accuracy'|translate }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4 mb-4 slide-up" style="animation-delay: 0.3s;">
-                <div class="feature-card card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon-wrapper mb-4">
-                            <div class="feature-icon-bg bg-info">
-                                <i class="fas fa-universal-access text-white fa-2x"></i>
-                            </div>
-                        </div>
-                        <h4 class="feature-title">{{ 'Accessible to All'|translate }}</h4>
-                        <p class="feature-description">{{ 'Voice-based input makes the system accessible to everyone, regardless of literacy level.'|translate }}</p>
-                        <div class="feature-stats">
-                            <span class="stat-number">100%</span>
-                            <span class="stat-label">{{ 'Accessible'|translate }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Stats Section -->
-<div class="stats-section py-5">
-    <div class="container">
-        <div class="row g-4 text-center">
-            <div class="col-md-3 col-6">
-                <div class="stat-item">
-                    <div class="stat-icon mb-3">
-                        <i class="fas fa-users fa-2x text-primary"></i>
-                    </div>
-                    <div class="stat-number display-6 fw-bold text-primary">10,000+</div>
-                    <div class="stat-label">{{ 'Users Served'|translate }}</div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="stat-item">
-                    <div class="stat-icon mb-3">
-                        <i class="fas fa-file-alt fa-2x text-success"></i>
-                    </div>
-                    <div class="stat-number display-6 fw-bold text-success">25,000+</div>
-                    <div class="stat-label">{{ 'FIRs Filed'|translate }}</div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="stat-item">
-                    <div class="stat-icon mb-3">
-                        <i class="fas fa-clock fa-2x text-warning"></i>
-                    </div>
-                    <div class="stat-number display-6 fw-bold text-warning">70%</div>
-                    <div class="stat-label">{{ 'Time Saved'|translate }}</div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="stat-item">
-                    <div class="stat-icon mb-3">
-                        <i class="fas fa-star fa-2x text-info"></i>
-                    </div>
-                    <div class="stat-number display-6 fw-bold text-info">4.8/5</div>
-                    <div class="stat-label">{{ 'User Rating'|translate }}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/templates/index.css') }}">
 {% endblock %}
 
-{% block extra_css %}
-<style>
-/* Hero Section */
-.hero-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    position: relative;
-    overflow: hidden;
-}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <h1 class="display-4 fw-bold mb-4">AI-Powered FIR Filing</h1>
+            <p class="lead mb-4">
+                Our intelligent system simplifies the process of filing police complaints,
+                transforming spoken words into professionally structured documents with automatic
+                legal section mapping.
+            </p>
+            <div class="mb-4">
+                <h5><i class="fas fa-check-circle text-success me-2"></i> Key Features</h5>
+                <ul class="list-unstyled ps-4">
+                    <li class="mb-2"><i class="fas fa-microphone me-2"></i> Voice-to-text transcription</li>
+                    <li class="mb-2"><i class="fas fa-gavel me-2"></i> Automatic legal section mapping</li>
+                    <li class="mb-2"><i class="fas fa-file-alt me-2"></i> Professional FIR generation</li>
+                    <li class="mb-2"><i class="fas fa-camera me-2"></i> Evidence collection & analysis</li>
+                    <li class="mb-2"><i class="fas fa-mobile-alt me-2"></i> Mobile-responsive design</li>
+                </ul>
+            </div>
+            <div class="d-grid gap-2 d-md-flex">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.is_admin() or current_user.is_police() %}
+                        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary btn-lg px-4">
+                            Go to Dashboard <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('fir.new_fir') }}" class="btn btn-primary btn-lg px-4">
+                            File a New Complaint <i class="fas fa-file-alt ms-2"></i>
+                        </a>
+                        <a href="{{ url_for('fir.voice_transcription') }}" class="btn btn-outline-primary btn-lg px-4">
+                            Voice Transcription <i class="fas fa-microphone ms-2"></i>
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg px-4">
+                        Login <i class="fas fa-sign-in-alt ms-2"></i>
+                    </a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-secondary btn-lg px-4">
+                        Register <i class="fas fa-user-plus ms-2"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
 
-.hero-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    opacity: 0.3;
-}
+    </div>
 
-.text-gradient {
-    background: linear-gradient(45deg, #fff, #f0f0f0);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-/* Enhanced Main Hero Title */
-.hero-main-title {
-    font-size: 3.5rem;
-    font-weight: 900;
-    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-    margin-bottom: 2rem !important;
-    position: relative;
-    z-index: 2;
-}
-
-.hero-main-title::before {
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: -20px;
-    right: -20px;
-    bottom: -10px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-    border-radius: 20px;
-    z-index: -1;
-    backdrop-filter: blur(10px);
-}
-
-@media (max-width: 768px) {
-    .hero-main-title {
-        font-size: 2.5rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .hero-main-title {
-        font-size: 2rem;
-    }
-}
-
-/* Feature Highlights */
-.feature-highlights {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 1.5rem;
-    backdrop-filter: blur(10px);
-}
-
-.feature-item {
-    padding: 0.5rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.feature-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
-}
-
-.feature-icon {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.feature-text {
-    font-weight: 500;
-    color: white;
-}
-
-/* Hero Visual */
-.hero-visual {
-    position: relative;
-}
-
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.floating-element {
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    background: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    animation: float 3s ease-in-out infinite;
-}
-
-.floating-1 {
-    top: 10%;
-    left: -10%;
-    animation-delay: 0s;
-}
-
-.floating-3 {
-    bottom: 10%;
-    left: 20%;
-    animation-delay: 1s;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-}
-
-/* Enhanced Heading Styles */
-.card-title.display-5 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    letter-spacing: -0.02em;
-    margin-bottom: 2rem !important;
-    position: relative;
-}
-
-.card-title.display-5::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 4px;
-    background: linear-gradient(90deg, #fff, rgba(255, 255, 255, 0.6));
-    border-radius: 2px;
-}
-
-/* Process Steps */
-.process-step {
-    text-align: center;
-    padding: 1rem;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.process-step:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-5px);
-}
-
-.step-icon {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-}
-
-/* Enhanced Section Title */
-.section-title.display-4 {
-    font-size: 2.75rem;
-    font-weight: 800;
-    margin-bottom: 1.5rem;
-    position: relative;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.section-title.display-4::after {
-    content: '';
-    position: absolute;
-    bottom: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 5px;
-    background: linear-gradient(90deg, var(--embassy-primary), var(--embassy-accent));
-    border-radius: 3px;
-}
-
-@media (max-width: 768px) {
-    .section-title.display-4 {
-        font-size: 2.25rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .section-title.display-4 {
-        font-size: 1.875rem;
-    }
-}
-
-/* Feature Cards */
-.feature-card {
-    transition: all 0.3s ease;
-    border-radius: 16px;
-    overflow: hidden;
-}
-
-.feature-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
-
-.feature-icon-wrapper {
-    position: relative;
-}
-
-.feature-icon-bg {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    position: relative;
-    overflow: hidden;
-}
-
-.feature-icon-bg::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transform: translateX(-100%);
-    transition: transform 0.6s;
-}
-
-.feature-card:hover .feature-icon-bg::before {
-    transform: translateX(100%);
-}
-
-.feature-title {
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: var(--embassy-text-main);
-}
-
-.feature-description {
-    color: var(--embassy-text-secondary);
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
-}
-
-.feature-stats {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.stat-number {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--embassy-primary);
-    line-height: 1;
-}
-
-.stat-label {
-    font-size: 0.875rem;
-    color: var(--embassy-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 500;
-}
-
-/* Stats Section */
-.stats-section {
-    background: var(--embassy-section-bg);
-    border-top: 1px solid var(--embassy-border);
-    border-bottom: 1px solid var(--embassy-border);
-}
-
-.stat-item {
-    padding: 2rem 1rem;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    background: var(--embassy-bg);
-    border: 1px solid var(--embassy-border);
-}
-
-.stat-item:hover {
-    transform: translateY(-5px);
-    background: var(--embassy-bg);
-    box-shadow: var(--embassy-card-shadow-hover);
-    border-color: var(--embassy-primary);
-}
-
-.stat-icon {
-    opacity: 0.8;
-}
-
-.stat-label {
-    color: var(--embassy-text-secondary) !important;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-top: 0.5rem;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .hero-section {
-        text-align: center;
-    }
-    
-    .floating-element {
-        display: none;
-    }
-    
-    .feature-highlights .row {
-        justify-content: center;
-    }
-    
-    .stat-item {
-        padding: 1rem;
-    }
-    
-    .stat-number {
-        font-size: 1.5rem;
-    }
-}
-</style>
+    <div class="row mt-5 pt-5">
+        <div class="col-12 text-center mb-4">
+            <h2>Why Choose Our System?</h2>
+            <p class="lead">Transforming the traditional FIR filing process with technology</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-bolt text-white fa-2x"></i>
+                    </div>
+                    <h4>Save Time</h4>
+                    <p>Reduce FIR filing time by up to 70% with our streamlined AI-powered process.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-check-double text-white fa-2x"></i>
+                    </div>
+                    <h4>Improve Accuracy</h4>
+                    <p>AI ensures accurate legal section mapping and standardized documentation.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-info d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-universal-access text-white fa-2x"></i>
+                    </div>
+                    <h4>Accessible to All</h4>
+                    <p>Voice-based input makes the system accessible to everyone, regardless of literacy level.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
