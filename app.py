@@ -51,7 +51,6 @@ def create_app():
 
     # ensure upload directory exists
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-    os.makedirs(os.path.join(app.config["UPLOAD_FOLDER"], "audio"), exist_ok=True)
     os.makedirs(os.path.join(app.config["UPLOAD_FOLDER"], "images"), exist_ok=True)
 
     # initialize the app with the extensions
@@ -86,7 +85,6 @@ def create_app():
         from routes.fir import fir_bp
         from routes.admin import admin_bp
         from routes.chatbot import chatbot_bp
-        from routes.speech_recognition import speech_bp
         from routes.verification import verification_bp
         from routes.evidence import evidence_bp
         from routes.legal_sections import legal_sections_bp
@@ -97,7 +95,6 @@ def create_app():
         app.register_blueprint(fir_bp)
         app.register_blueprint(admin_bp)
         app.register_blueprint(chatbot_bp)
-        app.register_blueprint(speech_bp)
         app.register_blueprint(verification_bp)
         app.register_blueprint(evidence_bp)
         app.register_blueprint(legal_sections_bp)

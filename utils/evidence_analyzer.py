@@ -371,12 +371,12 @@ def analyze_audio(_):
         dict: Analysis results
     """
     try:
-        # In a real system, this would use audio analysis and speech recognition
+        # In a real system, this would use audio analysis
         # For now, we'll return a simple analysis
         # Note: file_path is not used in this simplified implementation
         # but would be used in a real implementation to analyze the audio
         return {
-            'analysis_text': "This is an audio file. In a production system, this would be analyzed using audio analysis and speech recognition to transcribe and identify speakers.",
+            'analysis_text': "This is an audio file. In a production system, this would be analyzed using audio analysis to transcribe and identify speakers.",
             'tags': ['audio', 'auditory evidence']
         }
     except Exception as e:

@@ -14,7 +14,6 @@ with app.app_context():
         print(f"❌ Error importing routes.fir: {e}")
 
     try:
-        from utils.speech_recognition import SpeechToText
         print("✅ Successfully imported utils.speech_recognition")
     except ImportError as e:
         print(f"❌ Error importing utils.speech_recognition: {e}")

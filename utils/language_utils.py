@@ -9,7 +9,7 @@ from flask import session, request
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Supported languages with their codes for speech recognition
+# Supported languages with their codes
 SUPPORTED_LANGUAGES = {
     'en-US': {
         'name': 'English (US)',
@@ -194,12 +194,4 @@ def get_translation(key, lang_code=None):
     
     return TRANSLATIONS[lang_code].get(key, key)
 
-def get_speech_recognition_language(lang_code=None):
-    """Get the speech recognition language code."""
-    if not lang_code:
-        lang_code = get_user_language()
-    
-    if lang_code in SUPPORTED_LANGUAGES:
-        return SUPPORTED_LANGUAGES[lang_code]['speech_code']
-    
-    return 'en-US'  # Default to US English
+

@@ -2,6 +2,10 @@
 
 {% block title %}Intelligent FIR Filing System - Home{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/templates/index.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center align-items-center">
@@ -46,62 +50,7 @@
                 {% endif %}
             </div>
         </div>
-        <div class="col-lg-6">
-            <div class="card bg-dark shadow-lg p-4 border-0">
-                <div class="card-body text-center">
-                    <div class="mb-4">
-                        <i class="fas fa-shield-alt fa-5x text-primary"></i>
-                    </div>
-                    <h2 class="card-title mb-3">How It Works</h2>
-                    <div class="row text-start mt-4">
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0 text-primary me-3">
-                                    <i class="fas fa-microphone fa-2x"></i>
-                                </div>
-                                <div>
-                                    <h5>Record</h5>
-                                    <p class="small">Speak your complaint into the system</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0 text-primary me-3">
-                                    <i class="fas fa-keyboard fa-2x"></i>
-                                </div>
-                                <div>
-                                    <h5>Transcribe</h5>
-                                    <p class="small">AI converts speech to accurate text</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0 text-primary me-3">
-                                    <i class="fas fa-brain fa-2x"></i>
-                                </div>
-                                <div>
-                                    <h5>Analyze</h5>
-                                    <p class="small">System maps applicable legal sections</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0 text-primary me-3">
-                                    <i class="fas fa-file-pdf fa-2x"></i>
-                                </div>
-                                <div>
-                                    <h5>Generate</h5>
-                                    <p class="small">Professional FIR document created</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
     </div>
 
     <div class="row mt-5 pt-5">

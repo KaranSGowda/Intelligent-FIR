@@ -65,7 +65,7 @@ class FIR(db.Model):
     incident_date = db.Column(db.DateTime, nullable=True)
     filed_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    transcription = db.Column(db.Text, nullable=True)
+
     legal_sections = db.Column(db.Text, nullable=True)  # JSON string of legal sections with metadata
 
     # Relationships

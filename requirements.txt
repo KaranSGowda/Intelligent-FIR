@@ -1,3 +1,33 @@
+# Flask core
+Flask>=2.2
+Flask-WTF
+Flask-Login
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-Cors
+
+# For browser-based voice-to-text (no backend dependency, but document for clarity)
+# Web Speech API is built into browsers, no Python package needed
+
+# For static file serving and deployment
+gunicorn
+waitress
+
+# For image and file handling
+Pillow
+
+# For compatibility and utility
+python-dotenv
+requests
+itsdangerous
+Werkzeug
+Jinja2
+MarkupSafe
+
+# For database
+SQLAlchemy
+psycopg2-binary
+sqlite3
 # Core Flask Dependencies
 Flask==3.0.3
 Flask-Login==0.6.3
@@ -22,8 +52,7 @@ numpy==1.26.4
 pandas==2.2.2
 
 # Audio Processing
-pydub==0.25.1
-SpeechRecognition==3.10.4
+
 
 # HTTP Requests
 requests==2.32.2

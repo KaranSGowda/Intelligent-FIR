@@ -1,3 +1,4 @@
+
 {% extends 'layout.html' %}
 
 {% block title %}File New Complaint - Intelligent FIR Filing System{% endblock %}
@@ -136,6 +137,7 @@
 {% endblock %}
 
 {% block content %}
+<div class="mb-3">
 <div class="container py-4">
     <div class="row mb-4">
         <div class="col-12">
@@ -146,55 +148,7 @@
 
     <div class="row">
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Voice Recording</h4>
-                </div>
-                <div class="card-body p-4">
-                    <p>Record your complaint by speaking clearly. Our system will transcribe your words.</p>
 
-                    <div id="alertContainer"></div>
-
-                    <!-- Language Selection -->
-                    <div class="mb-3">
-                        <label for="recordingLanguage" class="form-label">Select Language for Recording</label>
-                        <select class="form-select" id="recordingLanguage">
-                            <option value="" disabled selected>Loading languages...</option>
-                        </select>
-                        <div class="form-text">Choose the language you'll be speaking in</div>
-                    </div>
-
-                    <div class="recording-controls">
-                        <button id="recordButton" class="btn btn-record">
-                            <i class="fas fa-microphone fa-lg"></i>
-                        </button>
-                        <button id="stopButton" class="btn btn-stop" disabled>
-                            <i class="fas fa-stop fa-lg"></i>
-                        </button>
-                    </div>
-
-                    <div class="recording-status alert alert-info text-center mb-3" id="recordingStatus">
-                        <span class="status-indicator"></span>
-                        <span class="status-text">Ready to record</span>
-                    </div>
-
-                    <div class="error-container" id="errorContainer">
-                        <p class="error-message" id="errorMessage"></p>
-                        <button id="retryTranscription" class="retry-button">
-                            <i class="fas fa-redo me-2"></i>Try Again
-                        </button>
-                    </div>
-
-                    <div class="audio-container">
-                        <audio id="audioPlayback" controls class="audio-player d-none"></audio>
-                    </div>
-
-                    <div class="d-none" id="transcriptionContainer">
-                        <h5>Transcription:</h5>
-                        <div class="alert alert-light p-3 mb-3" id="transcriptionDisplay"></div>
-                    </div>
-                </div>
-            </div>
 
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-primary text-white">
@@ -202,16 +156,51 @@
                 </div>
                 <div class="card-body p-4">
                     <form id="firForm" method="POST" action="{{ url_for('fir.new_fir') }}" enctype="multipart/form-data">
-                        <input type="hidden" id="transcription" name="transcription" value="">
+
 
                         <div class="mb-3">
-                            <label for="incident_description" class="form-label">Incident Description</label>
-                            <textarea class="form-control min-h-200" id="incident_description" name="incident_description" rows="6" placeholder="Describe the incident in detail. You can edit the transcription here or type directly."></textarea>
-                            <div class="d-flex justify-content-end mt-2">
-                                <button type="button" id="analyzeLegalButton" class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-balance-scale me-1"></i> Analyze Legal Sections
-                                </button>
-                            </div>
+    <label for="incident_description" class="form-label">Incident Description</label>
+    <div class="input-group">
+        <textarea class="form-control min-h-200" id="incident_description" name="incident_description" rows="6" placeholder="Describe the incident in detail."></textarea>
+    </div>
+    <div class="d-flex justify-content-end mt-2">
+        <button type="button" id="analyzeLegalButton" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-balance-scale me-1"></i> Analyze Legal Sections
+        </button>
+    </div>
+    <div class="form-text">You can type or use voice input to fill the description.</div>
+
+    <!-- Microphone Permission Warning -->
+    <div id="mic-permission-warning" class="alert alert-danger d-none" style="font-size: 1rem;">
+        <strong>Microphone access is blocked.</strong><br>
+        To use voice input, please allow microphone access for this site in your browser permissions.<br>
+        <ul style="margin-bottom:0;">
+            <li>Click the <b>lock</b> or <b>mic</b> icon in your browser's address bar.</li>
+            <li>Set <b>Microphone</b> permission to <b>Allow</b> for this site.</li>
+            <li>Reload the page.</li>
+            <li>If using a non-HTTPS address, some browsers may block mic access by default.</li>
+        </ul>
+    </div>
+
+    <!-- Voice Input Controls -->
+    <div class="recording-controls mt-3" style="gap: 10px;">
+        <select id="voiceLangSelect" class="form-select" style="width: auto; max-width: 200px;">
+            <option value="en-US">English (US)</option>
+            <option value="en-IN">English (India)</option>
+            <option value="hi-IN">Hindi (India)</option>
+            <option value="bn-IN">Bengali (India)</option>
+            <option value="gu-IN">Gujarati (India)</option>
+            <option value="kn-IN">Kannada (India)</option>
+            <option value="ml-IN">Malayalam (India)</option>
+            <option value="mr-IN">Marathi (India)</option>
+            <option value="pa-IN">Punjabi (India)</option>
+            <option value="ta-IN">Tamil (India)</option>
+            <option value="te-IN">Telugu (India)</option>
+        </select>
+        <button type="button" id="startVoiceBtn" class="btn btn-record" title="Start Recording"><i class="fas fa-microphone"></i></button>
+        <button type="button" id="stopVoiceBtn" class="btn btn-stop" title="Stop Recording" disabled><i class="fas fa-stop"></i></button>
+        <input type="text" id="voiceInput" class="form-control" style="max-width: 350px;" placeholder="Voice transcript will appear here..." readonly>
+    </div>
                         </div>
 
                         <!-- Legal Sections Container -->
@@ -229,11 +218,22 @@
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label for="evidenceUpload" class="form-label">Upload Evidence (Photos)</label>
-                            <input type="file" class="form-control" id="evidenceUpload" name="evidence" multiple accept="image/*">
-                            <div class="form-text">You can upload multiple photos as evidence</div>
+<div class="mb-4">
+    <label for="evidenceUpload" class="form-label">Upload Evidence (Photos)</label>
+    <input type="file" class="form-control d-none" id="evidenceUpload" name="evidence" multiple accept="image/*">
+    <button type="button" class="btn btn-primary" id="customEvidenceBtn">Choose Photos</button>
+    <div class="form-text">You can upload multiple photos as evidence</div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var btn = document.getElementById('customEvidenceBtn');
+        var input = document.getElementById('evidenceUpload');
+        if(btn && input) {
+            btn.onclick = function() { input.click(); };
+        }
+    });
+    </script>
 
+    
                             <div class="d-none" id="evidencePreviewSection">
                                 <div class="mt-3">
                                     <h6>Evidence Preview:</h6>
@@ -253,66 +253,7 @@
                             </div>
                         </div>
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" id="submitFIR" class="btn btn-success btn-lg">
-                                <i class="fas fa-paper-plane me-2"></i> Submit Complaint
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-info text-dark">
-                    <h4 class="mb-0">Helpful Tips</h4>
-                </div>
-                <div class="card-body p-4">
-                    <div class="mb-3">
-                        <h5><i class="fas fa-microphone me-2"></i> Voice Recording</h5>
-                        <ul>
-                            <li>Select your preferred language from the dropdown</li>
-                            <li>Speak clearly and at a normal pace</li>
-                            <li>Include all relevant details about the incident</li>
-                            <li>Mention dates, times, locations and names</li>
-                            <li>Describe any evidence you have</li>
-                        </ul>
-                    </div>
-
-                    <div class="mb-3">
-                        <h5><i class="fas fa-language me-2"></i> Language Support</h5>
-                        <ul>
-                            <li>Record in any of the 12 supported languages</li>
-                            <li>English (US/UK/India), Hindi, Bengali</li>
-                            <li>Tamil, Telugu, Marathi, Gujarati</li>
-                            <li>Kannada, Malayalam, Punjabi</li>
-                        </ul>
-                    </div>
-
-                    <div class="mb-3">
-                        <h5><i class="fas fa-edit me-2"></i> Text Editing</h5>
-                        <ul>
-                            <li>Review and edit the transcription for accuracy</li>
-                            <li>Add any details missed during recording</li>
-                            <li>Organize information chronologically</li>
-                        </ul>
-                    </div>
-
-                    <div class="mb-3">
-                        <h5><i class="fas fa-camera me-2"></i> Evidence Photos</h5>
-                        <ul>
-                            <li>Upload clear, well-lit photos</li>
-                            <li>Include photos of any damage or injuries</li>
-                            <li>Upload photos of relevant documents</li>
-                        </ul>
-                    </div>
-
-                    <div class="mb-3">
-                        <h5><i class="fas fa-balance-scale me-2"></i> Legal Section Analysis</h5>
-                        <ul>
-                            <li>Click "Analyze Legal Sections" to identify applicable IPC sections</li>
-                            <li>Review the suggested sections and their relevance</li>
                             <li>You can uncheck sections that don't apply</li>
                             <li>The analysis helps structure your complaint properly</li>
                         </ul>
@@ -329,54 +270,8 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/recorder.js') }}"></script>
 <script src="{{ url_for('static', filename='js/fir_form.js') }}"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const audioFileInput = document.querySelector('input[type="file"][accept="audio/*"]');
-    const transcriptionField = document.querySelector('#transcription');
-    const transcribeButton = document.querySelector('#transcribe-button');
-
-    if (audioFileInput && transcriptionField && transcribeButton) {
-        transcribeButton.addEventListener('click', function() {
-            const audioFile = audioFileInput.files[0];
-            if (!audioFile) {
-                alert('Please select an audio file first');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('audio', audioFile);
-
-            // Show loading state
-            transcribeButton.disabled = true;
-            transcribeButton.textContent = 'Transcribing...';
-
-            fetch('/fir/transcribe-audio', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert('Error: ' + data.error);
-                } else {
-                    transcriptionField.value = data.transcription;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to transcribe audio');
-            })
-            .finally(() => {
-                // Reset button state
-                transcribeButton.disabled = false;
-                transcribeButton.textContent = 'Transcribe Audio';
-            });
-        });
-    }
-});
-</script>
+<script src="{{ url_for('static', filename='js/voice_to_text.js') }}"></script>
 {% endblock %}
 
 

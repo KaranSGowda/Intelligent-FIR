@@ -1,14 +1,12 @@
+
 import json
 import os
 import base64
 import time
 import logging
 from openai import OpenAI
-# Import speech recognition for audio transcription
-from utils.speech_recognition import SpeechToText
 
-# Initialize speech recognition
-speech_to_text = SpeechToText()
+
 
 # the newest OpenAI model is "gpt-4o" which was released May 13, 2024.
 # do not change this unless explicitly requested by the user
@@ -420,23 +418,7 @@ def analyze_document(document_path):
         logger.error(f"Error processing document: {str(e)}")
         return f"Error: Unable to process the document. {str(e)}"
 
-def transcribe_audio_with_speechtotext(audio_path):
-    """
-    Transcribe audio file to text using SpeechToText utility
 
-    Args:
-        audio_path: Path to the audio file
-
-    Returns:
-        str: Transcription of the audio content
-    """
-    try:
-        # Use the SpeechToText utility to transcribe the audio
-        transcription = speech_to_text.transcribe_audio(audio_path)
-        return transcription
-    except Exception as e:
-        logger.error(f"Error transcribing audio with SpeechToText: {str(e)}")
-        return None
 
 def analyze_audio(audio_path):
     """
@@ -452,9 +434,7 @@ def analyze_audio(audio_path):
         # First try to transcribe the audio using OpenAI Whisper
         transcription = transcribe_audio(audio_path)
 
-        # If that fails, try with SpeechToText
-        if not transcription:
-            transcription = transcribe_audio_with_speechtotext(audio_path)
+
 
         if not transcription:
             return "Error: Unable to transcribe the audio file."

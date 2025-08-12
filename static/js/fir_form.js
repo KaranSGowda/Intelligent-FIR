@@ -21,101 +21,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Load languages for the recording dropdown
-    const recordingLanguage = document.getElementById('recordingLanguage');
-    if (recordingLanguage) {
-        loadLanguages(recordingLanguage);
-    }
 
-    // Initialize the voice recorder
-    const recorder = new AudioRecorder({
-        transcribeEndpoint: '/new',
-        recordButtonId: 'recordButton',
-        stopButtonId: 'stopButton',
-        audioElementId: 'audioPlayback',
-        statusElementId: 'recordingStatus',
-        languageCode: function() {
-            // Get selected language from dropdown
-            if (recordingLanguage && recordingLanguage.value) {
-                return recordingLanguage.value;
-            }
-            return null; // Will use default language
-        },
-        onTranscriptionComplete: function(text, audioPath) {
-            // Update form with transcription
-            const transcriptionInput = document.getElementById('transcription');
-            const descriptionInput = document.getElementById('incident_description');
 
-            if (transcriptionInput && text) {
-                transcriptionInput.value = text;
-            }
 
-            // Also populate the incident description if it's empty
-            if (descriptionInput && text && !descriptionInput.value.trim()) {
-                descriptionInput.value = text;
-            }
-
-            // Show transcription
-            const transcriptionDisplay = document.getElementById('transcriptionDisplay');
-            if (transcriptionDisplay) {
-                if (text) {
-                    // Show the transcription
-                    transcriptionDisplay.textContent = text;
-                    transcriptionDisplay.parentElement.classList.remove('d-none');
-
-                    // If we received processing time info, show it
-                    if (audioPath && audioPath.processing_time) {
-                        const processingInfo = document.createElement('small');
-                        processingInfo.className = 'text-muted d-block mt-1';
-                        processingInfo.textContent = `Processing time: ${audioPath.processing_time}`;
-                        transcriptionDisplay.parentElement.appendChild(processingInfo);
-                    }
-                } else {
-                    transcriptionDisplay.textContent = 'Transcription failed. Please type your complaint manually.';
-                    transcriptionDisplay.parentElement.classList.remove('d-none');
-                    transcriptionDisplay.classList.add('text-warning');
-                }
-            }
-
-            // Enable the submit button
-            const submitButton = document.getElementById('submitFIR');
-            if (submitButton) {
-                submitButton.disabled = false;
-            }
-
-            // If we have an audio path, store it for form submission
-            const audioPathInput = document.getElementById('audio_path');
-            if (audioPathInput && audioPath) {
-                audioPathInput.value = audioPath;
-            }
-        },
-        onError: function(error) {
-            console.error('Recorder error:', error);
-
-            // Show a user-friendly error message
-            const isTimeout = error.message && error.message.includes('timed out');
-
-            if (isTimeout) {
-                showAlert('The audio was recorded successfully, but the automatic transcription process timed out. ' +
-                    'This can happen with longer recordings or when the server is busy. ' +
-                    'You can still submit your complaint by typing it manually.', 'warning');
-
-                // Focus on the incident description field to encourage manual entry
-                const descriptionInput = document.getElementById('incident_description');
-                if (descriptionInput) {
-                    descriptionInput.focus();
-                }
-            } else {
-                showAlert('Audio recording issue: There was a problem processing your audio. ' +
-                    'You can still submit your complaint by typing it manually.', 'warning');
-            }
-
-            // Enable the submit button even if recording failed
-            const submitButton = document.getElementById('submitFIR');
-            if (submitButton) {
-                submitButton.disabled = false;
-            }
-        }
-    });
 
     // Handle evidence file uploads
     const evidenceUpload = document.getElementById('evidenceUpload');
@@ -362,36 +270,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    /**
-     * Load available languages into the dropdown
-     * @param {HTMLSelectElement} selectElement - The select element to populate
-     */
-    function loadLanguages(selectElement) {
-        fetch('/api/speech/languages')
-            .then(response => response.json())
-            .then(data => {
-                // Clear loading option
-                selectElement.innerHTML = '';
 
-                // Add languages to dropdown
-                if (data.languages) {
-                    data.languages.forEach(lang => {
-                        const option = document.createElement('option');
-                        option.value = lang.code;
-                        option.textContent = `${lang.flag} ${lang.native_name} (${lang.name})`;
-
-                        // Set current language as selected
-                        if (data.current === lang.code) {
-                            option.selected = true;
-                        }
-
-                        selectElement.appendChild(option);
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error loading languages:', error);
-                selectElement.innerHTML = '<option value="en-IN">English (India)</option>';
-            });
-    }
 });
