@@ -16,7 +16,22 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-openai = OpenAI(api_key=OPENAI_API_KEY)
+openai_client = None
+
+def get_openai_client():
+    """Return a lazily-initialized OpenAI client or None if unavailable."""
+    global openai_client, OPENAI_API_KEY
+    if openai_client is not None:
+        return openai_client
+    if not OPENAI_API_KEY:
+        logger.warning("OPENAI_API_KEY is not set. AI features are disabled.")
+        return None
+    try:
+        openai_client = OpenAI(api_key=OPENAI_API_KEY)
+        return openai_client
+    except Exception as e:
+        logger.error(f"Failed to initialize OpenAI client: {str(e)}")
+        return None
 
 # Settings for retry logic
 MAX_RETRIES = 3
@@ -28,10 +43,14 @@ def transcribe_audio(audio_file_path):
     """
     retry_count = 0
 
+    client = get_openai_client()
+    if client is None:
+        return "Error: OpenAI API key not configured. Audio transcription unavailable."
+
     while retry_count < MAX_RETRIES:
         try:
             with open(audio_file_path, "rb") as audio_file:
-                response = openai.audio.transcriptions.create(
+                response = client.audio.transcriptions.create(
                     model="whisper-1",
                     file=audio_file
                 )
@@ -69,9 +88,19 @@ def analyze_complaint(complaint_text):
     """
     retry_count = 0
 
+    client = get_openai_client()
+    if client is None:
+        return {
+            "incident_summary": "AI analysis unavailable. API key not configured.",
+            "urgency_level": "normal",
+            "incident_type": "unclassified",
+            "key_entities": [],
+            "recommended_action": "Manually review the complaint"
+        }
+
     while retry_count < MAX_RETRIES:
         try:
-            response = openai.chat.completions.create(
+            response = client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
                     {
@@ -167,9 +196,23 @@ def map_legal_sections(complaint_text):
     # OpenAI-based analysis as fallback
     retry_count = 0
 
+    client = get_openai_client()
+    if client is None:
+        return {
+            "sections": [
+                {
+                    "section_code": "N/A",
+                    "section_name": "AI mapping unavailable - API key not configured",
+                    "section_description": "The system could not analyze the complaint because the OpenAI API key is missing.",
+                    "relevance": "Please manually review the complaint to identify applicable sections",
+                    "confidence": 0
+                }
+            ]
+        }
+
     while retry_count < MAX_RETRIES:
         try:
-            response = openai.chat.completions.create(
+            response = client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
                     {
@@ -284,9 +327,13 @@ def analyze_image(image_path):
 
     retry_count = 0
 
+    client = get_openai_client()
+    if client is None:
+        return "Error: OpenAI API key not configured. Image analysis unavailable."
+
     while retry_count < MAX_RETRIES:
         try:
-            response = openai.chat.completions.create(
+            response = client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
                     {
@@ -371,9 +418,13 @@ def analyze_document(document_path):
 
         retry_count = 0
 
+        client = get_openai_client()
+        if client is None:
+            return "Error: OpenAI API key not configured. Document analysis unavailable."
+
         while retry_count < MAX_RETRIES:
             try:
-                response = openai.chat.completions.create(
+                response = client.chat.completions.create(
                     model="gpt-4o",
                     messages=[
                         {
@@ -442,9 +493,13 @@ def analyze_audio(audio_path):
         # Then analyze the transcription
         retry_count = 0
 
+        client = get_openai_client()
+        if client is None:
+            return "Error: OpenAI API key not configured. Audio analysis unavailable."
+
         while retry_count < MAX_RETRIES:
             try:
-                response = openai.chat.completions.create(
+                response = client.chat.completions.create(
                     model="gpt-4o",
                     messages=[
                         {

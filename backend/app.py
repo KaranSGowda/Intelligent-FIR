@@ -20,8 +20,17 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def create_app():
-    # create the app
-    app = Flask(__name__)
+    # create the app with correct template and static folders
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    templates_path = os.path.join(project_root, 'frontend', 'src', 'templates')
+    static_path = os.path.join(project_root, 'frontend', 'static')
+
+    app = Flask(
+        __name__,
+        template_folder=templates_path,
+        static_folder=static_path,
+        static_url_path='/static'
+    )
     app.secret_key = os.environ.get("SESSION_SECRET", "development_key")
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
@@ -43,7 +52,7 @@ def create_app():
         "pool_recycle": 300,
         "pool_pre_ping": True,
     }
-    app.config["UPLOAD_FOLDER"] = "static/uploads"
+    app.config["UPLOAD_FOLDER"] = os.path.join(app.static_folder, "uploads")
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB max upload
 
     # Base URL for the application (used for QR codes and verification)
