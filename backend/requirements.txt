@@ -1,110 +1,48 @@
-# Flask core
-Flask>=2.2
-Flask-WTF
-Flask-Login
-Flask-SQLAlchemy
-Flask-Migrate
-Flask-Cors
+###############################
+# Intelligent-FIR dependencies #
+###############################
 
-# For browser-based voice-to-text (no backend dependency, but document for clarity)
-# Web Speech API is built into browsers, no Python package needed
-
-# For static file serving and deployment
-gunicorn
-waitress
-
-# For image and file handling
-Pillow
-
-# For compatibility and utility
-python-dotenv
-requests
-itsdangerous
-Werkzeug
-Jinja2
-MarkupSafe
-
-# For database
-SQLAlchemy
-psycopg2-binary
-sqlite3
-# Core Flask Dependencies
+# Framework
 Flask==3.0.3
 Flask-Login==0.6.3
 Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.1
-Werkzeug==3.0.3
-Jinja2==3.1.4
+Flask-Cors==4.0.1
 
-# Database
+# ORM / DB
 SQLAlchemy==2.0.30
+psycopg2-binary==2.9.9  # optional; only if using Postgres
 
-# Forms and Validation
-WTForms==3.1.2
+# Core libs (transitive deps of Flask pinned by Flask, but left implicit)
+# Jinja2 / Werkzeug / MarkupSafe / itsdangerous provided via Flask
 
-# PDF Generation
-reportlab==4.2.0
+# Config & utilities
+python-dotenv==1.0.1
+requests==2.32.3
+python-dateutil==2.9.0.post0
+PyJWT==2.8.0
+bcrypt==4.1.3
+colorlog==6.8.2
 
-# Machine Learning and NLP
-scikit-learn==1.5.0
+# Templating / PDF / QR
+pdfkit==1.0.0           # requires wkhtmltopdf installed on the system
+reportlab==4.2.2        # used for alternate PDF generation path
+qrcode==7.4.2
+Pillow==10.4.0
+
+# AI / ML
+openai==1.35.7
+scikit-learn==1.5.1
 nltk==3.8.1
 numpy==1.26.4
 pandas==2.2.2
 
-# Audio Processing
+# Production servers (optional)
+gunicorn==22.0.0        # Linux/macOS deployments
+waitress==3.0.0         # Windows-friendly WSGI server
 
-
-# HTTP Requests
-requests==2.32.2
-
-# Image Processing
-Pillow==10.3.0
-
-# QR Code Generation
-qrcode==7.4.2
-
-# Date and Time
-python-dateutil==2.9.0.post0
-
-# Environment Variables
-python-dotenv==1.0.1
-
-# JSON Web Tokens (if needed)
-PyJWT==2.8.0
-
-# Password Hashing
-bcrypt==4.1.3
-
-# File Upload Handling
-secure-filename==0.1
-
-# Logging
-colorlog==6.8.2
-
-# Development Dependencies
+# Dev/test (optional for contributors)
 pytest==8.2.1
 pytest-flask==1.3.0
 black==24.4.2
 flake8==7.0.0
-
-# Optional: AI/ML Enhancements
-# openai==1.30.1
-# google-cloud-speech==2.26.0
-
-# Optional: Production Server
-gunicorn==22.0.0
-waitress==3.0.0
-
-# Optional: Caching
-# redis==5.0.4
-# Flask-Caching==2.1.0
-
-# Optional: Email Support
-# Flask-Mail==0.9.1
-
-# Optional: Database Migrations
-# Flask-Migrate==4.0.7
-
-# Optional: API Documentation
-# Flask-RESTX==1.3.0
-# marshmallow==3.21.2

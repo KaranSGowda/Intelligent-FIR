@@ -1,0 +1,59 @@
+Intelligent-FIR - Installation Guide (Single File)
+
+Prerequisites
+- Python 3.12+
+- Git
+- Optional (for PDF via pdfkit): wkhtmltopdf on your system PATH
+
+1) Clone the repository
+  git clone https://github.com/<your-org-or-user>/Intelligent-FIR.git
+  cd Intelligent-FIR
+
+2) Create a virtual environment
+  Windows (PowerShell):
+    py -3.12 -m venv .venv
+    . .\.venv\Scripts\Activate.ps1
+
+  macOS/Linux:
+    python3.12 -m venv .venv || python3 -m venv .venv
+    source .venv/bin/activate
+
+3) Upgrade pip and install dependencies
+  python -m pip install --upgrade pip
+  python -m pip install -r requirements.txt
+
+4) Optional: Enable AI features (OpenAI)
+  Set OPENAI_API_KEY only if you need AI features.
+  Windows (PowerShell):
+    $env:OPENAI_API_KEY="sk-..."
+
+  macOS/Linux:
+    export OPENAI_API_KEY="sk-..."
+
+5) Optional: PDF support via pdfkit
+  Install wkhtmltopdf from https://wkhtmltopdf.org/downloads.html and ensure it's on PATH.
+  If not installed, the app can use reportlab-based generation paths where available.
+
+6) Run the application
+  python main.py
+  Open http://localhost:5000 in your browser.
+
+Notes
+- Database: SQLite is used by default and auto-created at first run.
+- Templates live in frontend/src/templates, static files in frontend/static.
+- If you see TemplateNotFound errors, ensure the working directory is the project root.
+- If OpenAI key is not set, AI endpoints return graceful fallback messages; the app still runs.
+- For PDFs, if pdfkit errors occur, install wkhtmltopdf or switch to reportlab paths.
+
+Troubleshooting
+- Upgrade pip using the interpreter inside the venv:
+  python -m pip install --upgrade pip
+
+- Reinstall dependencies:
+  pip install -r requirements.txt --upgrade --force-reinstall
+
+- Common Windows execution policy issue (PowerShell):
+  If activation fails, run PowerShell as Administrator and set:
+    Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+
+
