@@ -3,6 +3,8 @@
  */
 class AudioRecorder {
     constructor(options = {}) {
+        console.log('AudioRecorder constructor called with options:', options);
+        
         this.audioBlob = null;
         this.mediaRecorder = null;
         this.audioChunks = [];
@@ -22,24 +24,146 @@ class AudioRecorder {
         this.stopButton = document.getElementById(options.stopButtonId || 'stopButton');
         this.audioElement = document.getElementById(options.audioElementId || 'audioPlayback');
         this.statusElement = document.getElementById(options.statusElementId || 'recordingStatus');
+        this.textElement = document.getElementById(options.textElementId || 'incident_description');
+
+        console.log('DOM elements found:');
+        console.log('- Record button:', this.recordButton);
+        console.log('- Stop button:', this.stopButton);
+        console.log('- Audio element:', this.audioElement);
+        console.log('- Status element:', this.statusElement);
+        console.log('- Text element:', this.textElement);
 
         this.setupEventListeners();
     }
 
     setupEventListeners() {
+        console.log('Setting up event listeners...');
+        console.log('Record button:', this.recordButton);
+        console.log('Stop button:', this.stopButton);
+        
+        // Check browser compatibility
+        this.checkBrowserCompatibility();
+        
         if (this.recordButton) {
-            this.recordButton.addEventListener('click', () => this.startRecording());
+            this.recordButton.addEventListener('click', () => {
+                console.log('Record button clicked');
+                this.startRecording();
+            });
+            console.log('Record button event listener added');
+        } else {
+            console.error('Record button not found!');
         }
 
         if (this.stopButton) {
-            this.stopButton.addEventListener('click', () => this.stopRecording());
+            this.stopButton.addEventListener('click', () => {
+                console.log('Stop button clicked');
+                this.stopRecording();
+            });
+            console.log('Stop button event listener added');
+        } else {
+            console.error('Stop button not found!');
         }
+    }
+
+    checkBrowserCompatibility() {
+        console.log('Checking browser compatibility...');
+        
+        // Check for getUserMedia support - more comprehensive check
+        const hasModernGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        const hasLegacyGetUserMedia = !!(navigator.getUserMedia || navigator.webkitGetUserMedia || 
+                                        navigator.mozGetUserMedia || navigator.msGetUserMedia);
+        const hasGetUserMedia = hasModernGetUserMedia || hasLegacyGetUserMedia;
+        
+        console.log('Modern getUserMedia support:', hasModernGetUserMedia);
+        console.log('Legacy getUserMedia support:', hasLegacyGetUserMedia);
+        console.log('Total getUserMedia support:', hasGetUserMedia);
+        
+        // Check for MediaRecorder support
+        const hasMediaRecorder = typeof MediaRecorder !== 'undefined';
+        console.log('MediaRecorder support:', hasMediaRecorder);
+        
+        // Check for secure context (HTTPS)
+        const isSecureContext = window.isSecureContext;
+        console.log('Secure context (HTTPS):', isSecureContext);
+        
+        // Check for microphone permissions
+        if (navigator.permissions) {
+            navigator.permissions.query({ name: 'microphone' }).then(result => {
+                console.log('Microphone permission state:', result.state);
+            }).catch(err => {
+                console.log('Could not check microphone permission:', err);
+            });
+        }
+        
+        if (!hasGetUserMedia) {
+            console.error('Browser does not support getUserMedia API');
+            this.updateStatus('Error: Browser does not support audio recording. Please try Chrome, Firefox, or Edge.');
+        } else if (!hasMediaRecorder) {
+            console.error('Browser does not support MediaRecorder API');
+            this.updateStatus('Error: Browser does not support MediaRecorder API. Please try Chrome, Firefox, or Edge.');
+        } else if (!isSecureContext) {
+            console.warn('Not in secure context - recording may not work on HTTP');
+            this.updateStatus('⚠️ Warning: Recording works best on HTTPS connections. Audio recording may not work properly on HTTP. For better compatibility, use HTTPS.');
+        } else {
+            console.log('Browser compatibility check passed');
+            this.updateStatus('✅ Ready to record (HTTPS detected - optimal compatibility)');
+        }
+    }
+
+    // Static method to test browser compatibility
+    static testBrowserCompatibility() {
+        console.log('=== Browser Compatibility Test ===');
+        
+        const results = {
+            getUserMedia: false,
+            mediaRecorder: false,
+            secureContext: false,
+            browser: navigator.userAgent,
+            recommendations: []
+        };
+        
+        // Test getUserMedia
+        const hasModernGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        const hasLegacyGetUserMedia = !!(navigator.getUserMedia || navigator.webkitGetUserMedia || 
+                                        navigator.mozGetUserMedia || navigator.msGetUserMedia);
+        results.getUserMedia = hasModernGetUserMedia || hasLegacyGetUserMedia;
+        
+        // Test MediaRecorder
+        results.mediaRecorder = typeof MediaRecorder !== 'undefined';
+        
+        // Test secure context
+        results.secureContext = window.isSecureContext;
+        
+        // Generate recommendations
+        if (!results.getUserMedia) {
+            results.recommendations.push('Switch to Chrome, Firefox, or Edge browser');
+        }
+        if (!results.mediaRecorder) {
+            results.recommendations.push('Update your browser to a newer version');
+        }
+        if (!results.secureContext) {
+            results.recommendations.push('Use HTTPS connection for better compatibility');
+        }
+        
+        console.log('Test Results:', results);
+        
+        if (results.recommendations.length === 0) {
+            console.log('✅ Browser is compatible with audio recording!');
+        } else {
+            console.log('❌ Browser compatibility issues found:');
+            results.recommendations.forEach(rec => console.log('- ' + rec));
+        }
+        
+        return results;
     }
 
     async startRecording() {
         try {
+            console.log('Starting recording...');
+            
             // Check if mediaDevices is supported
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                console.log('Modern getUserMedia not supported, trying legacy APIs...');
                 // Try older browser APIs
                 const getUserMedia = navigator.getUserMedia ||
                                     navigator.webkitGetUserMedia ||
@@ -55,20 +179,38 @@ class AudioRecorder {
                     getUserMedia({ audio: true }, resolve, reject);
                 });
             } else {
+                console.log('Using modern getUserMedia API...');
                 // Modern API - request microphone access
-                this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                try {
+                    this.stream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true
+                        } 
+                    });
+                } catch (mediaError) {
+                    console.log('Modern getUserMedia failed, trying with basic audio config...');
+                    // Fallback to basic audio configuration
+                    this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                }
             }
 
+            console.log('Microphone access granted, creating MediaRecorder...');
             this.updateStatus('Recording... Speak now');
 
             // Create media recorder with fallback for unsupported mime types
             try {
                 this.mediaRecorder = new MediaRecorder(this.stream, { mimeType: 'audio/webm' });
+                console.log('Using audio/webm format');
             } catch (e) {
+                console.log('audio/webm not supported, trying audio/mp4...');
                 // If audio/webm is not supported, try audio/mp4
                 try {
                     this.mediaRecorder = new MediaRecorder(this.stream, { mimeType: 'audio/mp4' });
+                    console.log('Using audio/mp4 format');
                 } catch (e2) {
+                    console.log('Using default MediaRecorder format');
                     // If that fails too, use the default
                     this.mediaRecorder = new MediaRecorder(this.stream);
                 }
@@ -78,13 +220,18 @@ class AudioRecorder {
 
             // Set up event handlers
             this.mediaRecorder.addEventListener('dataavailable', event => {
-                if (event.data.size > 0) this.audioChunks.push(event.data);
+                if (event.data.size > 0) {
+                    this.audioChunks.push(event.data);
+                    console.log('Audio chunk received, size:', event.data.size);
+                }
             });
 
             this.mediaRecorder.addEventListener('stop', () => {
+                console.log('Recording stopped, processing audio...');
                 // Determine the best mime type to use
                 const mimeType = this.mediaRecorder.mimeType || 'audio/webm';
                 this.audioBlob = new Blob(this.audioChunks, { type: mimeType });
+                console.log('Audio blob created, size:', this.audioBlob.size);
 
                 // Create URL for audio playback
                 if (this.audioElement) {
@@ -99,6 +246,7 @@ class AudioRecorder {
             // Start recording with a timeslice to get data periodically
             this.mediaRecorder.start(1000); // Get data every second
             this.isRecording = true;
+            console.log('Recording started successfully');
 
             // Update UI
             if (this.recordButton) this.recordButton.disabled = true;
@@ -111,15 +259,19 @@ class AudioRecorder {
             // Provide a more user-friendly error message
             let errorMessage = error.message;
             if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                errorMessage = 'Microphone access denied. Please allow microphone access in your browser settings.';
+                errorMessage = 'Microphone access denied. Please allow microphone access in your browser settings and try again.';
             } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
                 errorMessage = 'No microphone found. Please connect a microphone and try again.';
             } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-                errorMessage = 'Could not access microphone. It may be in use by another application.';
+                errorMessage = 'Could not access microphone. It may be in use by another application. Please close other applications using the microphone.';
             } else if (error.name === 'SecurityError') {
-                errorMessage = 'Recording is only available on secure (HTTPS) connections.';
+                errorMessage = 'Recording is only available on secure (HTTPS) connections. Please use HTTPS or localhost.';
             } else if (error.name === 'TypeError' && error.message.includes('getUserMedia')) {
-                errorMessage = 'Cannot access microphone. This browser may not support recording or requires HTTPS.';
+                errorMessage = 'Cannot access microphone. This browser may not support recording or requires HTTPS. Please try Chrome, Firefox, or Edge.';
+            } else if (error.message.includes('Browser does not support')) {
+                errorMessage = error.message; // Keep the original message for browser compatibility errors
+            } else {
+                errorMessage = 'Recording failed: ' + error.message + '. Please try again or use a different browser.';
             }
 
             this.updateStatus('Error: ' + errorMessage);

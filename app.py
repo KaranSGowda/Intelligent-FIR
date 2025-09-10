@@ -1,5 +1,6 @@
 import os
 import logging
+import argparse
 from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
@@ -47,6 +48,7 @@ def create_app():
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB max upload
 
     # Base URL for the application (used for QR codes and verification)
+    # Will be set based on HTTPS mode
     app.config["BASE_URL"] = os.environ.get("BASE_URL", "http://localhost:5000")
 
     # ensure upload directory exists
@@ -127,8 +129,54 @@ def create_app():
 
     return app
 
+def check_ssl_certificates():
+    """Check if SSL certificates exist"""
+    cert_file = "ssl_certs/cert.pem"
+    key_file = "ssl_certs/key.pem"
+    
+    if not os.path.exists(cert_file) or not os.path.exists(key_file):
+        print("❌ SSL certificates not found!")
+        print("Please run: python generate_ssl_cert.py")
+        return False
+    
+    return True
+
 # Create the application instance
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    parser = argparse.ArgumentParser(description='Intelligent FIR System')
+    parser.add_argument('--https', action='store_true', help='Run with HTTPS (requires SSL certificates)')
+    parser.add_argument('--port', type=int, default=5000, help='Port to run the server on (default: 5000)')
+    parser.add_argument('--host', default='0.0.0.0', help='Host to run the server on (default: 0.0.0.0)')
+    
+    args = parser.parse_args()
+    
+    if args.https:
+        if not check_ssl_certificates():
+            exit(1)
+        
+        # Update BASE_URL for HTTPS
+        app.config["BASE_URL"] = f"https://localhost:{args.port}"
+        
+        print("🔐 Starting server with HTTPS...")
+        print(f"   URL: https://localhost:{args.port}")
+        print("   Note: You may see a security warning - this is normal for self-signed certificates")
+        print("   Click 'Advanced' and 'Proceed to localhost' to continue")
+        
+        app.run(
+            debug=True, 
+            host=args.host, 
+            port=args.port,
+            ssl_context=('ssl_certs/cert.pem', 'ssl_certs/key.pem')
+        )
+    else:
+        # Update BASE_URL for HTTP
+        app.config["BASE_URL"] = f"http://localhost:{args.port}"
+        
+        print("🌐 Starting server with HTTP...")
+        print(f"   URL: http://localhost:{args.port}")
+        print("   Note: Audio recording may have compatibility issues on HTTP")
+        print("   For better compatibility, use: python app.py --https")
+        
+        app.run(debug=True, host=args.host, port=args.port)

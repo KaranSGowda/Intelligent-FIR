@@ -15,7 +15,15 @@
                     <div id="chat-messages" class="p-3" style="height: 400px; overflow-y: auto;">
                         <div class="chat-message bot-message mb-3">
                             <div class="message-content p-3 rounded">
-                                <p class="mb-0">Hello! I'm your FIR Assistant. I can help you with information about your cases and IPC sections. How can I help you today?</p>
+                                <p class="mb-0">Hello! I'm your FIR Assistant. I can help you with information about your cases and IPC sections.</p>
+                                <p class="mb-0 mt-2">You can ask me about:</p>
+                                <ul class="mb-0 mt-1">
+                                    <li>Specific IPC sections (e.g., "What is IPC 302?")</li>
+                                    <li>Legal concepts (e.g., "What is the punishment for cheating?")</li>
+                                    <li>Case status and details</li>
+                                    <li>Analysis of complaints</li>
+                                </ul>
+                                <p class="mb-0 mt-2">How can I help you today?</p>
                             </div>
                             <div class="message-time small text-muted mt-1">
                                 <span id="current-time"></span>
@@ -56,6 +64,18 @@
                                             Tell me about IPC section 302
                                         </a>
                                     </li>
+                                    <li class="mb-2">
+                                        <a href="#" class="example-question text-decoration-none">
+                                            <i class="fas fa-question-circle me-2 text-primary"></i>
+                                            What is IPC 376?
+                                        </a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <a href="#" class="example-question text-decoration-none">
+                                            <i class="fas fa-question-circle me-2 text-primary"></i>
+                                            Explain section 498A
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                             <div class="col-md-6">
@@ -70,6 +90,18 @@
                                         <a href="#" class="example-question text-decoration-none">
                                             <i class="fas fa-question-circle me-2 text-primary"></i>
                                             Analyze this complaint: My phone was stolen yesterday from my bag
+                                        </a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <a href="#" class="example-question text-decoration-none">
+                                            <i class="fas fa-question-circle me-2 text-primary"></i>
+                                            List common IPC sections
+                                        </a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <a href="#" class="example-question text-decoration-none">
+                                            <i class="fas fa-question-circle me-2 text-primary"></i>
+                                            What is the punishment for cheating?
                                         </a>
                                     </li>
                                 </ul>
@@ -246,8 +278,18 @@
 
                 // Add bot response to chat
                 if (data.text) {
-                    // Replace newlines with <br> tags
-                    const formattedText = data.text.replace(/\n/g, '<br>');
+                    // Format the response with special handling for IPC sections
+                    let formattedText = data.text;
+                    
+                    // Check if this is an IPC section response
+                    if (formattedText.includes('IPC Section') || formattedText.includes('section') || formattedText.includes('Section')) {
+                        // Format IPC section information with special styling
+                        formattedText = formatIPCResponse(formattedText);
+                    } else {
+                        // Regular formatting - just replace newlines with <br> tags
+                        formattedText = formattedText.replace(/\n/g, '<br>');
+                    }
+                    
                     addMessage(formattedText, false);
                 } else {
                     addMessage("I'm sorry, I couldn't process your request.", false);
@@ -277,6 +319,35 @@
             }
         });
 
+        // Function to format IPC section responses with better styling
+        function formatIPCResponse(text) {
+            // First replace basic newlines with <br> tags
+            let formatted = text.replace(/\n/g, '<br>');
+            
+            // Check for IPC section information pattern
+            const sectionPattern = /Information about IPC Section ([0-9A-Za-z]+):<br><br>Name: ([^<]+)<br>Description: ([^<]+)(?:<br><br>This section typically applies to cases involving ([^<]+))?/g;
+            
+            // Replace with styled version
+            formatted = formatted.replace(sectionPattern, function(match, code, name, description, relevance) {
+                return `<div class="ipc-section">
+                    <div class="ipc-section-title">IPC Section ${code}: ${name}</div>
+                    <div class="ipc-section-description">${description}</div>
+                    ${relevance ? `<div class="ipc-section-relevance">Typically applies to: ${relevance}</div>` : ''}
+                </div>`;
+            });
+            
+            // Also format lists of IPC sections
+            const listItemPattern = /([0-9]+)\. Section ([0-9A-Za-z]+): ([^<]+)(?:<br>\s*([^<]+))?/g;
+            formatted = formatted.replace(listItemPattern, function(match, num, code, name, description) {
+                return `<div class="ipc-section">
+                    <div class="ipc-section-title">${num}. Section ${code}: ${name}</div>
+                    ${description ? `<div class="ipc-section-description">${description}</div>` : ''}
+                </div>`;
+            });
+            
+            return formatted;
+        }
+        
         // Handle example questions
         document.querySelectorAll('.example-question').forEach(function(element) {
             element.addEventListener('click', function(e) {

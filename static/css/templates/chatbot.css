@@ -164,6 +164,32 @@ body {
     word-wrap: break-word;
 }
 
+/* IPC Section Styling */
+.ipc-section {
+    background-color: #fff8f3;
+    border-left: 3px solid var(--embassy-primary);
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.ipc-section-title {
+    font-weight: 600;
+    color: var(--embassy-primary);
+    margin-bottom: 5px;
+}
+
+.ipc-section-description {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.ipc-section-relevance {
+    font-size: 0.85rem;
+    font-style: italic;
+    color: #666;
+}
+
 .message-content.bot {
     background-color: white;
     color: var(--embassy-text-main);
@@ -398,4 +424,4 @@ body {
     .message-text {
         font-size: 0.9rem;
     }
-} 
+}

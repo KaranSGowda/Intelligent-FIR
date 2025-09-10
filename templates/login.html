@@ -4,97 +4,437 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/templates/login.css') }}">
+<style>
+    /* AI-Enhanced Login Styles */
+    .login-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #2C1810 0%, #3D2415 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .login-container::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiNmZmZmZmYwOCIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==');
+        opacity: 0.3;
+    }
+    
+    .ai-login-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .ai-login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .ai-card-header {
+        background: linear-gradient(135deg, #d65a20 0%, #e18456 100%);
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ai-card-header::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxwYXRoIGQ9Ik0xMCwxMCBRMzAsNSA1MCwxMCBUOTAsMTAgUTk1LDMwIDkwLDUwIFQ5MCw5MCBRNzAsOTUgNTAsOTAgVDEwLDkwIFE1LDcwIDEwLDUwIFQxMCwxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmZmZmMTAiIHN0cm9rZS13aWR0aD0iMiIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==');
+        opacity: 0.2;
+    }
+    
+    .ai-form-control {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .ai-form-control:focus {
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(209, 90, 32, 0.3);
+        border-color: #d65a20;
+    }
+    
+    .ai-btn {
+        background: linear-gradient(135deg, #d65a20 0%, #e18456 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 20px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .ai-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: all 0.6s ease;
+    }
+    
+    .ai-btn:hover::before {
+        left: 100%;
+    }
+    
+    .ai-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(209, 90, 32, 0.4);
+    }
+    
+    .ai-role-selector {
+        display: flex;
+        margin-bottom: 20px;
+    }
+    
+    .ai-role-option {
+        flex: 1;
+        text-align: center;
+        padding: 15px 10px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        border: 2px solid transparent;
+    }
+    
+    .ai-role-option.active {
+        border-color: #d65a20;
+        background: rgba(209, 90, 32, 0.1);
+    }
+    
+    .ai-role-option:hover {
+        transform: translateY(-3px);
+    }
+    
+    .ai-role-icon {
+        font-size: 24px;
+        margin-bottom: 8px;
+        display: block;
+    }
+    
+    .ai-assistant-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+    
+    .ai-assistant-bubble {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #d65a20 0%, #e18456 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .ai-assistant-bubble:hover {
+        transform: scale(1.1);
+    }
+    
+    /* Pulse animation for the assistant bubble */
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        50% {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(214, 90, 32, 0.4);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+    }
+    
+    .ai-assistant-icon {
+        color: white;
+        font-size: 24px;
+    }
+    
+    .ai-assistant-dialog {
+        position: absolute;
+        bottom: 70px;
+        right: 0;
+        width: 300px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        transform-origin: bottom right;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: scale(0.8);
+        pointer-events: none;
+    }
+    
+    .ai-assistant-dialog.active {
+        opacity: 1;
+        transform: scale(1);
+        pointer-events: all;
+    }
+    
+    .ai-assistant-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .ai-assistant-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #d65a20 0%, #e18456 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+    }
+    
+    .ai-assistant-name {
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+    
+    .ai-assistant-message {
+        background: #f5f5f5;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    
+    .ai-assistant-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .ai-assistant-btn {
+        flex: 1;
+        padding: 8px;
+        border-radius: 8px;
+        border: none;
+        background: #eee;
+        color: #333;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .ai-assistant-btn:hover {
+        background: #ddd;
+    }
+    
+    .ai-assistant-btn.primary {
+        background: #d65a20;
+        color: white;
+    }
+    
+    .ai-assistant-btn.primary:hover {
+        background: #c04e1a;
+    }
+    
+    .ai-typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 5px;
+    }
+    
+    .ai-typing-dot {
+        width: 8px;
+        height: 8px;
+        background: #d65a20;
+        border-radius: 50%;
+        opacity: 0.6;
+        animation: typing-animation 1.4s infinite ease-in-out both;
+    }
+    
+    .ai-typing-dot:nth-child(1) {
+        animation-delay: 0s;
+    }
+    
+    .ai-typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    .ai-typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    
+    @keyframes typing-animation {
+        0%, 80%, 100% {
+            transform: scale(0.6);
+        }
+        40% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    .ai-suggestions {
+        margin-top: 15px;
+    }
+    
+    .ai-suggestion-chip {
+        display: inline-block;
+        padding: 6px 12px;
+        background: rgba(209, 90, 32, 0.1);
+        border: 1px solid rgba(209, 90, 32, 0.2);
+        border-radius: 20px;
+        margin: 0 5px 5px 0;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .ai-suggestion-chip:hover {
+        background: rgba(209, 90, 32, 0.2);
+    }
+    
+    /* Clicked state for suggestion chips */
+    .ai-suggestion-chip.clicked {
+        background: rgba(209, 90, 32, 0.3);
+        border-color: rgba(209, 90, 32, 0.4);
+        color: #333;
+        transform: scale(0.95);
+    }
+    
+    .ai-demo-credentials {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(5px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        margin-top: 30px;
+    }
+    
+    .ai-demo-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .ai-demo-card:hover {
+        transform: translateY(-3px);
+        background: rgba(255, 255, 255, 0.15);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Login</h4>
-                </div>
-                <div class="card-body p-4">
-                    <form method="POST" action="{{ url_for('auth.login') }}">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                <input type="text" class="form-control" id="username" name="username" required autofocus>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="form-label">Login as:</label>
-                            <div class="row">
-                                <div class="col-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="login_as" id="login_public" value="public" checked>
-                                        <label class="form-check-label" for="login_public">
-                                            <i class="fas fa-user text-info me-1"></i> Public
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="login_as" id="login_police" value="police">
-                                        <label class="form-check-label" for="login_police">
-                                            <i class="fas fa-user-shield text-primary me-1"></i> Police
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="login_as" id="login_admin" value="admin">
-                                        <label class="form-check-label" for="login_admin">
-                                            <i class="fas fa-user-tie text-danger me-1"></i> Admin
-                                        </label>
-                                    </div>
+<div class="login-container d-flex align-items-center justify-content-center py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <!-- AI-Enhanced Login Card -->
+                <div class="ai-login-card">
+                    <div class="ai-card-header text-white">
+                        <h4 class="mb-0 d-flex align-items-center">
+                            <i class="fas fa-robot me-2"></i> AI-Enhanced Login
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm">
+                            <!-- Username Field -->
+                            <div class="mb-3">
+                                <label for="username" class="form-label text-white">Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input type="text" class="form-control ai-form-control" id="username" name="username" required autofocus>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-sign-in-alt me-2"></i> Login
-                            </button>
-                        </div>
-                    </form>
+                            
+                            <!-- Password Field -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label text-white">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    <input type="password" class="form-control ai-form-control" id="password" name="password" required>
+                                </div>
+                            </div>
+                            
+                            <!-- AI Role Selector -->
+                            <div class="mb-4">
+                                <label class="form-label text-white">Login as:</label>
+                                <div class="ai-role-selector">
+                                    <div class="ai-role-option active" data-role="public">
+                                        <i class="fas fa-user ai-role-icon text-info"></i>
+                                        <div>Public</div>
+                                        <input type="radio" name="login_as" value="public" checked class="d-none">
+                                    </div>
+                                    <div class="ai-role-option" data-role="police">
+                                        <i class="fas fa-user-shield ai-role-icon text-primary"></i>
+                                        <div>Police</div>
+                                        <input type="radio" name="login_as" value="police" class="d-none">
+                                    </div>
+                                    <div class="ai-role-option" data-role="admin">
+                                        <i class="fas fa-user-tie ai-role-icon text-danger"></i>
+                                        <div>Admin</div>
+                                        <input type="radio" name="login_as" value="admin" class="d-none">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Login Button -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn ai-btn text-white">
+                                    <i class="fas fa-sign-in-alt me-2"></i> Login
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer text-center" style="background: rgba(255, 255, 255, 0.05);">
+                        <p class="mb-0 text-white">Don't have an account? <a href="{{ url_for('auth.register') }}" class="text-warning">Register</a></p>
+                    </div>
                 </div>
-                <div class="card-footer bg-light text-center">
-                    <p class="mb-0">Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
-                </div>
-            </div>
-            
-            <div class="mt-4 text-center">
-                <h5>Login Credentials for Demo</h5>
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <div class="card mb-3">
-                            <div class="card-body">
+                
+                <!-- AI Demo Credentials -->
+                <div class="ai-demo-credentials text-white">
+                    <h5 class="text-center mb-3"><i class="fas fa-info-circle me-2"></i>Demo Credentials</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="ai-demo-card mb-3">
                                 <h6 class="mb-2"><i class="fas fa-user me-2"></i>Public User</h6>
                                 <small>Username: user<br>Password: password</small>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card mb-3">
-                            <div class="card-body">
+                        <div class="col-md-4">
+                            <div class="ai-demo-card mb-3">
                                 <h6 class="mb-2"><i class="fas fa-user-shield me-2"></i>Police</h6>
                                 <small>Username: police<br>Password: password</small>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card mb-3">
-                            <div class="card-body">
+                        <div class="col-md-4">
+                            <div class="ai-demo-card mb-3">
                                 <h6 class="mb-2"><i class="fas fa-user-tie me-2"></i>Admin</h6>
                                 <small>Username: admin<br>Password: password</small>
                             </div>
@@ -104,5 +444,290 @@
             </div>
         </div>
     </div>
+    
+    <!-- AI Assistant -->
+    <div class="ai-assistant-container">
+        <div class="ai-assistant-bubble" id="aiAssistantBubble">
+            <i class="fas fa-robot ai-assistant-icon"></i>
+        </div>
+        <div class="ai-assistant-dialog" id="aiAssistantDialog">
+            <div class="ai-assistant-header">
+                <div class="ai-assistant-avatar">
+                    <i class="fas fa-robot text-white"></i>
+                </div>
+                <h5 class="ai-assistant-name">FIR Assistant</h5>
+            </div>
+            <div class="ai-assistant-message" id="aiAssistantMessage">
+                Hello! I'm your FIR Assistant. How can I help you with the login process?
+                <div class="ai-typing-indicator" id="aiTypingIndicator" style="display: none;">
+                    <div class="ai-typing-dot"></div>
+                    <div class="ai-typing-dot"></div>
+                    <div class="ai-typing-dot"></div>
+                </div>
+            </div>
+            <div class="ai-suggestions">
+                <div class="ai-suggestion-chip" data-suggestion="forgot-password">I forgot my password</div>
+                <div class="ai-suggestion-chip" data-suggestion="account-type">Which account type should I choose?</div>
+                <div class="ai-suggestion-chip" data-suggestion="create-account">How do I create an account?</div>
+            </div>
+            <div class="ai-assistant-actions mt-3">
+                <button class="ai-assistant-btn" id="aiAssistantClose">Close</button>
+                <button class="ai-assistant-btn primary" id="aiAssistantHelp">More Help</button>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // AI Role Selector
+        const roleOptions = document.querySelectorAll('.ai-role-option');
+        roleOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove active class from all options
+                roleOptions.forEach(opt => opt.classList.remove('active'));
+                
+                // Add active class to clicked option
+                this.classList.add('active');
+                
+                // Set the radio button value
+                const role = this.getAttribute('data-role');
+                document.querySelector(`input[value="${role}"]`).checked = true;
+                
+                // Animate the selection
+                this.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 200);
+            });
+        });
+        
+        // AI Assistant
+        const aiAssistantBubble = document.getElementById('aiAssistantBubble');
+        const aiAssistantDialog = document.getElementById('aiAssistantDialog');
+        const aiAssistantClose = document.getElementById('aiAssistantClose');
+        const aiAssistantHelp = document.getElementById('aiAssistantHelp');
+        const aiAssistantMessage = document.getElementById('aiAssistantMessage');
+        const aiTypingIndicator = document.getElementById('aiTypingIndicator');
+        const suggestionChips = document.querySelectorAll('.ai-suggestion-chip');
+        
+        // Toggle assistant dialog
+        aiAssistantBubble.addEventListener('click', function() {
+            aiAssistantDialog.classList.toggle('active');
+            // Pulse animation when clicked
+            this.style.animation = 'pulse 0.5s';
+            setTimeout(() => {
+                this.style.animation = '';
+            }, 500);
+        });
+        
+        // Close assistant dialog
+        aiAssistantClose.addEventListener('click', function() {
+            aiAssistantDialog.classList.remove('active');
+        });
+        
+        // More help button
+        aiAssistantHelp.addEventListener('click', function() {
+            showTypingIndicator();
+            
+            // Mark button as active
+            this.classList.add('active');
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Processing...';
+            
+            setTimeout(() => {
+                updateAssistantMessage("You can use the demo credentials shown below the login form to try out different user roles. Each role has different permissions in the system. Need anything else?");
+                // Reset button
+                this.classList.remove('active');
+                this.innerHTML = 'More Help';
+                
+                // Add new suggestion chips dynamically
+                const newSuggestions = [
+                    {id: 'fir-process', text: 'What is the FIR process?'},
+                    {id: 'voice-transcription', text: 'Tell me about voice transcription'}
+                ];
+                
+                const suggestionsContainer = document.querySelector('.ai-suggestions');
+                newSuggestions.forEach(suggestion => {
+                    // Check if suggestion already exists
+                    if (!document.querySelector(`[data-suggestion="${suggestion.id}"]`)) {
+                        const chip = document.createElement('div');
+                        chip.className = 'ai-suggestion-chip';
+                        chip.setAttribute('data-suggestion', suggestion.id);
+                        chip.textContent = suggestion.text;
+                        chip.addEventListener('click', handleSuggestionClick);
+                        suggestionsContainer.appendChild(chip);
+                    }
+                });
+            }, 1500);
+        });
+        
+        // Function to handle suggestion clicks
+        function handleSuggestionClick() {
+            const suggestion = this.getAttribute('data-suggestion');
+            const suggestionText = this.textContent;
+            showTypingIndicator();
+            
+            // Mark chip as clicked
+            suggestionChips.forEach(chip => chip.classList.remove('clicked'));
+            this.classList.add('clicked');
+            
+            // For predefined responses, use local handling
+            if (['forgot-password', 'account-type', 'create-account'].includes(suggestion)) {
+                setTimeout(() => {
+                    switch(suggestion) {
+                        case 'forgot-password':
+                            updateAssistantMessage("For this demo, you can use the credentials provided below. In a real system, there would be a password recovery option. Try using username: 'user' and password: 'password' for now.");
+                            break;
+                        case 'account-type':
+                            updateAssistantMessage("Choose 'Public' if you're filing a complaint, 'Police' if you're a law enforcement officer processing FIRs, or 'Admin' if you manage the system. Each role has different capabilities.");
+                            break;
+                        case 'create-account':
+                            updateAssistantMessage("Click the 'Register' link below the login form to create a new account. You'll need to provide some basic information to get started.");
+                            break;
+                    }
+                }, 1500);
+            } else {
+                // For more complex queries, use the chatbot API
+                sendToChatbotAPI(suggestionText);
+            }
+        }
+        
+        // Function to send query to chatbot API
+        async function sendToChatbotAPI(query) {
+            try {
+                console.log("Sending to chatbot API:", query);
+                
+                const response = await fetch('/chatbot/api/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: query }),
+                    credentials: 'same-origin'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log("API response:", data);
+                
+                // Update assistant message with response
+                updateAssistantMessage(data.text);
+                
+            } catch (error) {
+                console.error('Error calling chatbot API:', error);
+                updateAssistantMessage("I'm sorry, I couldn't process your request at the moment. Please try again later.");
+            }
+        }
+        
+        // Handle suggestion chips
+        suggestionChips.forEach(chip => {
+            chip.addEventListener('click', handleSuggestionClick);
+        });
+        
+        // Function to initialize the assistant
+        function initAssistant() {
+            // Show assistant after a short delay
+            setTimeout(() => {
+                // Pulse the assistant bubble to draw attention
+                aiAssistantBubble.style.animation = 'pulse 1s 3';
+                
+                // Show a welcome message if it's the user's first visit
+                if (!sessionStorage.getItem('assistantShown')) {
+                    aiAssistantDialog.classList.add('active');
+                    showTypingIndicator();
+                    
+                    setTimeout(() => {
+                        updateAssistantMessage("Welcome to the Intelligent-FIR system! I'm your AI assistant. How can I help you today?");
+                        sessionStorage.setItem('assistantShown', 'true');
+                    }, 1000);
+                }
+            }, 2000);
+        }
+        
+        // Initialize the assistant when the page loads
+        window.addEventListener('load', initAssistant);
+        
+        // Helper functions
+        function showTypingIndicator() {
+            aiTypingIndicator.style.display = 'flex';
+            aiAssistantMessage.innerHTML = aiAssistantMessage.innerHTML.split('<div class="ai-typing-indicator"')[0];
+            aiAssistantMessage.appendChild(aiTypingIndicator);
+        }
+        
+        function updateAssistantMessage(message) {
+            aiTypingIndicator.style.display = 'none';
+            
+            // Type out the message character by character for a more interactive feel
+            let i = 0;
+            const typingSpeed = 15; // milliseconds per character
+            aiAssistantMessage.innerHTML = '';
+            
+            function typeCharacter() {
+                if (i < message.length) {
+                    aiAssistantMessage.innerHTML += message.charAt(i);
+                    i++;
+                    setTimeout(typeCharacter, typingSpeed);
+                }
+            }
+            
+            typeCharacter();
+        }
+        
+        // Form validation enhancement
+        const loginForm = document.getElementById('loginForm');
+        loginForm.addEventListener('submit', function(e) {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username.trim() === '' || password.trim() === '') {
+                e.preventDefault();
+                showTypingIndicator();
+                
+                setTimeout(() => {
+                    updateAssistantMessage("Please enter both username and password to login. You can use the demo credentials provided below.");
+                    aiAssistantDialog.classList.add('active');
+                }, 800);
+            }
+        });
+        
+        // Auto-suggest demo credentials on field focus
+        document.getElementById('username').addEventListener('focus', function() {
+            if (!aiAssistantDialog.classList.contains('active') && this.value === '') {
+                aiAssistantDialog.classList.add('active');
+                showTypingIndicator();
+                
+                setTimeout(() => {
+                    updateAssistantMessage("Try using one of the demo accounts shown below. For example, username 'user' with password 'password' for public access.");
+                }, 1000);
+            }
+        });
+        
+        // Animated login button effect
+        const loginButton = document.querySelector('.ai-btn');
+        loginButton.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+        });
+        
+        loginButton.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
+        
+        // Show assistant after a delay
+        setTimeout(() => {
+            aiAssistantDialog.classList.add('active');
+            
+            // Auto-hide after 5 seconds if no interaction
+            setTimeout(() => {
+                if (!document.querySelector('.ai-suggestion-chip.clicked')) {
+                    aiAssistantDialog.classList.remove('active');
+                }
+            }, 5000);
+        }, 1500);
+    });
+</script>
 {% endblock %}

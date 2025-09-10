@@ -17,34 +17,17 @@ logger = logging.getLogger(__name__)
 speech_bp = Blueprint('speech', __name__, url_prefix='/api/speech')
 
 # Check if required packages are installed
-required_packages = ['speech_recognition', 'pydub']
-missing_packages = []
 
-for package in required_packages:
-    try:
-        importlib.import_module(package)
-    except ImportError:
-        missing_packages.append(package)
-        logger.error(f"Required package '{package}' is not installed")
+# Use Whisper for transcription
+try:
+    from utils.voice_transcriber import VoiceTranscriber
+    whisper_transcriber = VoiceTranscriber(model_name='base')
+    whisper_available = True
+except Exception as e:
+    logger.error(f"Whisper model not available: {str(e)}")
+    whisper_transcriber = None
+    whisper_available = False
 
-if missing_packages:
-    logger.warning(f"Speech recognition functionality will be limited due to missing packages: {', '.join(missing_packages)}")
-
-# Import speech recognition module only if dependencies are available
-if not missing_packages:
-    try:
-        from utils.speech_recognition import SpeechToText, TranscriptionStatus
-        # Initialize speech recognition
-        speech_to_text = SpeechToText()
-        logger.info("Speech recognition module initialized successfully")
-    except Exception as e:
-        logger.error(f"Error initializing speech recognition module: {str(e)}", exc_info=True)
-        speech_to_text = None
-else:
-    speech_to_text = None
-    logger.error("Speech recognition is disabled due to missing dependencies")
-
-# Store transcription status objects
 transcription_tasks = {}
 
 def allowed_audio_file(filename):
@@ -60,12 +43,12 @@ def upload_audio():
     Returns:
         JSON with task_id for tracking transcription progress
     """
-    # Check if speech recognition is available
-    if speech_to_text is None:
+
+    # Check if Whisper is available
+    if not whisper_available:
         return jsonify({
-            'error': 'Speech recognition is not available. Required packages may be missing.',
-            'missing_packages': missing_packages
-        }), 503  # Service Unavailable
+            'error': 'Whisper model is not available. Please check installation.'
+        }), 503
 
     try:
         # Check if file is in request
@@ -134,19 +117,39 @@ def upload_audio():
                 cleanup_thread.daemon = True
                 cleanup_thread.start()
 
-        # Start transcription asynchronously with specified language
-        logger.info(f"Starting async transcription with language: {language_code}")
-        status = speech_to_text.transcribe_audio_async(file_path, callback, language_code)
 
-        # Store initial status
-        transcription_tasks[task_id] = status.to_dict()
+        # Start transcription asynchronously with Whisper
+        import threading
+        def whisper_transcribe_async():
+            if whisper_transcriber is None:
+                status_dict = {
+                    'status': 'failed',
+                    'error': 'Whisper model is not available. Please check installation.'
+                }
+                callback(status_dict)
+                return
+            try:
+                text = whisper_transcriber.transcribe(file_path, language=language_code)
+                status_dict = {
+                    'status': 'completed',
+                    'result': text,
+                    'language': language_code
+                }
+            except Exception as e:
+                status_dict = {
+                    'status': 'failed',
+                    'error': str(e)
+                }
+            callback(status_dict)
 
-        # Return task ID for status polling
+        transcription_tasks[task_id] = {'status': 'processing'}
+        threading.Thread(target=whisper_transcribe_async, daemon=True).start()
+
         return jsonify({
             'task_id': task_id,
             'message': f'Audio file uploaded successfully, transcription in progress with language: {language_code}',
             'language': language_code,
-            'status': status.to_dict()
+            'status': transcription_tasks[task_id]
         })
 
     except Exception as e:
@@ -164,12 +167,12 @@ def get_transcription_status(task_id):
     Returns:
         JSON with the current status of the transcription
     """
-    # Check if speech recognition is available
-    if speech_to_text is None:
+
+    # Check if Whisper is available
+    if not whisper_available:
         return jsonify({
-            'error': 'Speech recognition is not available. Required packages may be missing.',
-            'missing_packages': missing_packages
-        }), 503  # Service Unavailable
+            'error': 'Whisper model is not available. Please check installation.'
+        }), 503
 
     if task_id not in transcription_tasks:
         return jsonify({'error': 'Task not found'}), 404
@@ -186,12 +189,12 @@ def transcribe_audio():
     Returns:
         JSON with transcription result
     """
-    # Check if speech recognition is available
-    if speech_to_text is None:
+
+    # Check if Whisper is available
+    if not whisper_available:
         return jsonify({
-            'error': 'Speech recognition is not available. Required packages may be missing.',
-            'missing_packages': missing_packages
-        }), 503  # Service Unavailable
+            'error': 'Whisper model is not available. Please check installation.'
+        }), 503
 
     try:
         # Check if file is in request
@@ -237,9 +240,17 @@ def transcribe_audio():
         from utils.speech_recognition import TranscriptionStatus
         status = TranscriptionStatus()
 
-        # Perform transcription (blocking) with specified language
-        logger.info(f"Starting transcription with language: {language_code}")
-        result = speech_to_text.transcribe_audio(file_path, status, language_code)
+
+        # Perform transcription (blocking) with Whisper
+        logger.info(f"Starting Whisper transcription with language: {language_code}")
+        if whisper_transcriber is None:
+            status = {'status': 'failed', 'error': 'Whisper model is not available. Please check installation.'}
+        else:
+            try:
+                text = whisper_transcriber.transcribe(file_path, language=language_code)
+                status = {'status': 'completed', 'result': text, 'language': language_code}
+            except Exception as e:
+                status = {'status': 'failed', 'error': str(e)}
 
         # Delete the file after transcription
         try:
@@ -247,11 +258,10 @@ def transcribe_audio():
         except Exception as e:
             logger.warning(f"Failed to delete temporary file: {str(e)}")
 
-        # Return the result
         return jsonify({
-            'transcription': result,
+            'transcription': status.get('result'),
             'language': language_code,
-            'status': status.to_dict()
+            'status': status
         })
 
     except Exception as e:
@@ -284,10 +294,11 @@ def get_supported_languages():
         # Get current user language
         current_language = get_user_language()
 
-        # Add speech recognition status
+
+        # Add Whisper status
         speech_recognition_status = {
-            "available": speech_to_text is not None,
-            "missing_packages": missing_packages if missing_packages else []
+            "available": whisper_available,
+            "missing_packages": []
         }
 
         return jsonify({
@@ -312,10 +323,11 @@ def get_supported_languages():
             {"code": "pa-IN", "name": "Punjabi", "native_name": "ਪੰਜਾਬੀ", "flag": "🇮🇳", "direction": "ltr"},
         ]
 
-        # Add speech recognition status
+
+        # Add Whisper status
         speech_recognition_status = {
-            "available": speech_to_text is not None,
-            "missing_packages": missing_packages if missing_packages else []
+            "available": whisper_available,
+            "missing_packages": []
         }
 
         return jsonify({
@@ -334,19 +346,15 @@ def test_speech_recognition():
     """
     # Check for required packages
     package_status = {}
-    for package in ['speech_recognition', 'pydub']:
+
+    for package in ['openai-whisper']:
         try:
+            import importlib
             module = importlib.import_module(package)
-            if package == 'speech_recognition':
-                package_status[package] = {
-                    'installed': True,
-                    'version': getattr(module, '__version__', 'unknown')
-                }
-            else:
-                package_status[package] = {
-                    'installed': True,
-                    'version': getattr(module, 'version', 'unknown')
-                }
+            package_status[package] = {
+                'installed': True,
+                'version': getattr(module, '__version__', 'unknown')
+            }
         except ImportError:
             package_status[package] = {
                 'installed': False,
@@ -371,21 +379,22 @@ def test_speech_recognition():
         }
 
     # Check speech recognition module
+
     module_status = {
-        'initialized': speech_to_text is not None,
-        'missing_packages': missing_packages
+        'initialized': whisper_available,
+        'missing_packages': []
     }
 
     # Return comprehensive status
+
     return jsonify({
-        'status': 'success' if speech_to_text is not None else 'error',
-        'message': 'Speech recognition is working correctly' if speech_to_text is not None else 'Speech recognition is not available',
+        'status': 'success' if whisper_available else 'error',
+        'message': 'Whisper speech recognition is working correctly' if whisper_available else 'Whisper is not available',
         'packages': package_status,
         'directory': directory_status,
         'module': module_status,
         'installation_instructions': {
-            'speech_recognition': 'pip install SpeechRecognition',
-            'pydub': 'pip install pydub',
+            'openai-whisper': 'pip install openai-whisper',
             'ffmpeg': 'Install ffmpeg from https://ffmpeg.org/download.html or use your system package manager'
         }
     })

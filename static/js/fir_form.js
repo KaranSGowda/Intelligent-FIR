@@ -3,6 +3,25 @@
  * Handles form submission, voice recording, and evidence uploads
  */
 document.addEventListener('DOMContentLoaded', function() {
+    // Run browser compatibility test first
+    console.log('Running browser compatibility test...');
+    const compatibilityResults = AudioRecorder.testBrowserCompatibility();
+    
+    // Show compatibility status to user
+    if (compatibilityResults.recommendations.length > 0) {
+        const alertContainer = document.getElementById('alertContainer');
+        if (alertContainer) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-warning alert-dismissible fade show';
+            alert.innerHTML = `
+                <strong>Browser Compatibility Notice:</strong><br>
+                ${compatibilityResults.recommendations.join('<br>')}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            alertContainer.appendChild(alert);
+        }
+    }
+    
     // Load transcription from multiple sources
     const descriptionInput = document.getElementById('incident_description');
     if (descriptionInput) {
@@ -33,6 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
         stopButtonId: 'stopButton',
         audioElementId: 'audioPlayback',
         statusElementId: 'recordingStatus',
+        textElementId: 'incident_description',
         languageCode: function() {
             // Get selected language from dropdown
             if (recordingLanguage && recordingLanguage.value) {
