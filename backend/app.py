@@ -65,6 +65,11 @@ def create_app():
     # initialize the app with the extensions
     db.init_app(app)
     login_manager.init_app(app)
+    # Mongo configuration
+    app.config['MONGO_URI'] = os.environ.get('MONGO_URI', 'mongodb://localhost:27017')
+    app.config['MONGO_DB_NAME'] = os.environ.get('MONGO_DB_NAME', 'intelligent_fir')
+    from extensions import init_mongo, mongo_db
+    init_mongo(app)
     login_manager.login_view = "auth.login"  # type: ignore
 
     with app.app_context():
@@ -113,6 +118,55 @@ def create_app():
         # Create all tables
         db.create_all()
 
+        # Seed demo users for testing if they don't exist (SQL)
+        try:
+            from models import User, Role
+
+            def ensure_demo_user(username: str, role: str, full_name: str):
+                existing = User.query.filter_by(username=username).first()
+                if not existing:
+                    demo = User()
+                    demo.username = username
+                    demo.email = f"{username}@example.com"
+                    demo.full_name = full_name
+                    demo.role = role
+                    demo.set_password("password")
+                    db.session.add(demo)
+                    db.session.commit()
+                    logger.info(f"Created demo user '{username}' with role '{role}'.")
+
+            ensure_demo_user("user", Role.PUBLIC, "Public User")
+            ensure_demo_user("police", Role.POLICE, "Police Officer")
+            ensure_demo_user("admin", Role.ADMIN, "Administrator")
+        except Exception as e:
+            logger.error(f"Error seeding demo users: {str(e)}")
+
+        # Seed demo users into Mongo as well
+        try:
+            if mongo_db is not None:
+                def ensure_mongo_user(username: str, role: str, full_name: str):
+                    existing = mongo_db.users.find_one({'username': username})
+                    if not existing:
+                        from werkzeug.security import generate_password_hash
+                        doc = {
+                            'username': username,
+                            'email': f"{username}@example.com",
+                            'full_name': full_name,
+                            'role': role,
+                            'password_hash': generate_password_hash('password'),
+                            'created_at': datetime.utcnow()
+                        }
+                        mongo_db.users.insert_one(doc)
+                        logger.info(f"Seeded Mongo demo user '{username}' ({role})")
+
+                from models import Role as SqlRole  # reuse constants
+                from datetime import datetime
+                ensure_mongo_user('user', SqlRole.PUBLIC, 'Public User')
+                ensure_mongo_user('police', SqlRole.POLICE, 'Police Officer')
+                ensure_mongo_user('admin', SqlRole.ADMIN, 'Administrator')
+        except Exception as me:
+            logger.error(f"Error seeding Mongo demo users: {str(me)}")
+
         # Initialize legal sections database
         from utils.legal_mapper import initialize_legal_sections
         initialize_legal_sections()
@@ -133,8 +187,5 @@ def create_app():
 
     return app
 
-# Create the application instance
-app = create_app()
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+# Note: Do not create or run the app at import time.
+# Use the application factory `create_app()` from the entry point (e.g., main.py)

@@ -12,6 +12,7 @@ Flask-Cors==4.0.1
 # ORM / DB
 SQLAlchemy==2.0.30
 psycopg2-binary==2.9.9  # optional; only if using Postgres
+pymongo==4.9.1          # MongoDB driver
 
 # Core libs (transitive deps of Flask pinned by Flask, but left implicit)
 # Jinja2 / Werkzeug / MarkupSafe / itsdangerous provided via Flask
