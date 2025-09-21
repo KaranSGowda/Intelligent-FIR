@@ -2,7 +2,7 @@
 Debug routes for troubleshooting application issues.
 """
 
-from flask import Blueprint, jsonify, current_app
+from flask import Blueprint, jsonify
 import os
 import logging
 import subprocess
@@ -14,5 +14,6 @@ logger = logging.getLogger(__name__)
 
 # Create blueprint
 debug_bp = Blueprint('debug', __name__, url_prefix='/api/debug')
+    
 
 

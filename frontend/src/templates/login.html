@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block content %}
+{% set login_as = request.args.get('login_as', 'public') %}
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -30,13 +31,21 @@
                                 <input type="password" class="form-control" id="password" name="password" required>
                             </div>
                         </div>
+                        <div class="mb-3 d-none" id="idNumberGroup">
+                            <label for="id_number" class="form-label">ID Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-id-badge"></i></span>
+                                <input type="text" class="form-control" id="id_number" name="id_number" placeholder="Enter your official ID number (e.g., POLICE123)">
+                            </div>
+                            <div class="form-text">Required for Police and Admin login. Demo Police ID: <strong>POLICE123</strong></div>
+                        </div>
                         
                         <div class="mb-4">
                             <label class="form-label">Login as:</label>
                             <div class="row">
                                 <div class="col-4">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="login_as" id="login_public" value="public" checked>
+                                        <input class="form-check-input" type="radio" name="login_as" id="login_public" value="public" {% if login_as == 'public' %}checked{% endif %}>
                                         <label class="form-check-label" for="login_public">
                                             <i class="fas fa-user text-info me-1"></i> Public
                                         </label>
@@ -44,7 +53,7 @@
                                 </div>
                                 <div class="col-4">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="login_as" id="login_police" value="police">
+                                        <input class="form-check-input" type="radio" name="login_as" id="login_police" value="police" {% if login_as == 'police' %}checked{% endif %}>
                                         <label class="form-check-label" for="login_police">
                                             <i class="fas fa-user-shield text-primary me-1"></i> Police
                                         </label>
@@ -52,7 +61,7 @@
                                 </div>
                                 <div class="col-4">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="login_as" id="login_admin" value="admin">
+                                        <input class="form-check-input" type="radio" name="login_as" id="login_admin" value="admin" {% if login_as == 'admin' %}checked{% endif %}>
                                         <label class="form-check-label" for="login_admin">
                                             <i class="fas fa-user-tie text-danger me-1"></i> Admin
                                         </label>
@@ -60,7 +69,6 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-sign-in-alt me-2"></i> Login
@@ -68,11 +76,12 @@
                         </div>
                     </form>
                 </div>
-                <div class="card-footer bg-light text-center">
-                    <p class="mb-0">Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
-                </div>
+                <div class="d-grid">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary">
+                      <i class="fas fa-user-plus me-2"></i> Register
+                    </a>
+                  </div>
             </div>
-            
             <div class="mt-4 text-center">
                 <h5>Login Credentials for Demo</h5>
                 <div class="row mt-3">
@@ -88,7 +97,7 @@
                         <div class="card mb-3">
                             <div class="card-body">
                                 <h6 class="mb-2"><i class="fas fa-user-shield me-2"></i>Police</h6>
-                                <small>Username: police<br>Password: password</small>
+                                <small>Username: police<br>Password: password<br>ID Number: <strong>POLICE123</strong></small>
                             </div>
                         </div>
                     </div>
@@ -105,4 +114,32 @@
         </div>
     </div>
 </div>
+<script>
+    (function() {
+        const radioPublic = document.getElementById('login_public');
+        const radioPolice = document.getElementById('login_police');
+        const radioAdmin = document.getElementById('login_admin');
+        const idGroup = document.getElementById('idNumberGroup');
+        const idInput = document.getElementById('id_number');
+
+        function updateIdVisibility() {
+            const isSpecial = (radioPolice && radioPolice.checked) || (radioAdmin && radioAdmin.checked);
+            if (isSpecial) {
+                idGroup.classList.remove('d-none');
+                idInput.setAttribute('required', 'required');
+            } else {
+                idGroup.classList.add('d-none');
+                idInput.removeAttribute('required');
+                idInput.value = '';
+            }
+        }
+
+        [radioPublic, radioPolice, radioAdmin].forEach(function(r){
+            if (r) r.addEventListener('change', updateIdVisibility);
+        });
+
+        // Initialize on page load based on current selection or URL preset
+        updateIdVisibility();
+    })();
+</script>
 {% endblock %}

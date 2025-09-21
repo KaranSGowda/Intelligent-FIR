@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from extensions import db
+from extensions import db, mongo_db
+from datetime import datetime
 from models import User, Role
 import logging
 
@@ -27,6 +28,27 @@ def login():
 
         try:
             user = User.query.filter_by(username=username).first()
+            # Fallback to MongoDB if not found in SQL
+            if not user and mongo_db is not None:
+                doc = mongo_db.users.find_one({'username': username})
+                if doc:
+                    # Ensure a persistent SQL user exists so Flask-Login can load the session user
+                    user = User.query.filter_by(username=doc.get('username')).first()
+                    if not user:
+                        user = User()
+                        user.username = doc.get('username') or username
+                        user.email = doc.get('email')
+                        user.full_name = doc.get('full_name') or doc.get('username')
+                        user.role = doc.get('role') or Role.PUBLIC
+                        # Use the same password hash stored in Mongo so credentials remain valid
+                        user.password_hash = doc.get('password_hash')
+                        try:
+                            db.session.add(user)
+                            db.session.commit()
+                            logger.info(f"Created SQL mirror for Mongo user '{user.username}'")
+                        except Exception as se:
+                            db.session.rollback()
+                            logger.error(f"Failed to create SQL mirror for Mongo user '{username}': {str(se)}")
 
             if not user or not user.check_password(password):
                 flash('Invalid username or password.', 'danger')
@@ -108,34 +130,57 @@ def register():
             flash('Invalid role selected.', 'danger')
             return render_template('register.html')
 
+        # Check uniqueness in Mongo first if available, else in SQL
         try:
-            # Check if username or email already exists
-            user_exists = User.query.filter((User.username == username) | (User.email == email)).first()
-            if user_exists:
-                flash('Username or email already exists.', 'danger')
-                return render_template('register.html')
+            if mongo_db is not None:
+                existing = mongo_db.users.find_one({'$or': [{'username': username}, {'email': email}]})
+                if existing:
+                    flash('Username or email already exists.', 'danger')
+                    return render_template('register.html')
+            else:
+                user_exists = User.query.filter((User.username == username) | (User.email == email)).first()
+                if user_exists:
+                    flash('Username or email already exists.', 'danger')
+                    return render_template('register.html')
         except Exception as e:
             logger.error(f"Registration validation error: {str(e)}")
             flash('An error occurred during registration. Please try again.', 'danger')
             return render_template('register.html')
 
         try:
-            # Create new user with selected role
-            new_user = User()
-            new_user.username = username
-            new_user.email = email
-            new_user.full_name = full_name
-            new_user.phone = phone if phone else None
-            new_user.address = address if address else None
-            new_user.role = role
-            new_user.set_password(password)
+            if mongo_db is not None:
+                # Create user in MongoDB
+                user_doc = {
+                    'username': username,
+                    'email': email,
+                    'full_name': full_name,
+                    'phone': phone if phone else None,
+                    'address': address if address else None,
+                    'role': role,
+                    'password_hash': generate_password_hash(password),
+                    'created_at': datetime.utcnow()
+                }
+                mongo_db.users.insert_one(user_doc)
+            else:
+                # Fallback: Create user in SQL database
+                new_user = User()
+                new_user.username = username
+                new_user.email = email
+                new_user.full_name = full_name
+                new_user.phone = phone if phone else None
+                new_user.address = address if address else None
+                new_user.role = role
+                new_user.set_password(password)
 
-            db.session.add(new_user)
-            db.session.commit()
+                db.session.add(new_user)
+                db.session.commit()
             flash(f'Registration successful! You can now log in as a {role} user.', 'success')
             return redirect(url_for('auth.login'))
         except Exception as e:
-            db.session.rollback()
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
             logger.error(f"Registration error: {str(e)}")
             flash('An error occurred during registration. Please try again.', 'danger')
             return render_template('register.html')
